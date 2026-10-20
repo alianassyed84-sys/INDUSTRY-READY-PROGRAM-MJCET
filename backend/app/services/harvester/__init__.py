@@ -24,6 +24,7 @@ from app.services.harvester.importer import run_csv_import
 from app.services.harvester.insights import compute_product_insights
 from app.services.harvester.price_history import (
     get_price_history,
+    poll_product_price,
     record_price_snapshot,
 )
 from app.services.harvester.provider import (
@@ -62,6 +63,7 @@ __all__ = [
     "compute_product_insights",
     "get_price_history",
     "get_product_provider",
+    "poll_product_price",
     "record_price_snapshot",
     "run_csv_import",
     "validate_amazon_in_url",

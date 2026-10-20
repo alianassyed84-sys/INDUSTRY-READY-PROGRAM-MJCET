@@ -260,10 +260,18 @@ class PriceHistoryResponse(BaseModel):
 
     product_id: str
     observations_count: int = Field(0, ge=0)
+    first_observed_price: float | None = None
+    latest_observed_price: float | None = None
     current_price: float | None = None
     highest_observed_price: float | None = None
     lowest_observed_price: float | None = None
+    price_change_amount: float | None = None
+    price_change_percentage: float | None = None
     currency: str = "INR"
+    is_multi_currency: bool = False
+    tracking_start: datetime | None = None
+    tracking_end: datetime | None = None
+    tracking_period_days: float = Field(0.0, ge=0.0)
     is_historical_peak: bool = False
     status_note: str
     snapshots: list[PriceSnapshotSchema] = Field(default_factory=list)

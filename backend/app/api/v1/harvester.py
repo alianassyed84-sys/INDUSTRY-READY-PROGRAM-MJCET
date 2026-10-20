@@ -20,6 +20,7 @@ Design notes
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -61,7 +62,9 @@ from app.services.harvester.importer import (
 )
 from app.services.harvester.insights import compute_product_insights
 from app.services.harvester.price_history import (
+    PriceHistorySummary,
     get_price_history,
+    poll_product_price,
     record_price_snapshot,
 )
 from app.services.harvester.provider import (
@@ -292,6 +295,161 @@ async def get_product_insights(
     return insights
 
 
+def _build_price_history_response(
+    history: PriceHistorySummary,
+) -> PriceHistoryResponse:
+    return PriceHistoryResponse(
+        product_id=history.product_id,
+        observations_count=history.observations_count,
+        first_observed_price=history.first_observed_price,
+        latest_observed_price=history.latest_observed_price,
+        current_price=history.current_price,
+        highest_observed_price=history.highest_observed_price,
+        lowest_observed_price=history.lowest_observed_price,
+        price_change_amount=history.price_change_amount,
+        price_change_percentage=history.price_change_percentage,
+        currency=history.currency,
+        is_multi_currency=history.is_multi_currency,
+        tracking_start=history.tracking_start,
+        tracking_end=history.tracking_end,
+        tracking_period_days=history.tracking_period_days,
+        is_historical_peak=history.is_historical_peak,
+        status_note=history.status_note,
+        snapshots=[
+            PriceSnapshotSchema(
+                price=s.price,
+                original_price=s.original_price,
+                currency=s.currency,
+                source=s.source,
+                observed_at=s.observed_at,
+            )
+            for s in history.snapshots
+        ],
+    )
+
+
+@router.get(
+    "/products/{product_id}/price-history",
+    response_model=PriceHistoryResponse,
+    summary="Get chronological price history and analytics for a product",
+    description=(
+        "Retrieves recorded price snapshots, tracking period, first/latest "
+        "observed price, min/max observed prices, price change amount and "
+        "percentage, and multi-currency guards."
+    ),
+    tags=["harvester"],
+)
+async def get_product_price_history(
+    product_id: str,
+    settings: SettingsDep,
+    db: DbDep,
+    start_date: Annotated[
+        datetime | None,
+        Query(description="Filter snapshots observed on or after this timestamp"),
+    ] = None,
+    end_date: Annotated[
+        datetime | None,
+        Query(description="Filter snapshots observed on or before this timestamp"),
+    ] = None,
+    limit: Annotated[
+        int,
+        Query(ge=1, le=500, description="Max snapshots to return"),
+    ] = 100,
+    offset: Annotated[
+        int,
+        Query(ge=0, description="Pagination offset"),
+    ] = 0,
+) -> PriceHistoryResponse:
+    """Retrieve chronological price history and summary metrics for a product."""
+    _require_db(settings)
+    assert db is not None
+
+    clean_id = (product_id or "").strip()
+    product = await get_product_by_id(db, clean_id)
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product '{clean_id}' not found.",
+        )
+
+    try:
+        history = await get_price_history(
+            session=db,
+            product_id=clean_id,
+            start_date=start_date,
+            end_date=end_date,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(exc),
+        ) from exc
+
+    return _build_price_history_response(history)
+
+
+@router.post(
+    "/products/{product_id}/check-price",
+    response_model=PriceHistoryResponse,
+    summary="Poll configured provider for a fresh price observation",
+    description=(
+        "Queries the active provider for current product pricing, records "
+        "a new snapshot if valid, and returns updated price history statistics."
+    ),
+    tags=["harvester"],
+)
+async def check_product_price(
+    product_id: str,
+    settings: SettingsDep,
+    db: DbDep,
+) -> PriceHistoryResponse:
+    """Poll the configured provider for current price and record a snapshot."""
+    _require_db(settings)
+    assert db is not None
+
+    clean_id = (product_id or "").strip()
+    product = await get_product_by_id(db, clean_id)
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product '{clean_id}' not found.",
+        )
+
+    provider = get_product_provider(settings)
+    try:
+        await poll_product_price(session=db, product=product, provider=provider)
+    except ProviderNotConfiguredError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Provider is not configured: {exc}",
+        ) from exc
+    except ProviderAuthenticationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Provider authentication failed: {exc}",
+        ) from exc
+    except ProductNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product '{clean_id}' not found by provider: {exc}",
+        ) from exc
+    except ProviderRateLimitError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Provider rate limit exceeded: {exc}",
+        ) from exc
+    except ProviderError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Provider error: {exc}",
+        ) from exc
+
+    history = await get_price_history(session=db, product_id=clean_id)
+    return _build_price_history_response(history)
+
+
 # ---------------------------------------------------------------------------
 # Reviews
 # ---------------------------------------------------------------------------
@@ -499,26 +657,7 @@ async def analyze_url(
         created_at=product.created_at,
     )
 
-    price_history_resp = PriceHistoryResponse(
-        product_id=history_check.product_id,
-        observations_count=history_check.observations_count,
-        current_price=history_check.current_price,
-        highest_observed_price=history_check.highest_observed_price,
-        lowest_observed_price=history_check.lowest_observed_price,
-        currency=history_check.currency,
-        is_historical_peak=history_check.is_historical_peak,
-        status_note=history_check.status_note,
-        snapshots=[
-            PriceSnapshotSchema(
-                price=s.price,
-                original_price=s.original_price,
-                currency=s.currency,
-                source=s.source,
-                observed_at=s.observed_at,
-            )
-            for s in history_check.snapshots
-        ],
-    )
+    price_history_resp = _build_price_history_response(history_check)
 
     return ProductUrlAnalysisResponse(
         asin=asin,
