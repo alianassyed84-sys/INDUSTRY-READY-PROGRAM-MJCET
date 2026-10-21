@@ -51,4 +51,4 @@ Deferred to future releases:
 | REQ-HARV-01 | Phase 2 | Complete |
 | REQ-CAT-01 | Phase 2 | Complete |
 | REQ-INSIGHT-01 | Phase 2 | Complete |
-| REQ-PRICE-01 | Phase 3 | Pending |
+| REQ-PRICE-01 | Phase 3 | Complete |
