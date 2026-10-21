@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/harvester.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Review Harvester",
+  "summary": "Technical specification for importing product review CSV datasets into PostgreSQL, data models, endpoints, and job status tracking.",
+  "scope": ["harvester", "csv-import", "collection-job", "product-api", "review-api"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

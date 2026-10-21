@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/readability_auditor.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Module 707: Readability Auditor Documentation",
+  "summary": "Technical specification for zero-dependency linguistic complexity scoring including Flesch, FKGL, Fog, Coleman-Liau, and Dale-Chall metrics.",
+  "scope": ["readability", "flesch", "flesch-kincaid", "coleman-liau", "dale-chall"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

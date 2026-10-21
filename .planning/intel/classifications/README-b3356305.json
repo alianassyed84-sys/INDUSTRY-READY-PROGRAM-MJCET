@@ -1,0 +1,21 @@
+{
+  "source_path": "README.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse",
+  "summary": "Project overview describing ReviewPulse AI product review intelligence backend architecture, current endpoints, and setup instructions.",
+  "scope": ["fastapi", "postgresql", "linguistic-analysis", "harvester", "reviewpulse"],
+  "cross_refs": [
+    "backend/",
+    "docs/readability_auditor.md",
+    "docs/language_detector.md",
+    "docs/topic_labeler.md",
+    "docs/sentiment_analyzer.md",
+    "docs/harvester.md",
+    "docs/development.md"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

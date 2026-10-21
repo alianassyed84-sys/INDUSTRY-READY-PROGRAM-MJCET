@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/development.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse backend development (Windows PowerShell)",
+  "summary": "Local development guidelines, Python virtual environment commands, PowerShell execution policy workarounds, and test commands.",
+  "scope": ["local-setup", "python-venv", "fastapi", "testing", "powershell"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

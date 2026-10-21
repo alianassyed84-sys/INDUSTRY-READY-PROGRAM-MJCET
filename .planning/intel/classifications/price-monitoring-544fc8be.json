@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/price_monitoring.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Price Tracking & Monitoring Architecture (Milestone 7)",
+  "summary": "Technical architecture for price tracking, stateless polling endpoints, deduplication rules, and target background queue design.",
+  "scope": ["price-tracking", "price-snapshot", "rate-limiting", "scheduler-architecture"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/sentiment_analyzer.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Module 710: Sentiment Analysis & Review Polarity Engine",
+  "summary": "Technical specification for zero-dependency sentiment polarity scoring, modifier rules, and aspect-based sentiment analysis REST endpoint.",
+  "scope": ["sentiment-analysis", "vader", "aspect-sentiment", "fastapi-endpoint"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

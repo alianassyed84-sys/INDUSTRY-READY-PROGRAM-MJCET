@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/language_detector.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Module 708: Language Identifier Documentation",
+  "summary": "Technical specification for zero-dependency n-gram rank-order language detection and script fast-path REST endpoint.",
+  "scope": ["language-detection", "ngram-profiles", "fastapi-endpoint", "confidence-threshold"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

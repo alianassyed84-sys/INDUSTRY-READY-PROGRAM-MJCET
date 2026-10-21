@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/authorized_providers.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Authorized Amazon Data Providers Investigation (Milestone 6C)",
+  "summary": "Records decision prohibiting live Amazon web scraping, documenting PA-API 5.0 review limitations and requiring mock fallback without live credentials.",
+  "scope": ["amazon-data-providers", "pa-api-5.0", "rainforest-api", "scraping-prohibition"],
+  "cross_refs": [],
+  "locked": true,
+  "precedence": null,
+  "notes": ""
+}

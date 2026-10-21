@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/topic_labeler.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "ReviewPulse — Module 709: Topic Labeler (TF-IDF Keyphrase Extraction)",
+  "summary": "Technical specification for TF-IDF keyphrase extraction from review corpora, n-gram extraction, and REST endpoint.",
+  "scope": ["topic-labeling", "tfidf", "keyphrase-extraction", "fastapi-endpoint"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}
