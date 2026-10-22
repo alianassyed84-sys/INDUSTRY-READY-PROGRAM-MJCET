@@ -20,14 +20,21 @@ Design notes
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth import AuthenticatedUser, get_current_user, require_admin
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
+from app.core.rate_limit import (
+    rate_limit_default,
+    rate_limit_harvester,
+    rate_limit_price_check,
+)
 from app.models.collection_job import CollectionJob
 from app.schemas.harvester import (
     AnalyzeUrlRequest,
@@ -81,6 +88,8 @@ logger = logging.getLogger(__name__)
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 DbDep = Annotated[AsyncSession | None, Depends(get_db)]
+CurrentUserDep = Annotated[AuthenticatedUser, Depends(get_current_user)]
+AdminUserDep = Annotated[AuthenticatedUser, Depends(require_admin)]
 
 # ponytail: cap pagination to avoid accidental full-table dumps
 _MAX_LIMIT = 100
@@ -107,38 +116,40 @@ def _require_db(settings: Settings) -> None:
     summary="Start a review import job",
     description=(
         "Starts an import job for the specified source and runs it synchronously "
-        "(completes before responding). Currently only 'csv_amazon' is supported. "
-        "Repeated runs are safe — duplicate products and reviews are skipped."
+        "(completes before responding). Requires administrative privileges. "
+        "Source CSV path is determined strictly by server configuration."
     ),
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_harvester)],
 )
 async def start_job(
     payload: JobStartRequest,
     settings: SettingsDep,
     db: DbDep,
+    _admin: AdminUserDep,
 ) -> JobStatusResponse:
     """Create a CollectionJob, run the import, and return the final status."""
     _require_db(settings)
     assert db is not None
 
-    csv_path = payload.csv_path or settings.amazon_csv_path
-    if not csv_path:
+    csv_path = settings.amazon_csv_path
+    if not csv_path or not (os.path.isfile(csv_path) or os.path.isdir(csv_path)):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=(
-                "No CSV path provided. Pass 'csv_path' in the request body "
-                "or set the AMAZON_CSV_PATH environment variable."
-            ),
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Dataset source is not configured or unavailable on the server.",
         )
 
     job = CollectionJob(source=payload.source, status="pending")
     db.add(job)
     await db.flush()  # get the auto-generated id
 
-    logger.info(
-        "harvester job_id=%d source=%s csv=%s start", job.id, job.source, csv_path
+    logger.info("harvester job_id=%d source=%s start", job.id, job.source)
+    await run_csv_import(
+        session=db,
+        csv_path=csv_path,
+        job=job,
+        max_reviews=payload.max_reviews or settings.amazon_import_limit,
     )
-    await run_csv_import(session=db, csv_path=csv_path, job=job)
 
     return JobStatusResponse(**job.to_dict())
 
@@ -148,11 +159,13 @@ async def start_job(
     response_model=JobStatusResponse,
     summary="Get collection job status",
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_harvester)],
 )
 async def get_job(
     job_id: int,
     settings: SettingsDep,
     db: DbDep,
+    _admin: AdminUserDep,
 ) -> JobStatusResponse:
     """Retrieve the status and statistics of a collection job by ID."""
     _require_db(settings)
@@ -177,10 +190,12 @@ async def get_job(
     response_model=PaginatedProducts,
     summary="List imported products",
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
 )
 async def get_products(
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
     limit: int = Query(20, ge=1, le=_MAX_LIMIT),
     offset: int = Query(0, ge=0),
 ) -> PaginatedProducts:
@@ -215,11 +230,13 @@ async def get_products(
     response_model=ProductDetailResponse,
     summary="Get product detail",
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
 )
 async def get_product(
     product_id: str,
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
 ) -> ProductDetailResponse:
     """Return full product detail including about text and links."""
     _require_db(settings)
@@ -257,11 +274,13 @@ async def get_product(
         "Optionally extracts aspect-targeted polarity via the 'aspects' parameter."
     ),
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
 )
 async def get_product_insights(
     product_id: str,
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
     limit: int = Query(100, ge=1, le=500, description="Max reviews to analyze"),
     aspects: str | None = Query(
         None,
@@ -338,11 +357,13 @@ def _build_price_history_response(
         "percentage, and multi-currency guards."
     ),
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
 )
 async def get_product_price_history(
     product_id: str,
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
     start_date: Annotated[
         datetime | None,
         Query(description="Filter snapshots observed on or after this timestamp"),
@@ -399,11 +420,13 @@ async def get_product_price_history(
         "a new snapshot if valid, and returns updated price history statistics."
     ),
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_price_check)],
 )
 async def check_product_price(
     product_id: str,
     settings: SettingsDep,
     db: DbDep,
+    _admin: AdminUserDep,
 ) -> PriceHistoryResponse:
     """Poll the configured provider for current price and record a snapshot."""
     _require_db(settings)
@@ -460,10 +483,12 @@ async def check_product_price(
     response_model=PaginatedReviews,
     summary="List imported reviews",
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
 )
 async def get_reviews(
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
     product_id: str | None = Query(None, description="Filter reviews by product_id"),
     limit: int = Query(20, ge=1, le=_MAX_LIMIT),
     offset: int = Query(0, ge=0),
@@ -508,11 +533,13 @@ async def get_reviews(
         "and computes NLP review insights."
     ),
     tags=["harvester"],
+    dependencies=[Depends(rate_limit_harvester)],
 )
 async def analyze_url(
     payload: AnalyzeUrlRequest,
     settings: SettingsDep,
     db: DbDep,
+    _user: CurrentUserDep,
 ) -> ProductUrlAnalysisResponse:
     """Analyze an Amazon.in product URL on-demand."""
     _require_db(settings)

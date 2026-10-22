@@ -199,11 +199,15 @@ async def test_get_product_insights_api_200_and_404(
     async_session.add_all([prod, rev])
     await async_session.commit()
 
+    from app.core.auth import get_current_user
+    from tests.conftest import TEST_USER
+
     app = create_app(settings)
     app.dependency_overrides[get_settings] = lambda: Settings(
         database_url="sqlite+aiosqlite:///:memory:"
     )
     app.dependency_overrides[get_db] = lambda: async_session
+    app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
     with TestClient(app) as client:
         # 404 test

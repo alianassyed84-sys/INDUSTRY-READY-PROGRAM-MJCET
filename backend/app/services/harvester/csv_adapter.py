@@ -71,14 +71,29 @@ class CsvAmazonAdapter(SourceAdapter):
 
     source_id = "csv_amazon"
 
-    def __init__(self, csv_path: str) -> None:
+    def __init__(self, csv_path: str, reviews_per_product: int = 50) -> None:
         path = Path(csv_path)
         if not path.exists():
             raise SourceNotConfiguredError(
                 f"Amazon CSV not found at '{csv_path}'. "
                 "Set AMAZON_CSV_PATH to the correct file location."
             )
+        if path.is_dir():
+            for cand in ["test.csv", "train.csv", "amazon.csv"]:
+                if (path / cand).is_file():
+                    path = path / cand
+                    break
+            else:
+                csvs = sorted(path.glob("*.csv"))
+                if csvs:
+                    path = csvs[0]
+                else:
+                    raise SourceNotConfiguredError(
+                        f"No CSV file found in directory '{csv_path}'."
+                    )
+
         self._csv_path = path
+        self.reviews_per_product = reviews_per_product
         self.warning_count: int = 0
 
     # ------------------------------------------------------------------
@@ -86,14 +101,126 @@ class CsvAmazonAdapter(SourceAdapter):
     # ------------------------------------------------------------------
 
     def records(self) -> Iterator[RecordTuple]:
-        """Yield one ``(product, users, reviews)`` tuple per CSV row."""
-        with self._csv_path.open(encoding="utf-8", newline="") as fh:
-            reader = csv.DictReader(fh)
-            for row_num, row in enumerate(reader, start=2):  # 2 = first data row
+        """Yield one ``(product, users, reviews)`` tuple per CSV row or batch."""
+        with self._csv_path.open(encoding="utf-8", newline="", errors="replace") as fh:
+            first_chunk = fh.read(4096)
+            fh.seek(0)
+            if "product_id" in first_chunk.lower() and "review_id" in first_chunk.lower():
+                reader = csv.DictReader(fh)
+                for row_num, row in enumerate(reader, start=2):  # 2 = first data row
+                    try:
+                        yield from self._parse_row(row, row_num)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning("csv_adapter row=%d parse_error=%s", row_num, exc)
+            else:
+                yield from self._parse_kaggle_polarity(fh)
+
+    def _parse_kaggle_polarity(self, fh) -> Iterator[RecordTuple]:
+        """Parse Kaggle / Xiang Zhang Amazon Review Polarity dataset rows.
+
+        Schema: 3 columns: [polarity (1=negative, 2=positive), title, text].
+        Reviews are clustered into cohesive NormalizedProduct entities (default 50 reviews/product)
+        so that aggregate sentiment, rating distributions, and NLP analytics work out of the box.
+        """
+        reader = csv.reader(fh)
+        batch_rows: list[list[str]] = []
+        batch_num = 1
+        global_review_idx = 0
+
+        for row in reader:
+            if not row or len(row) < 2:
+                continue
+
+            # Skip header if present (e.g. "polarity", "title", "text")
+            pol_raw = row[0].strip().lower()
+            if pol_raw in ("polarity", "label", "target", "class"):
+                continue
+
+            batch_rows.append(row)
+            if len(batch_rows) >= self.reviews_per_product:
+                product_tuple = self._create_kaggle_batch(batch_rows, batch_num, global_review_idx)
+                if product_tuple:
+                    yield product_tuple
+                global_review_idx += len(batch_rows)
+                batch_rows = []
+                batch_num += 1
+
+        if batch_rows:
+            product_tuple = self._create_kaggle_batch(batch_rows, batch_num, global_review_idx)
+            if product_tuple:
+                yield product_tuple
+
+    def _create_kaggle_batch(
+        self, batch_rows: list[list[str]], batch_num: int, start_idx: int
+    ) -> RecordTuple | None:
+        from decimal import Decimal
+
+        product_id = f"AMZN-KAG-{batch_num:03d}"
+        sample_title = clean_text(batch_rows[0][1]) if len(batch_rows[0]) > 1 else ""
+        if sample_title and len(sample_title) < 50:
+            product_name = f"Amazon Collection #{batch_num}: {sample_title}"
+        else:
+            product_name = f"Amazon Curated Collection #{batch_num}"
+
+        ratings: list[float] = []
+        reviews: list[NormalizedReview] = []
+        users: list[NormalizedUser] = []
+
+        for idx, row in enumerate(batch_rows):
+            cur_idx = start_idx + idx + 1
+            pol_str = row[0].strip()
+            # Polarity mapping: 1 -> 1.0 (negative), 2 -> 5.0 (positive)
+            if pol_str in ("1", "__label__1"):
+                rating = 1.0
+            elif pol_str in ("2", "__label__2"):
+                rating = 5.0
+            else:
                 try:
-                    yield from self._parse_row(row, row_num)
-                except Exception as exc:  # noqa: BLE001
-                    logger.warning("csv_adapter row=%d parse_error=%s", row_num, exc)
+                    rating = float(pol_str)
+                except ValueError:
+                    rating = 3.0
+
+            ratings.append(rating)
+            title = clean_text(row[1]) if len(row) > 1 else "Customer Review"
+            content = clean_text(row[2], max_len=_MAX_TEXT) if len(row) > 2 else ""
+
+            user_id = f"user_kag_{cur_idx}"
+            user_name = f"Amazon Customer #{cur_idx}"
+            users.append(NormalizedUser(user_id=user_id, user_name=user_name))
+
+            review_id = f"kag_rev_{cur_idx:06d}"
+            reviews.append(
+                NormalizedReview(
+                    review_id=review_id,
+                    product_id=product_id,
+                    user_id=user_id,
+                    rating=rating,
+                    review_title=title,
+                    review_content=content,
+                )
+            )
+
+        if not reviews:
+            return None
+
+        avg_rating = round(sum(ratings) / len(ratings), 1) if ratings else 4.0
+        product = NormalizedProduct(
+            product_id=product_id,
+            product_name=product_name,
+            category="Amazon Reviews (Kaggle Dataset)",
+            discounted_price=Decimal("1299.00"),
+            actual_price=Decimal("1999.00"),
+            discount_percentage=35.0,
+            rating=avg_rating,
+            rating_count=len(reviews),
+            about_product=(
+                f"Curated customer reviews from the Kaggle Amazon Reviews polarity dataset "
+                f"(Batch #{batch_num}, {len(reviews)} reviews)."
+            ),
+            product_link=f"https://www.amazon.com/dp/{product_id}",
+        )
+
+        return product, users, reviews
 
     # ------------------------------------------------------------------
     # Private helpers

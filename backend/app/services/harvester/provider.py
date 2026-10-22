@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -72,8 +73,8 @@ class ProviderProduct:
     asin: str
     title: str
     currency: str = "INR"
-    current_price: float | None = None
-    original_price: float | None = None
+    current_price: Decimal | float | None = None
+    original_price: Decimal | float | None = None
     discount_percentage: float | None = None
     rating: float | None = None
     rating_count: int | None = None

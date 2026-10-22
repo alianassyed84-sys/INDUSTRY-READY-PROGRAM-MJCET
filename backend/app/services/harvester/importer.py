@@ -116,6 +116,7 @@ async def run_csv_import(
     session: AsyncSession,
     csv_path: str,
     job: CollectionJob,
+    max_reviews: int | None = None,
 ) -> CollectionJob:
     """Import amazon.csv into the database; update *job* stats throughout.
 
@@ -129,6 +130,8 @@ async def run_csv_import(
     job:
         A ``CollectionJob`` already persisted (or add-pending) in *session*.
         Its status, counts, and timestamps are mutated in place.
+    max_reviews:
+        Optional cap on total reviews to import. Useful for massive datasets.
 
     Returns
     -------
@@ -155,6 +158,19 @@ async def run_csv_import(
             inserted = await upsert_product(session, product)
             if inserted:
                 job.products_inserted = (job.products_inserted or 0) + 1
+                if product.discounted_price:
+                    try:
+                        from app.services.harvester.price_history import record_price_snapshot
+                        await record_price_snapshot(
+                            session=session,
+                            product_id=product.product_id,
+                            price=product.discounted_price,
+                            original_price=product.actual_price,
+                            currency="INR",
+                            source="csv_import",
+                        )
+                    except Exception as exc:  # noqa: BLE001
+                        logger.debug("harvester price_snapshot error=%s", exc)
         except Exception as exc:  # noqa: BLE001
             job.add_error(f"product {product.product_id}: {exc}")
             logger.warning("harvester product_id=%s error=%s", product.product_id, exc)
@@ -182,6 +198,10 @@ async def run_csv_import(
 
         # Commit after each product row so progress is durable
         await session.commit()
+
+        if max_reviews is not None and (job.reviews_seen or 0) >= max_reviews:
+            logger.info("harvester reached max_reviews=%d, stopping import early", max_reviews)
+            break
 
     job.status = "done"
     job.finished_at = datetime.now(UTC)

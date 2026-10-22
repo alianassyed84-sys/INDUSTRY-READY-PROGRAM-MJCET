@@ -11,12 +11,13 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from app.core.config import Settings, get_settings
-from app.main import create_app
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+from app.core.auth import get_current_user, require_admin
+from app.core.config import Settings, get_settings
+from app.main import create_app
+from tests.conftest import TEST_ADMIN_USER, TEST_USER
 
 
 @pytest.fixture
@@ -25,6 +26,8 @@ def no_db_client(settings: Settings) -> TestClient:
     get_settings.cache_clear()
     app = create_app(settings)  # settings.database_url is None
     app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_current_user] = lambda: TEST_USER
+    app.dependency_overrides[require_admin] = lambda: TEST_ADMIN_USER
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

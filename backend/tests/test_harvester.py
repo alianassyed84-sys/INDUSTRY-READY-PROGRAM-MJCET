@@ -17,6 +17,7 @@ All tests are self-contained.  Run with:
 from __future__ import annotations
 
 import csv
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -129,13 +130,13 @@ async def async_session() -> AsyncSession:  # type: ignore[misc]
 
 class TestParsePrice:
     def test_rupee_with_comma(self) -> None:
-        assert parse_price("₹1,099") == 1099.0
+        assert parse_price("₹1,099") == Decimal("1099.00")
 
     def test_dollar(self) -> None:
-        assert parse_price("$19.99") == 19.99
+        assert parse_price("$19.99") == Decimal("19.99")
 
     def test_plain_float(self) -> None:
-        assert parse_price("499") == 499.0
+        assert parse_price("499") == Decimal("499.00")
 
     def test_empty_string(self) -> None:
         assert parse_price("") is None
@@ -309,6 +310,37 @@ class TestCsvAmazonAdapter:
         adapter = CsvAmazonAdapter(str(csv_file))
         records = list(adapter.records())
         assert len(records) == 2
+
+    def test_kaggle_polarity_parsing(self, tmp_path: Path) -> None:
+        """Kaggle polarity 3-column CSV format is parsed and clustered into products."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(
+            '"2","Great CD","I loved this music album so much."\n'
+            '"1","Terrible","Broke after two days of use."\n',
+            encoding="utf-8",
+        )
+        adapter = CsvAmazonAdapter(str(csv_file), reviews_per_product=2)
+        records = list(adapter.records())
+        assert len(records) == 1
+        product, users, reviews = records[0]
+        assert product.product_id == "AMZN-KAG-001"
+        assert len(reviews) == 2
+        assert reviews[0].rating == 5.0
+        assert reviews[0].review_title == "Great CD"
+        assert reviews[1].rating == 1.0
+        assert reviews[1].review_title == "Terrible"
+        assert len(users) == 2
+
+    def test_directory_resolution(self, tmp_path: Path) -> None:
+        """When given a directory path, auto-resolves test.csv inside."""
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(
+            '"2","Awesome","Works as expected."\n',
+            encoding="utf-8",
+        )
+        adapter = CsvAmazonAdapter(str(tmp_path), reviews_per_product=1)
+        records = list(adapter.records())
+        assert len(records) == 1
 
 
 # ===========================================================================

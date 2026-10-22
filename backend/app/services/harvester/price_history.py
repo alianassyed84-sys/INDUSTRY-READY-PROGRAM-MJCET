@@ -14,25 +14,61 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import TYPE_CHECKING
 
 from sqlalchemy import desc, select
 
 from app.models.price_snapshot import PriceSnapshot
+from app.models.product import Product
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from app.models.product import Product
     from app.services.harvester.provider import ProductDataProvider
+
+_TWO_PLACES = Decimal("0.01")
+
+
+def _to_decimal(value: float | Decimal | int | str) -> Decimal:
+    """Validate and convert price to Decimal quantized to 2 decimal places."""
+    if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+        raise ValueError("Price must be a positive, finite number.")
+    try:
+        dec = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError) as err:
+        raise ValueError("Price must be a positive, finite number.") from err
+    if not dec.is_finite() or dec <= 0:
+        raise ValueError("Price must be a positive, finite number.")
+    return dec.quantize(_TWO_PLACES, rounding=ROUND_HALF_UP)
+
+
+def _to_optional_decimal(
+    value: float | Decimal | int | str | None,
+) -> Decimal | None:
+    """Validate and convert optional original_price to Decimal.
+
+    Quantizes to 2 decimal places.
+    """
+    if value is None:
+        return None
+    if isinstance(value, float) and (math.isnan(value) or math.isinf(value)):
+        raise ValueError("Original price must be finite.")
+    try:
+        dec = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError) as err:
+        raise ValueError("Original price must be a valid number.") from err
+    if not dec.is_finite() or dec < 0:
+        raise ValueError("Original price must be a non-negative, finite number.")
+    return dec.quantize(_TWO_PLACES, rounding=ROUND_HALF_UP)
 
 
 @dataclass(frozen=True)
 class PriceSnapshotItem:
     """A single recorded price point."""
 
-    price: float
-    original_price: float | None
+    price: Decimal
+    original_price: Decimal | None
     currency: str
     source: str
     observed_at: datetime
@@ -44,13 +80,13 @@ class PriceHistorySummary:
 
     product_id: str
     observations_count: int
-    first_observed_price: float | None
-    latest_observed_price: float | None
-    current_price: float | None
-    highest_observed_price: float | None
-    lowest_observed_price: float | None
-    price_change_amount: float | None
-    price_change_percentage: float | None
+    first_observed_price: Decimal | None
+    latest_observed_price: Decimal | None
+    current_price: Decimal | None
+    highest_observed_price: Decimal | None
+    lowest_observed_price: Decimal | None
+    price_change_amount: Decimal | None
+    price_change_percentage: Decimal | None
     currency: str
     is_multi_currency: bool
     tracking_start: datetime | None
@@ -64,21 +100,29 @@ class PriceHistorySummary:
 async def record_price_snapshot(
     session: AsyncSession,
     product_id: str,
-    price: float,
-    original_price: float | None = None,
+    price: float | Decimal,
+    original_price: float | Decimal | None = None,
     currency: str = "INR",
     source: str = "unknown",
     deduplicate: bool = True,
 ) -> PriceSnapshot:
     """Persist a new price observation with validation and deduplication."""
-    if not isinstance(price, (int, float)) or price <= 0 or not math.isfinite(price):
-        raise ValueError("Price must be a positive, finite number.")
+    dec_price = _to_decimal(price)
+    dec_original_price = _to_optional_decimal(original_price)
 
     clean_curr = (currency or "INR").strip().upper()
     if not clean_curr:
         raise ValueError("Currency cannot be empty.")
 
     clean_src = (source or "unknown").strip()
+
+    # Database-level concurrency control: row-lock the parent Product row.
+    # In PostgreSQL, this serializes concurrent snapshot creations per product.
+    # In SQLite, with_for_update is ignored while SQLite enforces database-level locks.
+    lock_stmt = (
+        select(Product.id).where(Product.product_id == product_id).with_for_update()
+    )
+    await session.execute(lock_stmt)
 
     if deduplicate:
         # Check most recent snapshot to avoid duplicate sequential recordings
@@ -91,8 +135,8 @@ async def record_price_snapshot(
         last_snap = (await session.execute(latest_stmt)).scalar_one_or_none()
         if (
             last_snap is not None
-            and last_snap.price == float(price)
-            and last_snap.original_price == original_price
+            and last_snap.price == dec_price
+            and last_snap.original_price == dec_original_price
             and last_snap.currency == clean_curr
             and last_snap.source == clean_src
         ):
@@ -100,8 +144,8 @@ async def record_price_snapshot(
 
     snapshot = PriceSnapshot(
         product_id=product_id,
-        price=float(price),
-        original_price=float(original_price) if original_price is not None else None,
+        price=dec_price,
+        original_price=dec_original_price,
         currency=clean_curr,
         source=clean_src,
     )
@@ -173,16 +217,19 @@ async def get_price_history(
         calc_records = records
         curr_note = ""
 
-    first_price = calc_records[0].price
-    latest_price = calc_records[-1].price
-    highest_price = max(r.price for r in calc_records)
-    lowest_price = min(r.price for r in calc_records)
-    change_amount = round(latest_price - first_price, 2)
-    change_pct = (
-        round(((latest_price - first_price) / first_price) * 100, 2)
-        if first_price > 0
-        else 0.0
+    first_price = _to_decimal(calc_records[0].price)
+    latest_price = _to_decimal(calc_records[-1].price)
+    highest_price = max(_to_decimal(r.price) for r in calc_records)
+    lowest_price = min(_to_decimal(r.price) for r in calc_records)
+    change_amount = (latest_price - first_price).quantize(
+        _TWO_PLACES, rounding=ROUND_HALF_UP
     )
+    if first_price > Decimal("0"):
+        change_pct = (
+            ((latest_price - first_price) / first_price) * Decimal("100")
+        ).quantize(_TWO_PLACES, rounding=ROUND_HALF_UP)
+    else:
+        change_pct = Decimal("0.00")
 
     tracking_start = records[0].observed_at
     tracking_end = records[-1].observed_at
@@ -213,8 +260,8 @@ async def get_price_history(
     paged = records[offset : offset + limit] if limit > 0 else records[offset:]
     items = tuple(
         PriceSnapshotItem(
-            price=r.price,
-            original_price=r.original_price,
+            price=_to_decimal(r.price),
+            original_price=_to_optional_decimal(r.original_price),
             currency=r.currency,
             source=r.source,
             observed_at=r.observed_at,

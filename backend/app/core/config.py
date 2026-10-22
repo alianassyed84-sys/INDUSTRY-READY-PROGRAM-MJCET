@@ -29,14 +29,74 @@ class Settings(BaseSettings):
     database_url: str | None = None
     log_level: str = "INFO"
     amazon_csv_path: str | None = None
+    amazon_import_limit: int | None = 2500
     amazon_provider: str = "disabled"
     amazon_partner_tag: str | None = None
     amazon_access_key: str | None = None
     amazon_secret_key: str | None = None
 
-    @field_validator("database_url", mode="before")
+    # Authentication & Authorization (Clerk JWT compatible)
+    auth_enabled: bool = True
+    clerk_issuer: str | None = None
+    clerk_audience: str | None = None
+    clerk_pem_public_key: str | None = None
+    clerk_jwks_url: str | None = None
+    clerk_secret_key: str | None = None
+
+    # Rate Limiting
+    rate_limit_enabled: bool = True
+    rate_limit_analysis: str = "60/minute"
+    rate_limit_harvester: str = "10/minute"
+    rate_limit_price_check: str = "20/minute"
+    rate_limit_default: str = "120/minute"
+
+    # Database Connection Pooling (PostgreSQL)
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
+    db_pool_timeout: float = 30.0
+    db_pool_recycle: int = 1800
+    db_pool_pre_ping: bool = True
+
+    @field_validator("db_pool_size")
     @classmethod
-    def empty_database_url_to_none(cls, value: object) -> object:
+    def validate_pool_size(cls, v: int) -> int:
+        if v <= 0:
+            raise ValueError("db_pool_size must be greater than 0.")
+        return v
+
+    @field_validator("db_max_overflow")
+    @classmethod
+    def validate_max_overflow(cls, v: int) -> int:
+        if v < 0:
+            raise ValueError("db_max_overflow must be non-negative.")
+        return v
+
+    @field_validator("db_pool_timeout")
+    @classmethod
+    def validate_pool_timeout(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError("db_pool_timeout must be greater than 0.")
+        return v
+
+    @field_validator("db_pool_recycle")
+    @classmethod
+    def validate_pool_recycle(cls, v: int) -> int:
+        if v < -1:
+            raise ValueError("db_pool_recycle must be -1 or greater.")
+        return v
+
+    @field_validator(
+        "database_url",
+        "amazon_csv_path",
+        "clerk_issuer",
+        "clerk_audience",
+        "clerk_pem_public_key",
+        "clerk_jwks_url",
+        "clerk_secret_key",
+        mode="before",
+    )
+    @classmethod
+    def empty_string_to_none(cls, value: object) -> object:
         if isinstance(value, str) and value.strip() == "":
             return None
         return value

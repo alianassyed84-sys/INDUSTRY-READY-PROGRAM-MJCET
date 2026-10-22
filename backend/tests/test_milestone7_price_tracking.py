@@ -21,6 +21,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import event, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.core.auth import get_current_user, require_admin
 from app.core.config import Settings, get_settings
 from app.core.database import Base, get_db
 from app.main import create_app
@@ -39,6 +40,7 @@ from app.services.harvester.provider import (
     ProviderProduct,
     ProviderRateLimitError,
 )
+from tests.conftest import TEST_ADMIN_USER, TEST_USER
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -394,6 +396,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         with TestClient(app) as client:
             res = client.get(
@@ -415,6 +418,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         with TestClient(app) as client:
             res = client.get("/api/v1/harvester/products/NONEXISTENT01/price-history")
@@ -429,6 +433,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         with TestClient(app) as client:
             res = client.get(
@@ -466,6 +471,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[require_admin] = lambda: TEST_ADMIN_USER
 
         from unittest.mock import patch
 
@@ -498,6 +504,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[require_admin] = lambda: TEST_ADMIN_USER
 
         from unittest.mock import patch
 
@@ -556,6 +563,7 @@ class TestPriceHistoryEndpoints:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[require_admin] = lambda: TEST_ADMIN_USER
 
         with TestClient(app) as client:
             res = client.post(

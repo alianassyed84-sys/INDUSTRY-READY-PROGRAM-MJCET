@@ -12,6 +12,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass
+from decimal import Decimal
 
 # ---------------------------------------------------------------------------
 # Normalised data contracts
@@ -25,8 +26,8 @@ class NormalizedProduct:
     product_id: str
     product_name: str
     category: str | None = None
-    discounted_price: float | None = None
-    actual_price: float | None = None
+    discounted_price: Decimal | None = None
+    actual_price: Decimal | None = None
     discount_percentage: float | None = None
     rating: float | None = None
     rating_count: int | None = None

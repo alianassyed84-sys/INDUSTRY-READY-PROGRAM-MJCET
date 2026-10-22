@@ -34,19 +34,38 @@ _engine: AsyncEngine | None = None
 _sessionmaker: async_sessionmaker[AsyncSession] | None = None
 
 
-def get_engine(database_url: str) -> AsyncEngine:
+def get_engine(database_url: str, settings: Settings | None = None) -> AsyncEngine:
     """Return a cached or newly initialized AsyncEngine for the given URL."""
     global _engine, _sessionmaker
     async_url = get_async_database_url(database_url)
+    resolved_settings = settings or get_settings()
+
     if _engine is None or str(_engine.url) != async_url:
-        _engine = create_async_engine(async_url, pool_pre_ping=True)
+        engine_kwargs: dict[str, object] = {
+            "pool_pre_ping": resolved_settings.db_pool_pre_ping,
+        }
+
+        # PostgreSQL connection pool settings (avoid applying to SQLite)
+        if not async_url.startswith("sqlite"):
+            engine_kwargs.update(
+                {
+                    "pool_size": resolved_settings.db_pool_size,
+                    "max_overflow": resolved_settings.db_max_overflow,
+                    "pool_timeout": resolved_settings.db_pool_timeout,
+                    "pool_recycle": resolved_settings.db_pool_recycle,
+                }
+            )
+
+        _engine = create_async_engine(async_url, **engine_kwargs)
         _sessionmaker = async_sessionmaker(_engine, expire_on_commit=False)
     return _engine
 
 
-def get_sessionmaker(database_url: str) -> async_sessionmaker[AsyncSession]:
+def get_sessionmaker(
+    database_url: str, settings: Settings | None = None
+) -> async_sessionmaker[AsyncSession]:
     """Return a session factory for the given database URL."""
-    get_engine(database_url)
+    get_engine(database_url, settings=settings)
     assert _sessionmaker is not None
     return _sessionmaker
 

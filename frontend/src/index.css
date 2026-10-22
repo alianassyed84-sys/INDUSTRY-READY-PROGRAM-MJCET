@@ -1,0 +1,51 @@
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/inter';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --rp-bg: #FAF7F2;
+  --rp-surface: #FFFFFF;
+  --rp-surface-soft: #F7F2FF;
+  --rp-primary: #7138F5;
+  --rp-primary-hover: #5B29D9;
+  --rp-primary-light: #F0E8FF;
+  --rp-primary-soft: #E5D8FF;
+  --rp-navy: #171B50;
+  --rp-text: #242746;
+  --rp-muted: #666B85;
+  --rp-border: #EAE5EE;
+  --rp-coral: #F36B57;
+  --rp-success: #16865C;
+  --rp-warning: #A96A12;
+  --rp-info: #3478D4;
+  --rp-chart-grid: #ECE7F1;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-rp-bg font-body text-[15px] text-rp-text antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  h1, h2, h3, h4 { @apply font-heading text-rp-navy; }
+  :focus-visible { @apply outline-none shadow-focus; }
+  ::selection { background: var(--rp-primary-soft); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+}
+
+@layer components {
+  .tnum { font-variant-numeric: tabular-nums; }
+  .rp-card { @apply rounded-card border border-rp-border bg-rp-surface p-5 shadow-card md:p-6; }
+  .rp-lift { transition: transform .2s ease, box-shadow .2s ease; }
+  .rp-lift:hover { transform: translateY(-2px); box-shadow: var(--tw-shadow-lift, 0 18px 36px -14px rgba(113,56,245,.22)); }
+  .rp-ambient {
+    background:
+      radial-gradient(60% 50% at 85% 0%, rgba(113,56,245,.14), transparent 70%),
+      radial-gradient(40% 40% at 5% 20%, rgba(243,107,87,.08), transparent 70%);
+  }
+}

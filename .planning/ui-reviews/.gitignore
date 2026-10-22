@@ -1,0 +1,8 @@
+# Ignore all screenshot captures and binary media artifacts in ui-reviews
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.webm

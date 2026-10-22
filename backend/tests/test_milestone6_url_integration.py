@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import event, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.core.auth import get_current_user
 from app.core.config import Settings, get_settings
 from app.core.database import Base, get_db
 from app.main import create_app
@@ -38,6 +39,7 @@ from app.services.harvester.provider import (
     ProviderReview,
     get_product_provider,
 )
+from tests.conftest import TEST_USER
 
 # ---------------------------------------------------------------------------
 # In-memory async SQLite fixture
@@ -297,6 +299,7 @@ class TestAnalyzeUrlEndpoint:
         get_settings.cache_clear()
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
         with TestClient(app) as test_client:
             res = test_client.post(
                 "/api/v1/harvester/analyze-url",
@@ -311,6 +314,7 @@ class TestAnalyzeUrlEndpoint:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         with TestClient(app) as client:
             res = client.post(
@@ -332,6 +336,7 @@ class TestAnalyzeUrlEndpoint:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         with TestClient(app) as client:
             res = client.post(
@@ -353,6 +358,7 @@ class TestAnalyzeUrlEndpoint:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         # Inject our mock provider fixture into the API route handler
         from unittest.mock import patch
@@ -438,6 +444,7 @@ class TestAnalyzeUrlEndpoint:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         from unittest.mock import patch
 
@@ -486,6 +493,7 @@ class TestAnalyzeUrlEndpoint:
         app = create_app(settings)
         app.dependency_overrides[get_settings] = lambda: settings
         app.dependency_overrides[get_db] = lambda: async_session
+        app.dependency_overrides[get_current_user] = lambda: TEST_USER
 
         from unittest.mock import patch
 

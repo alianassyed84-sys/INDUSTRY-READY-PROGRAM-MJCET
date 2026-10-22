@@ -3,9 +3,27 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from decimal import Decimal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
+
+_DecimalAsFloat = Annotated[
+    Decimal,
+    PlainSerializer(
+        lambda v: float(v) if v is not None else None,
+        return_type=float,
+        when_used="json",
+    ),
+]
+_OptionalDecimalAsFloat = Annotated[
+    Decimal | None,
+    PlainSerializer(
+        lambda v: float(v) if v is not None else None,
+        return_type=float | None,
+        when_used="json",
+    ),
+]
 
 # ---------------------------------------------------------------------------
 # Job management
@@ -20,16 +38,13 @@ class JobStartRequest(BaseModel):
     source: Literal["csv_amazon"] = Field(
         "csv_amazon",
         description=(
-            "Review source identifier.  Currently only 'csv_amazon' is supported "
+            "Review source identifier. Currently only 'csv_amazon' is supported "
             "(the bundled Amazon product review CSV dataset)."
         ),
     )
-    csv_path: str | None = Field(
+    max_reviews: int | None = Field(
         None,
-        description=(
-            "Absolute path to the Amazon CSV file.  "
-            "Defaults to the AMAZON_CSV_PATH setting when omitted."
-        ),
+        description="Optional maximum number of reviews to import.",
     )
 
 
@@ -76,8 +91,8 @@ class ProductListItem(BaseModel):
     category: str | None = None
     rating: float | None = None
     rating_count: int | None = None
-    discounted_price: float | None = None
-    actual_price: float | None = None
+    discounted_price: _OptionalDecimalAsFloat = None
+    actual_price: _OptionalDecimalAsFloat = None
     discount_percentage: float | None = None
 
 
@@ -246,8 +261,8 @@ class PriceSnapshotSchema(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    price: float
-    original_price: float | None = None
+    price: _DecimalAsFloat
+    original_price: _OptionalDecimalAsFloat = None
     currency: str = "INR"
     source: str = "unknown"
     observed_at: datetime
@@ -260,13 +275,13 @@ class PriceHistoryResponse(BaseModel):
 
     product_id: str
     observations_count: int = Field(0, ge=0)
-    first_observed_price: float | None = None
-    latest_observed_price: float | None = None
-    current_price: float | None = None
-    highest_observed_price: float | None = None
-    lowest_observed_price: float | None = None
-    price_change_amount: float | None = None
-    price_change_percentage: float | None = None
+    first_observed_price: _OptionalDecimalAsFloat = None
+    latest_observed_price: _OptionalDecimalAsFloat = None
+    current_price: _OptionalDecimalAsFloat = None
+    highest_observed_price: _OptionalDecimalAsFloat = None
+    lowest_observed_price: _OptionalDecimalAsFloat = None
+    price_change_amount: _OptionalDecimalAsFloat = None
+    price_change_percentage: _OptionalDecimalAsFloat = None
     currency: str = "INR"
     is_multi_currency: bool = False
     tracking_start: datetime | None = None

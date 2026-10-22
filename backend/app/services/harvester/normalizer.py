@@ -13,21 +13,23 @@ without mocking.
 from __future__ import annotations
 
 import re
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 # ---------------------------------------------------------------------------
 # Price
 # ---------------------------------------------------------------------------
 
 _PRICE_RE = re.compile(r"[^\d.]")
+_TWO_PLACES = Decimal("0.01")
 
 
-def parse_price(raw: str | None) -> float | None:
-    """Strip currency symbols, commas, and whitespace; return float or None.
+def parse_price(raw: str | None) -> Decimal | None:
+    """Strip currency symbols, commas, and whitespace; return Decimal or None.
 
     Examples::
 
-        parse_price("₹1,099")  -> 1099.0
-        parse_price("$19.99")  -> 19.99
+        parse_price("₹1,099")  -> Decimal("1099.00")
+        parse_price("$19.99")  -> Decimal("19.99")
         parse_price("")        -> None
         parse_price(None)      -> None
     """
@@ -37,8 +39,11 @@ def parse_price(raw: str | None) -> float | None:
     if not cleaned:
         return None
     try:
-        return float(cleaned)
-    except ValueError:
+        val = Decimal(cleaned)
+        if not val.is_finite() or val < 0:
+            return None
+        return val.quantize(_TWO_PLACES, rounding=ROUND_HALF_UP)
+    except (InvalidOperation, ValueError):
         return None
 
 

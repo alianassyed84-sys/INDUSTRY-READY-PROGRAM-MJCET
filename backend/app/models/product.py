@@ -1,8 +1,9 @@
 """Product ORM model — an Amazon product entity."""
 
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import DateTime, Float, Integer, String, Text, func
+from sqlalchemy import DateTime, Float, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -19,8 +20,10 @@ class Product(Base):
     )
     product_name: Mapped[str] = mapped_column(String(1024), nullable=False, index=True)
     category: Mapped[str | None] = mapped_column(String(512), nullable=True, index=True)
-    discounted_price: Mapped[float | None] = mapped_column(Float, nullable=True)
-    actual_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    discounted_price: Mapped[Decimal | None] = mapped_column(
+        Numeric(12, 2), nullable=True
+    )
+    actual_price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     discount_percentage: Mapped[float | None] = mapped_column(Float, nullable=True)
     rating: Mapped[float | None] = mapped_column(Float, nullable=True, index=True)
     rating_count: Mapped[int | None] = mapped_column(Integer, nullable=True)

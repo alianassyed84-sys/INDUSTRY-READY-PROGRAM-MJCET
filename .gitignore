@@ -28,8 +28,19 @@ coverage.xml
 *.sqlite
 *.sqlite3
 
+# Frontend dependencies and builds
+node_modules/
+dist/
+dist-ssr/
+*.local
+
 # OS / Editor files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# Internal IDE and temporary artifacts
+.tempmediaStorage/
+*.log
+
