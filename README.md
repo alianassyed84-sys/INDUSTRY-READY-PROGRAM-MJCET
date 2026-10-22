@@ -17,7 +17,16 @@
   Combines Aspect-Based Sentiment Analysis (ABSA), TF-IDF semantic topic extraction, multi-metric readability scoring, real-time price trend observation, and seamless ingestion of multi-million review datasets.
 </p>
 
+<p align="center">
+  <img src="https://github.githubassets.com/assets/yolo-default-be0bbff42e6a.png" width="95" alt="YOLO Achievement" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.githubassets.com/assets/pull-shark-default-498c279a747d.png" width="95" alt="Pull Shark Achievement" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://github.githubassets.com/assets/quickdraw-default-39c6aec8ff89.png" width="95" alt="Quickdraw Achievement" />
+</p>
+
 ---
+
 
 ## 🏆 Repository Highlights & Achievements
 
