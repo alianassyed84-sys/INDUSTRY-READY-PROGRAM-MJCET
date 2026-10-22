@@ -231,7 +231,17 @@ irppp/
 
 ---
 
+## 🚢 Deployment & Production Readiness
+
+ReviewPulse is container-ready and follows 12-factor application design principles:
+- **Stateless API Gateway**: Fully containerizable via standard Python 3.12 slim images.
+- **Frontend SPA**: Static build distributable via Vercel, Netlify, Cloudflare Pages, or NGINX.
+- **Environment Isolation**: Fully driven by `.env` with strict Pydantic v2 settings validation.
+
+---
+
 ## 📄 License
+
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
