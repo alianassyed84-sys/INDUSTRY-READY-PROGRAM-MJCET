@@ -16,5 +16,5 @@ COPY . .
 # Expose default port
 EXPOSE 8000
 
-# Run uvicorn on $PORT provided by Railway / cloud provider
+# Run uvicorn on $PORT provided by Render / cloud provider
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
