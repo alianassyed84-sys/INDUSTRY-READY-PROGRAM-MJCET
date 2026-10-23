@@ -39,6 +39,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     application.add_middleware(RequestIdMiddleware)
     register_exception_handlers(application)
+    @application.get("/", include_in_schema=False)
+    def root_endpoint() -> dict[str, str]:
+        return {
+            "service": resolved.app_name,
+            "status": "ok",
+            "docs": "/docs",
+            "health": f"{resolved.api_v1_prefix}/health",
+        }
+
     application.include_router(api_router, prefix=resolved.api_v1_prefix)
     return application
 
