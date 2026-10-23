@@ -231,11 +231,16 @@ async def get_job_by_id(session: AsyncSession, job_id: int) -> CollectionJob | N
 
 
 async def list_products(
-    session: AsyncSession, limit: int = 20, offset: int = 0
+    session: AsyncSession,
+    limit: int = 20,
+    offset: int = 0,
+    category: str | None = None,
 ) -> list[Product]:
-    result = await session.execute(
-        select(Product).order_by(Product.id).limit(limit).offset(offset)
-    )
+    stmt = select(Product)
+    if category:
+        stmt = stmt.where(Product.category.ilike(f"%{category}%"))
+    stmt = stmt.order_by(Product.id.desc()).limit(limit).offset(offset)
+    result = await session.execute(stmt)
     return list(result.scalars().all())
 
 

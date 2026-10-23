@@ -94,13 +94,13 @@ class ProductListItem(BaseModel):
     discounted_price: _OptionalDecimalAsFloat = None
     actual_price: _OptionalDecimalAsFloat = None
     discount_percentage: float | None = None
+    img_link: str | None = None
 
 
 class ProductDetailResponse(ProductListItem):
     """Full product record including about text and links."""
 
     about_product: str | None = None
-    img_link: str | None = None
     product_link: str | None = None
     created_at: datetime | None = None
 
@@ -299,7 +299,10 @@ class AnalyzeUrlRequest(BaseModel):
 
     url: str = Field(
         ...,
-        description="Amazon.in product URL (e.g. 'https://www.amazon.in/dp/B084J4MZK6')",
+        description=(
+            "Product URL: Amazon.in (e.g. 'https://www.amazon.in/dp/B084J4MZK6') "
+            "or Flipkart (e.g. 'https://www.flipkart.com/.../p/itm...?pid=MOBGTAGPNRQA7CS3')"
+        ),
     )
 
 
@@ -308,9 +311,156 @@ class ProductUrlAnalysisResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    asin: str
+    asin: str = Field(description="Product identifier (ASIN for Amazon, PID for Flipkart)")
     canonical_url: str
     product: ProductDetailResponse
     price_history: PriceHistoryResponse
     insights: ProductInsightsResponse | None = None
     status_note: str
+
+
+# ---------------------------------------------------------------------------
+# Flipkart Apify Actor Schemas
+# ---------------------------------------------------------------------------
+
+
+class FlipkartVariantAttribute(BaseModel):
+    """Variant attribute name-value pair (e.g. Color: Blue)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    name: str
+    value: str
+
+
+class FlipkartReviewItem(BaseModel):
+    """Individual review record matching the Apify Actor output specification."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    review_id: str = Field(alias="reviewId")
+    review_url: str | None = Field(default=None, alias="reviewUrl")
+    product_id: str = Field(alias="productId")
+    review_product_id: str | None = Field(default=None, alias="reviewProductId")
+    title: str | None = None
+    text: str | None = None
+    rating: float | None = None
+    reviewer: str | None = None
+    displayed_date: str | None = Field(default=None, alias="displayedDate")
+    certified_buyer: bool | None = Field(default=None, alias="certifiedBuyer")
+    verified_purchase: bool | None = Field(default=None, alias="verifiedPurchase")
+    helpful_count: int | None = Field(default=None, alias="helpfulCount")
+    unhelpful_count: int | None = Field(default=None, alias="unhelpfulCount")
+    variant: list[FlipkartVariantAttribute] = Field(default_factory=list)
+
+
+class FlipkartScrapeRequest(BaseModel):
+    """Request payload to trigger Flipkart Product Reviews Scraper Actor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    url: str = Field(
+        ...,
+        description="Full HTTPS Flipkart product or reviews URL including pid parameter",
+    )
+    max_items: int = Field(
+        25,
+        ge=1,
+        le=1000,
+        description="Global maximum unique reviews to export across pages (1-1000)",
+    )
+    max_pages_per_product: int = Field(
+        3,
+        ge=1,
+        le=100,
+        description="Maximum review pages to fetch starting at page 1 (1-100)",
+    )
+
+
+class FlipkartScrapeResponse(BaseModel):
+    """Response from executing the Flipkart Reviews Scraper Actor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_id: str
+    product_name: str
+    canonical_url: str
+    reviews_count: int
+    estimated_cost_usd: float
+    is_mock_provider: bool
+    product: ProductDetailResponse
+    reviews: list[FlipkartReviewItem]
+    insights: ProductInsightsResponse | None = None
+    status_note: str
+
+
+# ---------------------------------------------------------------------------
+# Cross-Platform Comparison (Amazon vs. Flipkart)
+# ---------------------------------------------------------------------------
+
+
+class PlatformReviewItem(BaseModel):
+    """A customer review from a specific e-commerce platform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer: str
+    rating: float
+    title: str
+    content: str
+    date: str
+    verified: bool = True
+    variant: str | None = None
+
+
+class PlatformAspectInsight(BaseModel):
+    """Targeted aspect sentiment evaluation for a platform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    score: float
+    sentiment: str
+
+
+class PlatformComparisonData(BaseModel):
+    """Synthesized intelligence and reviews for one e-commerce platform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    platform: str
+    rating: float
+    review_count: int
+    price: float | None = None
+    original_price: float | None = None
+    delivery: str
+    sentiment: dict[str, float]
+    aspects: list[PlatformAspectInsight]
+    top_reviews: list[PlatformReviewItem]
+
+
+class ComparisonVerdict(BaseModel):
+    """Executive comparison summary between platforms."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: str
+    price_winner: str
+    rating_winner: str
+    recommendation: str
+
+
+class ProductComparisonResponse(BaseModel):
+    """Side-by-side comparison between Amazon and Flipkart for a product."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    product_id: str
+    product_name: str
+    category: str | None = None
+    img_link: str | None = None
+    amazon: PlatformComparisonData
+    flipkart: PlatformComparisonData
+    verdict: ComparisonVerdict
+
+

@@ -20,6 +20,15 @@ from app.services.harvester.base import (
     NormalizedUser,
     SourceAdapter,
 )
+from app.services.harvester.flipkart_scraper import (
+    FlipkartReviewScraper,
+    FlipkartScraperResult,
+)
+from app.services.harvester.flipkart_url import (
+    InvalidFlipkartUrlError,
+    ValidatedFlipkartUrl,
+    validate_flipkart_url,
+)
 from app.services.harvester.importer import run_csv_import
 from app.services.harvester.insights import compute_product_insights
 from app.services.harvester.price_history import (
@@ -44,7 +53,10 @@ from app.services.harvester.provider import (
 
 __all__ = [
     "DisabledProductDataProvider",
+    "FlipkartReviewScraper",
+    "FlipkartScraperResult",
     "InvalidAmazonUrlError",
+    "InvalidFlipkartUrlError",
     "MockProductDataProvider",
     "NormalizedProduct",
     "NormalizedReview",
@@ -60,6 +72,7 @@ __all__ = [
     "ProviderReview",
     "SourceAdapter",
     "ValidatedAmazonUrl",
+    "ValidatedFlipkartUrl",
     "compute_product_insights",
     "get_price_history",
     "get_product_provider",
@@ -67,4 +80,5 @@ __all__ = [
     "record_price_snapshot",
     "run_csv_import",
     "validate_amazon_in_url",
+    "validate_flipkart_url",
 ]

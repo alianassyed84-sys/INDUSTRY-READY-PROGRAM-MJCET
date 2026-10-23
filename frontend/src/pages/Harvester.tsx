@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Database, History, Play } from 'lucide-react';
+import {
+  Database,
+  History,
+  Play,
+  ShoppingBag,
+  Sparkles,
+  ExternalLink,
+  CheckCircle2,
+  ThumbsUp,
+  Tag,
+  Coins,
+} from 'lucide-react';
 import { PageContainer, PageHeader } from '@/components/layout/Page';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -13,24 +24,32 @@ import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
 import { ProductCard } from '@/components/shared/ProductCard';
 import { useProductContext } from '@/hooks/useProduct';
 import { api, API_BASE_URL, ApiError } from '@/lib/api';
-import { parseAmazonUrl, type UrlCheck } from '@/lib/amazon';
+import { parseProductUrl, type UniversalUrlCheck } from '@/lib/flipkart';
 import { adaptProduct } from '@/lib/adapters';
 import { ROUTES } from '@/lib/routes';
+import type { BackendFlipkartScrapeResponse } from '@/lib/types';
 
 export default function Harvester() {
   const [params] = useSearchParams();
   const initial = params.get('url') ?? '';
   const [rawUrl, setRawUrl] = useState(initial);
-  const [submitted, setSubmitted] = useState<UrlCheck | null>(initial ? parseAmazonUrl(initial) : null);
+  const [submitted, setSubmitted] = useState<UniversalUrlCheck | null>(
+    initial ? parseProductUrl(initial) : null,
+  );
   const [confirmJob, setConfirmJob] = useState(false);
   const { products } = useProductContext();
   const queryClient = useQueryClient();
+
+  // Flipkart Apify Scraper controls
+  const [fkMaxItems, setFkMaxItems] = useState(25);
+  const [fkMaxPages, setFkMaxPages] = useState(3);
+  const [fkResult, setFkResult] = useState<BackendFlipkartScrapeResponse | null>(null);
 
   useEffect(() => {
     const urlParam = params.get('url');
     if (urlParam && urlParam !== rawUrl) {
       setRawUrl(urlParam);
-      setSubmitted(parseAmazonUrl(urlParam));
+      setSubmitted(parseProductUrl(urlParam));
     }
   }, [params, rawUrl]);
 
@@ -41,12 +60,27 @@ export default function Harvester() {
     staleTime: 15_000,
   });
 
-  // Real backend URL analysis query
+  // Real backend URL analysis query (handles both Amazon.in and Flipkart URLs)
   const analyzeQuery = useQuery({
     queryKey: ['analyze-url', rawUrl],
     queryFn: ({ signal }) => api.analyzeUrl(rawUrl, signal),
     enabled: !!submitted?.valid && !!rawUrl,
     retry: false,
+  });
+
+  // Flipkart Apify Actor scraping mutation
+  const flipkartMutation = useMutation({
+    mutationFn: (targetUrl: string) =>
+      api.scrapeFlipkart({
+        url: targetUrl,
+        max_items: fkMaxItems,
+        max_pages_per_product: fkMaxPages,
+      }),
+    onSuccess: (data) => {
+      setFkResult(data);
+      void queryClient.invalidateQueries({ queryKey: ['products'] });
+      void analyzeQuery.refetch();
+    },
   });
 
   // Admin CSV import job mutation
@@ -72,42 +106,50 @@ export default function Harvester() {
     {
       label: 'URL validation',
       state: submitted?.valid ? 'done' : submitted ? 'error' : 'pending',
-      detail: submitted?.valid ? `ASIN ${submitted.asin} · ${submitted.marketplace}` : submitted?.error,
+      detail: submitted?.valid
+        ? `${submitted.marketplace === 'Flipkart' ? 'PID' : 'ASIN'} ${submitted.id} · ${submitted.marketplace}`
+        : submitted?.error,
     },
     {
       label: 'Provider retrieval',
-      state: analyzeQuery.isLoading
+      state: analyzeQuery.isLoading || flipkartMutation.isPending
         ? 'active'
-        : analyzeQuery.isSuccess
+        : analyzeQuery.isSuccess || fkResult
           ? 'done'
-          : err
+          : err || flipkartMutation.error
             ? 'error'
             : submitted?.valid
               ? 'pending'
               : 'pending',
-      detail: analyzeQuery.isLoading
-        ? 'Querying product catalog / provider…'
+      detail: analyzeQuery.isLoading || flipkartMutation.isPending
+        ? `Querying ${submitted?.marketplace ?? 'catalog'} provider / Apify Actor…`
         : analyzeQuery.isSuccess
-          ? `ASIN ${analysisData?.asin} resolved successfully`
-          : err
-            ? `${err.message}${err.requestId ? ` (Req ID: ${err.requestId.slice(0, 8)})` : ''}`
-            : submitted?.valid
-              ? 'Ready to query backend.'
-              : undefined,
+          ? `Product ${analysisData?.asin} resolved successfully`
+          : fkResult
+            ? `Exported ${fkResult.reviews_count} reviews (${fkResult.is_mock_provider ? 'Simulation' : 'Apify Live'})`
+            : err
+              ? `${err.message}${err.requestId ? ` (Req ID: ${err.requestId.slice(0, 8)})` : ''}`
+              : submitted?.valid
+                ? 'Ready to query backend.'
+                : undefined,
     },
     {
       label: 'Persistence',
-      state: analyzeQuery.isSuccess ? 'done' : 'pending',
+      state: analyzeQuery.isSuccess || fkResult ? 'done' : 'pending',
       detail: analyzeQuery.isSuccess
         ? `${analysisData?.price_history.snapshots.length ?? 0} price snapshot(s) stored`
-        : 'Starts after retrieval succeeds.',
+        : fkResult
+          ? `${fkResult.reviews_count} reviews persisted in database`
+          : 'Starts after retrieval succeeds.',
     },
     {
       label: 'Review analysis',
-      state: analyzeQuery.isSuccess ? 'done' : 'pending',
+      state: analyzeQuery.isSuccess || fkResult ? 'done' : 'pending',
       detail: analyzeQuery.isSuccess
         ? analysisData?.status_note ?? 'Analysis complete.'
-        : 'Starts after reviews are stored.',
+        : fkResult
+          ? fkResult.status_note
+          : 'Starts after reviews are stored.',
     },
   ];
 
@@ -115,23 +157,192 @@ export default function Harvester() {
     <PageContainer>
       <PageHeader
         title="Review Harvester"
-        description="Guided Amazon.in product analysis: validate, retrieve, store and analyze."
+        description="Unified Amazon.in & Flipkart review intelligence: validate, scrape with Apify Actor, store and analyze."
       />
 
+      {/* Main URL Ingestion Card */}
       <Card data-reveal tone="featured" className="!p-6 md:!p-8">
-        <h2 className="mb-1 text-[20px] font-extrabold">Product URL</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+          <h2 className="text-[20px] font-extrabold">Product URL Ingestion</h2>
+          <div className="flex items-center gap-2">
+            <Badge tone="primary">Amazon.in</Badge>
+            <Badge tone="success">Flipkart (Apify Actor)</Badge>
+          </div>
+        </div>
         <p className="mb-5 text-sm text-rp-muted">
-          Paste a full Amazon.in product link to analyze pricing and customer reviews.
+          Paste a full Amazon.in or Flipkart product link. Flipkart links trigger the official{' '}
+          <code className="text-xs bg-rp-surface-soft px-1.5 py-0.5 rounded font-mono text-rp-navy">
+            automation-lab/flipkart-product-reviews-scraper
+          </code>{' '}
+          Actor pipeline.
         </p>
         <UrlAnalyzer
           initial={initial}
           cta="Analyze"
-          loading={analyzeQuery.isLoading}
+          loading={analyzeQuery.isLoading || flipkartMutation.isPending}
           onSubmit={(u, c) => {
             setRawUrl(u);
             setSubmitted(c);
+            setFkResult(null);
           }}
         />
+      </Card>
+
+      {/* Dedicated Flipkart Apify Scraper Studio Card */}
+      <Card data-reveal className="!p-6 border-2 border-rp-primary/20 bg-gradient-to-br from-rp-surface via-rp-surface to-rp-primary/5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rp-border pb-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-rp-primary text-white shadow-md">
+              <ShoppingBag className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-extrabold text-rp-navy">Flipkart Product Reviews Scraper</h3>
+                <Badge tone="success">Apify Actor Ready</Badge>
+              </div>
+              <p className="text-xs text-rp-muted font-mono">automation-lab/flipkart-product-reviews-scraper</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-rp-muted bg-rp-surface-soft px-3 py-1.5 rounded-lg border border-rp-border">
+            <Coins className="h-4 w-4 text-rp-primary" />
+            <span>Pay-per-event: $0.0005 start + $0.00183/review</span>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-rp-muted mb-1.5">
+              Max Reviews Cap
+            </label>
+            <div className="flex gap-2">
+              {[10, 25, 50, 100].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setFkMaxItems(num)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    fkMaxItems === num
+                      ? 'bg-rp-primary text-white shadow-sm'
+                      : 'bg-rp-surface-soft text-rp-muted hover:text-rp-navy'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-rp-muted mb-1.5">
+              Max Pages Per Product
+            </label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 5].map((pages) => (
+                <button
+                  key={pages}
+                  type="button"
+                  onClick={() => setFkMaxPages(pages)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    fkMaxPages === pages
+                      ? 'bg-rp-primary text-white shadow-sm'
+                      : 'bg-rp-surface-soft text-rp-muted hover:text-rp-navy'
+                  }`}
+                >
+                  {pages} {pages === 1 ? 'page' : 'pages'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-end">
+            <Button
+              variant="primary"
+              className="w-full"
+              loading={flipkartMutation.isPending}
+              onClick={() => {
+                const target =
+                  rawUrl && rawUrl.includes('flipkart.com')
+                    ? rawUrl
+                    : 'https://www.flipkart.com/apple-iphone-15-black-128-gb/p/itm6ac6485515ae4?pid=MOBGTAGPNRQA7CS3';
+                flipkartMutation.mutate(target);
+              }}
+            >
+              <Sparkles className="h-4 w-4 mr-1.5" />
+              Run Apify Flipkart Scraper
+            </Button>
+          </div>
+        </div>
+
+        {/* Scraper Live Result Box */}
+        {fkResult && (
+          <div className="mt-5 rounded-2xl bg-rp-surface-soft p-4 border border-rp-border">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-3">
+              <div>
+                <span className="text-xs font-bold uppercase text-rp-primary">Scrape Succeeded</span>
+                <h4 className="text-sm font-extrabold text-rp-navy">{fkResult.product_name}</h4>
+                <p className="text-xs text-rp-muted">{fkResult.status_note}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge tone={fkResult.is_mock_provider ? 'neutral' : 'success'}>
+                  {fkResult.is_mock_provider ? 'Simulation Mode' : 'Live Apify Run'}
+                </Badge>
+                <Link
+                  to={ROUTES.analysis}
+                  className="inline-flex items-center gap-1 text-xs font-bold text-rp-primary hover:underline bg-rp-primary/10 px-2.5 py-1 rounded-lg"
+                >
+                  Deep-Dive ABSA <ExternalLink className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Scraped Reviews Cards Carousel/Grid */}
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {fkResult.reviews.slice(0, 6).map((rev) => (
+                <div
+                  key={rev.reviewId}
+                  className="rounded-xl bg-rp-surface p-3 border border-rp-border shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-xs font-extrabold text-rp-gold">
+                        {'★'.repeat(Math.round(rev.rating ?? 5))}
+                        <span className="text-rp-muted/40">{'★'.repeat(5 - Math.round(rev.rating ?? 5))}</span>
+                      </span>
+                      <span className="text-[11px] text-rp-muted">{rev.displayedDate ?? 'Recent'}</span>
+                    </div>
+                    {rev.title && <p className="text-xs font-bold text-rp-navy mb-1 line-clamp-1">{rev.title}</p>}
+                    <p className="text-xs text-rp-muted line-clamp-3 mb-2">{rev.text}</p>
+                  </div>
+
+                  <div className="pt-2 border-t border-rp-border/50 text-[11px] space-y-1">
+                    <div className="flex items-center justify-between text-rp-navy font-semibold">
+                      <span>{rev.reviewer ?? 'Flipkart Customer'}</span>
+                      {rev.certifiedBuyer && (
+                        <span className="inline-flex items-center gap-0.5 text-rp-success font-bold text-[10px]">
+                          <CheckCircle2 className="h-3 w-3" /> Certified
+                        </span>
+                      )}
+                    </div>
+                    {rev.variant && rev.variant.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {rev.variant.map((v, i) => (
+                          <span key={i} className="inline-flex items-center gap-0.5 bg-rp-primary-light text-rp-primary px-1.5 py-0.2 rounded text-[10px]">
+                            <Tag className="h-2.5 w-2.5" /> {v.name}: {v.value}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {(rev.helpfulCount !== undefined && rev.helpfulCount !== null && rev.helpfulCount > 0) && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-rp-muted">
+                        <ThumbsUp className="h-2.5 w-2.5" /> {rev.helpfulCount} found helpful
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
@@ -250,7 +461,7 @@ export default function Harvester() {
         <div className="mb-4 flex items-center gap-2">
           <Database className="h-5 w-5 text-rp-primary" aria-hidden />
           <h2 id="csv" className="text-[20px] font-extrabold">Existing datasets</h2>
-          <Badge tone="neutral">CSV harvester</Badge>
+          <Badge tone="neutral">Catalog</Badge>
         </div>
         {products.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

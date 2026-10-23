@@ -1,5 +1,6 @@
 import type {
   ApiEnvelope,
+  BackendFlipkartScrapeResponse,
   BackendHealthResponse,
   BackendJobStatusResponse,
   BackendLanguageDetectionResponse,
@@ -197,12 +198,24 @@ export const api = {
       signal,
     }),
 
-  // URL Analysis
+  // URL Analysis (Amazon.in or Flipkart)
   analyzeUrl: (url: string, signal?: AbortSignal) =>
     request<BackendProductUrlAnalysisResponse>('/api/v1/harvester/analyze-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url }),
+      signal,
+    }),
+
+  // Flipkart Review Scraper (Apify Actor: automation-lab/flipkart-product-reviews-scraper)
+  scrapeFlipkart: (
+    params: { url: string; max_items?: number; max_pages_per_product?: number },
+    signal?: AbortSignal,
+  ) =>
+    request<BackendFlipkartScrapeResponse>('/api/v1/harvester/flipkart/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
       signal,
     }),
 
