@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     amazon_access_key: str | None = None
     amazon_secret_key: str | None = None
 
+    # Apify Actor Integration (Flipkart reviews scraper)
+    apify_token: str | None = None
+
     # Authentication & Authorization (Clerk JWT compatible)
     auth_enabled: bool = True
     clerk_issuer: str | None = None
@@ -88,6 +91,7 @@ class Settings(BaseSettings):
     @field_validator(
         "database_url",
         "amazon_csv_path",
+        "apify_token",
         "clerk_issuer",
         "clerk_audience",
         "clerk_pem_public_key",

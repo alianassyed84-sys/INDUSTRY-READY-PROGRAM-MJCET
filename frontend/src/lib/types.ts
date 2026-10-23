@@ -329,3 +329,39 @@ export interface BackendTopicsResponse {
   limitations: string[];
 }
 
+export interface BackendFlipkartVariantAttribute {
+  name: string;
+  value: string;
+}
+
+export interface BackendFlipkartReviewItem {
+  reviewId: string;
+  reviewUrl?: string | null;
+  productId: string;
+  reviewProductId?: string | null;
+  title?: string | null;
+  text?: string | null;
+  rating?: number | null;
+  reviewer?: string | null;
+  displayedDate?: string | null;
+  certifiedBuyer?: boolean | null;
+  verifiedPurchase?: boolean | null;
+  helpfulCount?: number | null;
+  unhelpfulCount?: number | null;
+  variant?: BackendFlipkartVariantAttribute[];
+}
+
+export interface BackendFlipkartScrapeResponse {
+  product_id: string;
+  product_name: string;
+  canonical_url: string;
+  reviews_count: number;
+  estimated_cost_usd: number;
+  is_mock_provider: boolean;
+  product: BackendProductDetail;
+  reviews: BackendFlipkartReviewItem[];
+  insights: BackendProductInsightsResponse | null;
+  status_note: string;
+}
+
+

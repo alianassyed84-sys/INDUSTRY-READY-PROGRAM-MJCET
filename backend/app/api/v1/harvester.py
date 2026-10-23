@@ -38,12 +38,16 @@ from app.core.rate_limit import (
 from app.models.collection_job import CollectionJob
 from app.schemas.harvester import (
     AnalyzeUrlRequest,
+    FlipkartReviewItem,
+    FlipkartScrapeRequest,
+    FlipkartScrapeResponse,
     JobStartRequest,
     JobStatusResponse,
     PaginatedProducts,
     PaginatedReviews,
     PriceHistoryResponse,
     PriceSnapshotSchema,
+    ProductComparisonResponse,
     ProductDetailResponse,
     ProductInsightsResponse,
     ProductUrlAnalysisResponse,
@@ -51,6 +55,14 @@ from app.schemas.harvester import (
 from app.services.harvester.amazon_url import (
     InvalidAmazonUrlError,
     validate_amazon_in_url,
+)
+from app.services.harvester.comparator import compare_product_platforms
+from app.services.harvester.flipkart_scraper import (
+    FlipkartReviewScraper,
+)
+from app.services.harvester.flipkart_url import (
+    InvalidFlipkartUrlError,
+    validate_flipkart_url,
 )
 from app.services.harvester.base import (
     NormalizedProduct,
@@ -198,12 +210,13 @@ async def get_products(
     _user: CurrentUserDep,
     limit: int = Query(20, ge=1, le=_MAX_LIMIT),
     offset: int = Query(0, ge=0),
+    category: str | None = Query(None, description="Optional category filter"),
 ) -> PaginatedProducts:
     """Return a paginated list of products stored in the database."""
     _require_db(settings)
     assert db is not None
 
-    products = await list_products(db, limit=limit, offset=offset)
+    products = await list_products(db, limit=limit, offset=offset, category=category)
     items = [
         {
             "product_id": p.product_id,
@@ -214,6 +227,7 @@ async def get_products(
             "discounted_price": p.discounted_price,
             "actual_price": p.actual_price,
             "discount_percentage": p.discount_percentage,
+            "img_link": p.img_link,
         }
         for p in products
     ]
@@ -223,6 +237,32 @@ async def get_products(
         offset=offset,
         items=items,  # type: ignore[arg-type]
     )
+
+
+@router.get(
+    "/products/{product_id}/compare",
+    response_model=ProductComparisonResponse,
+    summary="Compare Amazon and Flipkart reviews and intelligence for a product",
+    tags=["harvester"],
+    dependencies=[Depends(rate_limit_default)],
+)
+async def get_product_comparison(
+    product_id: str,
+    settings: SettingsDep,
+    db: DbDep,
+    _user: CurrentUserDep,
+) -> ProductComparisonResponse:
+    """Return side-by-side review intelligence comparing Amazon and Flipkart."""
+    _require_db(settings)
+    assert db is not None
+
+    comparison = await compare_product_platforms(session=db, product_id=product_id)
+    if comparison is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product '{product_id}' not found.",
+        )
+    return comparison
 
 
 @router.get(
@@ -528,7 +568,7 @@ async def get_reviews(
     response_model=ProductUrlAnalysisResponse,
     summary="Validate and analyze Amazon.in product URL",
     description=(
-        "Validates an Amazon.in product URL, retrieves product metadata "
+        "Validates an Amazon.in or Flipkart product URL, retrieves product metadata "
         "from database or configured provider, persists price snapshots, "
         "and computes NLP review insights."
     ),
@@ -541,10 +581,99 @@ async def analyze_url(
     db: DbDep,
     _user: CurrentUserDep,
 ) -> ProductUrlAnalysisResponse:
-    """Analyze an Amazon.in product URL on-demand."""
+    """Analyze an Amazon.in or Flipkart product URL on-demand."""
     _require_db(settings)
     assert db is not None
 
+    url_str = payload.url.strip()
+    is_flipkart = "flipkart.com" in url_str.lower()
+
+    if is_flipkart:
+        try:
+            fk_validated = validate_flipkart_url(url_str)
+        except InvalidFlipkartUrlError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=f"Invalid Flipkart URL: {exc}",
+            ) from exc
+
+        pid = fk_validated.pid
+        product = await get_product_by_id(db, pid)
+
+        if product is None:
+            scraper = FlipkartReviewScraper(apify_token=settings.apify_token)
+            try:
+                fk_result = await scraper.scrape(fk_validated, max_items=25)
+            except Exception as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Flipkart review scraping error: {exc}",
+                ) from exc
+
+            await upsert_product(db, fk_result.product)
+            for u in fk_result.users:
+                await upsert_user(db, u)
+            for r in fk_result.reviews:
+                await upsert_review(db, r)
+
+            if fk_result.product.discounted_price is not None:
+                await record_price_snapshot(
+                    db,
+                    product_id=pid,
+                    price=fk_result.product.discounted_price,
+                    original_price=fk_result.product.actual_price,
+                    currency="INR",
+                    source="flipkart_scraper",
+                )
+
+            await db.commit()
+            product = await get_product_by_id(db, pid)
+
+        assert product is not None
+
+        history_check = await get_price_history(db, pid)
+        if history_check.observations_count == 0 and product.discounted_price is not None:
+            await record_price_snapshot(
+                db,
+                product_id=product.product_id,
+                price=product.discounted_price,
+                original_price=product.actual_price,
+                currency="INR",
+                source="catalog_baseline",
+            )
+            await db.commit()
+            history_check = await get_price_history(db, pid)
+
+        insights = await compute_product_insights(session=db, product_id=pid, limit=100)
+        status_note = (
+            f"Flipkart product resolved with {insights.total_reviews_analyzed if insights else 0} review(s) analyzed."
+        )
+
+        product_detail = ProductDetailResponse(
+            product_id=product.product_id,
+            product_name=product.product_name,
+            category=product.category,
+            rating=product.rating,
+            rating_count=product.rating_count,
+            discounted_price=product.discounted_price,
+            actual_price=product.actual_price,
+            discount_percentage=product.discount_percentage,
+            about_product=product.about_product,
+            img_link=product.img_link,
+            product_link=product.product_link,
+            created_at=product.created_at,
+        )
+
+        return ProductUrlAnalysisResponse(
+            asin=pid,
+            canonical_url=fk_validated.canonical_url,
+            product=product_detail,
+            price_history=_build_price_history_response(history_check),
+            insights=insights,
+            status_note=status_note,
+        )
+
+    # Standard Amazon.in flow
     try:
         validated = validate_amazon_in_url(payload.url)
     except InvalidAmazonUrlError as exc:
@@ -694,3 +823,117 @@ async def analyze_url(
         insights=insights,
         status_note=status_note,
     )
+
+
+# ---------------------------------------------------------------------------
+# Dedicated Flipkart Review Scraper (Apify Actor)
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/flipkart/scrape",
+    response_model=FlipkartScrapeResponse,
+    summary="Scrape Flipkart product reviews using Apify Actor",
+    description=(
+        "Executes Apify Actor 'automation-lab/flipkart-product-reviews-scraper' "
+        "to export individual public product reviews, stores them in ReviewPulse database, "
+        "and computes NLP sentiment intelligence."
+    ),
+    tags=["harvester"],
+    dependencies=[Depends(rate_limit_harvester)],
+)
+async def scrape_flipkart(
+    payload: FlipkartScrapeRequest,
+    settings: SettingsDep,
+    db: DbDep,
+    _user: CurrentUserDep,
+) -> FlipkartScrapeResponse:
+    """Scrape and store public Flipkart product reviews via Apify Actor."""
+    _require_db(settings)
+    assert db is not None
+
+    try:
+        validated = validate_flipkart_url(payload.url)
+    except InvalidFlipkartUrlError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=f"Invalid Flipkart URL: {exc}",
+        ) from exc
+
+    scraper = FlipkartReviewScraper(
+        apify_token=settings.apify_token,
+        timeout_seconds=60.0,
+    )
+    try:
+        result = await scraper.scrape(
+            url=validated,
+            max_items=payload.max_items,
+            max_pages_per_product=payload.max_pages_per_product,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Flipkart reviews scraper error: {exc}",
+        ) from exc
+
+    await upsert_product(db, result.product)
+    for u in result.users:
+        await upsert_user(db, u)
+    for r in result.reviews:
+        await upsert_review(db, r)
+
+    if result.product.discounted_price is not None:
+        await record_price_snapshot(
+            db,
+            product_id=result.product.product_id,
+            price=result.product.discounted_price,
+            original_price=result.product.actual_price,
+            currency="INR",
+            source="flipkart_scraper",
+        )
+
+    await db.commit()
+    persisted_product = await get_product_by_id(db, result.product.product_id)
+    assert persisted_product is not None
+
+    insights = await compute_product_insights(
+        session=db,
+        product_id=result.product.product_id,
+        limit=100,
+    )
+
+    review_items: list[FlipkartReviewItem] = []
+    for item in result.raw_items:
+        try:
+            review_items.append(FlipkartReviewItem.model_validate(item))
+        except Exception:
+            pass
+
+    product_detail = ProductDetailResponse(
+        product_id=persisted_product.product_id,
+        product_name=persisted_product.product_name,
+        category=persisted_product.category,
+        rating=persisted_product.rating,
+        rating_count=persisted_product.rating_count,
+        discounted_price=persisted_product.discounted_price,
+        actual_price=persisted_product.actual_price,
+        discount_percentage=persisted_product.discount_percentage,
+        about_product=persisted_product.about_product,
+        img_link=persisted_product.img_link,
+        product_link=persisted_product.product_link,
+        created_at=persisted_product.created_at,
+    )
+
+    return FlipkartScrapeResponse(
+        product_id=result.product.product_id,
+        product_name=result.product.product_name,
+        canonical_url=validated.canonical_url,
+        reviews_count=len(result.reviews),
+        estimated_cost_usd=result.estimated_cost_usd,
+        is_mock_provider=result.is_mock,
+        product=product_detail,
+        reviews=review_items,
+        insights=insights,
+        status_note=result.status_note,
+    )
+
