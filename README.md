@@ -243,10 +243,30 @@ irppp/
 
 ## 🚢 Deployment & Production Readiness
 
-ReviewPulse is container-ready and follows 12-factor application design principles:
-- **Stateless API Gateway**: Fully containerizable via standard Python 3.12 slim images.
-- **Frontend SPA**: Static build distributable via Vercel, Netlify, Cloudflare Pages, or NGINX.
-- **Environment Isolation**: Fully driven by `.env` with strict Pydantic v2 settings validation.
+ReviewPulse is fully configured for one-click split deployment on **Railway** (FastAPI Backend) and **Vercel** (React Frontend):
+
+### 1. Deploy Backend on [Railway](https://railway.app)
+1. **Create New Project**: Click **New Project** → **Deploy from GitHub repo** → select `irpversion2`.
+2. **Settings**:
+   - Railway will auto-detect the root `railway.json` and `backend/Dockerfile`.
+   - If deploying as a mono-service, set **Root Directory** to `/backend` (or leave default root).
+3. **Environment Variables**:
+   ```ini
+   APP_ENV=production
+   DEBUG=false
+   CORS_ORIGINS=https://<your-vercel-app>.vercel.app
+   ```
+   *(Optional)*: Click **+ New** → **Database** → **Add PostgreSQL** on Railway. Railway automatically injects `DATABASE_URL`!
+4. **Generate Domain**: Under service **Settings** → **Networking** → **Generate Domain** (e.g. `https://reviewpulse-production.up.railway.app`).
+
+### 2. Deploy Frontend on [Vercel](https://vercel.com)
+1. **Import Project**: In Vercel, click **Add New...** → **Project** → select `irpversion2`.
+2. **Root Directory**: Choose `frontend` (or leave as root; the included `vercel.json` handles both).
+3. **Environment Variables**:
+   ```ini
+   VITE_API_BASE_URL=https://<your-railway-app>.up.railway.app
+   ```
+4. **Deploy**: Click **Deploy**. Vercel will build the Vite SPA with full client-side routing support via `vercel.json`.
 
 ---
 
