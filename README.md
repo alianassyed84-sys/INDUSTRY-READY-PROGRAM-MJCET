@@ -87,32 +87,32 @@ Modern e-commerce enterprises (Amazon, Flipkart) process hundreds of thousands o
 
 ```mermaid
 graph TD
-    User([End User / College Evaluator]) -->|HTTPS 60 FPS| UI[Frontend: React 18 + Vite + TailwindCSS]
+    User(["End User / College Evaluator"]) -->|HTTPS 60 FPS| UI["Frontend: React 18 + Vite + TailwindCSS"]
     
-    subgraph Presentation Tier (Vercel Edge)
-        UI --> Router[React Router v6 SPA]
-        Router --> Views[Dashboard | Reviews | Analysis | Analytics | Topics | Readability | Harvester]
-        Views --> ApiClient[Axios Client with Rate Limit & Retry Interceptor]
+    subgraph Presentation_Tier ["Presentation Tier (Vercel Edge)"]
+        UI --> Router["React Router v6 SPA"]
+        Router --> Views["Dashboard, Reviews, Analysis, Analytics, Topics, Readability, Harvester"]
+        Views --> ApiClient["Axios Client with Rate Limit and Retry Interceptor"]
     end
 
-    ApiClient -->|Sub-25ms REST API| Gateway[FastAPI Application Gateway]
+    ApiClient -->|Sub-25ms REST API| Gateway["FastAPI Application Gateway"]
     
-    subgraph ReviewPulse Core Intelligence (Python 3.12 Runtime)
-        Gateway --> SecurityMiddleware[CORS + Rate Limiter Guard]
-        SecurityMiddleware --> SentimentEngine[Aspect-Based Sentiment Engine - ABSA]
-        SecurityMiddleware --> ReadabilityEngine[Readability Suite - 5 Formulas]
-        SecurityMiddleware --> TopicEngine[TF-IDF N-gram Topic Extractor]
-        SecurityMiddleware --> HarvesterService[Dataset Harvester & CSV ETL Adapter]
-        SecurityMiddleware --> PriceService[Price Volatility & Observation Tracker]
+    subgraph ReviewPulse_Core ["ReviewPulse Core Intelligence (Python 3.12 Runtime)"]
+        Gateway --> SecurityMiddleware["CORS + Rate Limiter Guard"]
+        SecurityMiddleware --> SentimentEngine["Aspect-Based Sentiment Engine (ABSA)"]
+        SecurityMiddleware --> ReadabilityEngine["Readability Suite (5 Formulas)"]
+        SecurityMiddleware --> TopicEngine["TF-IDF N-gram Topic Extractor"]
+        SecurityMiddleware --> HarvesterService["Dataset Harvester and CSV ETL Adapter"]
+        SecurityMiddleware --> PriceService["Price Volatility and Observation Tracker"]
     end
 
-    subgraph Data Sources & Ingestion
-        HarvesterService -->|Stream Parse| KaggleHub[(Kaggle Amazon 3.6M Polarity Dataset)]
-        HarvesterService -->|REST Actor API| ApifyActor[(Flipkart Apify Review Scraper)]
+    subgraph Data_Sources ["Data Sources and Ingestion"]
+        HarvesterService -->|Stream Parse| KaggleHub[("Kaggle Amazon 3.6M Polarity Dataset")]
+        HarvesterService -->|REST Actor API| ApifyActor[("Flipkart Apify Review Scraper")]
     end
 
-    subgraph Persistence Tier
-        SentimentEngine --> DB[(PostgreSQL / Async SQLite via SQLAlchemy 2.0)]
+    subgraph Persistence_Tier ["Persistence Tier"]
+        SentimentEngine --> DB[("PostgreSQL / Async SQLite via SQLAlchemy 2.0")]
         HarvesterService --> DB
         PriceService --> DB
     end
@@ -125,7 +125,7 @@ sequenceDiagram
     autonumber
     actor User as User / Evaluator
     participant UI as React 18 SPA (Vercel)
-    participant Gateway as FastAPI Gateway (:8000)
+    participant Gateway as FastAPI Application Gateway
     participant NLP as Linguistic NLP Suite
     participant DB as SQLAlchemy Relational Store
 
@@ -135,7 +135,7 @@ sequenceDiagram
     Gateway->>NLP: Dispatch to VADER-Calibrated ABSA Engine
     NLP->>NLP: Calculate polarity score (-1.0 to +1.0) & aspect tags
     Gateway->>NLP: Compute Readability (Flesch, Fog, SMOG, Coleman, FKGL)
-    NLP-->>Gateway: Return deterministic linguistic metrics (< 25ms)
+    NLP-->>Gateway: Return deterministic linguistic metrics (sub-25ms)
     Gateway->>DB: Persist review & sentiment insights
     Gateway-->>UI: Return HTTP 200 OK + JSON Insights
     UI-->>User: Render Glassmorphism Radar & Polarity Chips (60 FPS)
