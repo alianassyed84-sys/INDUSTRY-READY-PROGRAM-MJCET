@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "ReviewPulse Enterprise Architecture",
+    "output": "architecture-diagram.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-stack",
+        "label": "Full-Stack Request Flow",
+        "focus": ["users", "vercel_spa", "gateway", "topics", "database"],
+        "note": "Client requests flow from the Vercel React SPA through FastAPI to persistence."
+      },
+      {
+        "id": "nlp-engines",
+        "label": "Linguistic & NLP Core",
+        "focus": ["gateway", "sentiment", "readability", "topics"],
+        "note": "Sub-25ms aspect-based sentiment, readability scoring, and TF-IDF topic extraction."
+      },
+      {
+        "id": "harvester-flow",
+        "label": "Multi-Source Harvester",
+        "focus": ["kaggle", "apify", "harvester", "price_tracker", "database"],
+        "note": "Live Flipkart Apify scraping and 3.6M Amazon reviews dataset streaming."
+      }
+    ]
+  },
+  "components": [
+    { "id": "users", "type": "external", "label": "Users & Evaluators", "sublabel": "MJCET / Web Browser", "pos": [40, 250], "size": [130, 60] },
+    { "id": "kaggle", "type": "external", "label": "Kaggle Dataset", "sublabel": "3.6M Amazon CSV", "pos": [40, 390], "size": [130, 60], "tag": "kagglehub" },
+    { "id": "apify", "type": "external", "label": "Apify Actor", "sublabel": "Flipkart Scraper", "pos": [40, 490], "size": [130, 60], "tag": "REST Actor" },
+    { "id": "vercel_spa", "type": "frontend", "label": "React 18 SPA", "sublabel": "Vite + TailwindCSS", "brand": "react", "pos": [260, 250], "size": [130, 60], "tag": "Vercel Edge" },
+    { "id": "harvester", "type": "backend", "label": "Review Harvester", "sublabel": "ETL & Normalizer", "brand": "python", "pos": [260, 440], "size": [130, 60] },
+    { "id": "gateway", "type": "backend", "label": "FastAPI Gateway", "sublabel": "ASGI + Rate Limiter", "brand": "fastapi", "pos": [480, 250], "size": [130, 60], "tag": "OpenAPI /docs" },
+    { "id": "price_tracker", "type": "backend", "label": "Price Tracker", "sublabel": "History & Alerts", "brand": "python", "pos": [480, 440], "size": [130, 60] },
+    { "id": "sentiment", "type": "backend", "label": "ABSA Engine", "sublabel": "Aspect Sentiment", "brand": "python", "pos": [480, 90], "size": [130, 60] },
+    { "id": "readability", "type": "backend", "label": "Readability Suite", "sublabel": "5 Classic Formulas", "brand": "python", "pos": [700, 90], "size": [130, 60] },
+    { "id": "topics", "type": "backend", "label": "TF-IDF Engine", "sublabel": "N-Gram Collation", "brand": "python", "pos": [700, 250], "size": [130, 60] },
+    { "id": "database", "type": "database", "label": "Relational Store", "sublabel": "PostgreSQL / SQLite", "brand": "postgresql", "pos": [920, 250], "size": [130, 60], "tag": "SQLAlchemy 2.0" }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Presentation Tier", "wraps": ["vercel_spa"] },
+    { "kind": "region", "label": "ReviewPulse Core Intelligence Services", "wraps": ["gateway", "harvester", "price_tracker", "sentiment", "readability", "topics"] },
+    { "kind": "security-group", "label": "Persistence Tier", "wraps": ["database"] }
+  ],
+  "connections": [
+    { "id": "users-to-spa", "from": "users", "to": "vercel_spa", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "spa-to-gateway", "from": "vercel_spa", "to": "gateway", "label": "REST API", "variant": "emphasis" },
+    { "id": "gateway-to-sentiment", "from": "gateway", "to": "sentiment", "label": "aspects", "fromSide": "top", "toSide": "bottom" },
+    { "id": "sentiment-to-readability", "from": "sentiment", "to": "readability", "label": "lexical" },
+    { "id": "gateway-to-topics", "from": "gateway", "to": "topics", "label": "extract" },
+    { "id": "topics-to-db", "from": "topics", "to": "database", "label": "store" },
+    { "id": "kaggle-to-harvester", "from": "kaggle", "to": "harvester", "label": "stream" },
+    { "id": "apify-to-harvester", "from": "apify", "to": "harvester", "label": "webhook" },
+    { "id": "harvester-to-gateway", "from": "harvester", "to": "gateway", "label": "datasets", "fromSide": "top", "toSide": "bottom" },
+    { "id": "harvester-to-price", "from": "harvester", "to": "price_tracker", "label": "prices" },
+    { "id": "price-to-db", "from": "price_tracker", "to": "database", "label": "snapshots" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Client Tier", "items": ["React 18 + Vite SPA deployed on Vercel Edge", "Interactive charts with Recharts, GSAP & Tailwind"] },
+    { "dot": "emerald", "title": "Linguistic & NLP Core", "items": ["Aspect-based sentiment analysis & TF-IDF topic extraction", "5 mathematical readability indices (Flesch, Fog, SMOG)", "Sub-25ms response latency with 396 automated tests passing"] },
+    { "dot": "rose", "title": "Harvester & Storage", "items": ["Apify Actor for live Flipkart product review extraction", "Kaggle Amazon 3.6M review dataset streaming", "SQLAlchemy 2.0 async ORM with PostgreSQL & SQLite"] }
+  ]
+}
