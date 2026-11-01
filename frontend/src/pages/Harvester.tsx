@@ -37,7 +37,7 @@ export default function Harvester() {
     initial ? parseProductUrl(initial) : null,
   );
   const [confirmJob, setConfirmJob] = useState(false);
-  const { products } = useProductContext();
+  const { products, setProductId } = useProductContext();
   const queryClient = useQueryClient();
 
   // Flipkart Apify Scraper controls
@@ -475,7 +475,12 @@ export default function Harvester() {
         {products.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((p) => (
-              <Link key={p.id} to={ROUTES.analysis} className="block rounded-card">
+              <Link
+                key={p.id}
+                to={ROUTES.analysis}
+                className="block rounded-card transition-transform hover:scale-[1.01]"
+                onClick={() => setProductId(p.id)}
+              >
                 <ProductCard product={p} />
               </Link>
             ))}

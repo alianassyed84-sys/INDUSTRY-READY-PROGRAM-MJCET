@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
-  size?: 'md' | 'lg' | 'icon';
+  size?: 'sm' | 'md' | 'lg' | 'icon';
   loading?: boolean;
 }
 
@@ -15,7 +15,7 @@ const variants: Record<ButtonVariant, string> = {
   ghost: 'text-rp-text hover:bg-rp-primary-light',
   danger: 'bg-rp-coral text-rp-bg hover:brightness-110',
 };
-const sizes = { md: 'min-h-[44px] px-5 text-sm', lg: 'min-h-[52px] px-7 text-[15px]', icon: 'h-11 w-11' };
+const sizes = { sm: 'min-h-[36px] px-3.5 text-xs', md: 'min-h-[44px] px-5 text-sm', lg: 'min-h-[52px] px-7 text-[15px]', icon: 'h-11 w-11' };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading, disabled, className, children, ...rest }, ref) => (

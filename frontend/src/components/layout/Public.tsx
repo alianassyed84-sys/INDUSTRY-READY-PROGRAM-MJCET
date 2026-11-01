@@ -10,15 +10,15 @@ export function PublicHeader() {
       <div className="mx-auto flex h-[76px] max-w-content items-center justify-between px-2 sm:px-4 md:px-6 lg:px-10">
         <Logo />
         <nav aria-label="Landing" className="hidden items-center gap-7 text-sm font-semibold text-rp-text md:flex">
-          <a href="/#features" className="hover:text-rp-primary">Features</a>
-          <a href="/#workflow" className="hover:text-rp-primary">How it works</a>
-          <a href="/#trust" className="hover:text-rp-primary">Data & trust</a>
-          <Link to={ROUTES.about} className="hover:text-rp-primary">Docs</Link>
+          <a href="/#features" className="hover:text-rp-primary transition-colors">Superpowers</a>
+          <a href="/#workflow" className="hover:text-rp-primary transition-colors">Neural Pipeline</a>
+          <a href="/#trust" className="hover:text-rp-primary transition-colors">Data Honesty</a>
+          <Link to={ROUTES.about} className="hover:text-rp-primary transition-colors">Architecture</Link>
         </nav>
         <div className="flex items-center gap-1 sm:gap-2">
           <MotionToggle />
           <Link to={ROUTES.login} className="hidden min-h-[44px] items-center rounded-btn px-4 text-sm font-semibold hover:bg-rp-primary-light sm:inline-flex">Log in</Link>
-          <Link to={ROUTES.dashboard}><Button>Open app</Button></Link>
+          <Link to={ROUTES.dashboard}><Button className="shadow-lift">Launch App →</Button></Link>
         </div>
       </div>
     </header>

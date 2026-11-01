@@ -1,9 +1,12 @@
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip as RTooltip } from 'recharts';
-import { AlertOctagon, Clock, Lightbulb, MessageSquareText, Sparkles, Star, TrendingDown, EyeOff, ThumbsDown } from 'lucide-react';
+import { AlertOctagon, Clock, Lightbulb, MessageSquareText, Search, Sparkles, Star, TrendingDown, EyeOff, ThumbsDown } from 'lucide-react';
 import { PageContainer } from '@/components/layout/Page';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { EmptyState, ErrorState, LoadingBlock, DataSourceBadge } from '@/components/ui/states';
 import { KpiCard } from '@/components/shared/KpiCard';
 import { ChartCard } from '@/components/shared/ChartCard';
@@ -12,7 +15,7 @@ import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
 import { CHART } from '@/components/shared/charts';
 import { useInsights, useProductContext } from '@/hooks/useProduct';
 import { ROUTES } from '@/lib/routes';
-import { fmtDate, pct } from '@/lib/utils';
+import { cn, fmtDate, pct } from '@/lib/utils';
 import type { ApiError } from '@/lib/api';
 
 const PROPS = [
@@ -23,10 +26,49 @@ const PROPS = [
 
 export default function Dashboard() {
   const { products, productId, setProductId, loading } = useProductContext();
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const q = useInsights();
   const ins = q.data?.data;
   const s = ins?.sentiment;
   const total = s ? s.positive + s.neutral + s.negative : 0;
+  const selectedProduct = products.find((p) => p.id === productId);
+
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach((p) => {
+      if (p.brand) {
+        if (p.brand.includes('Smartphones')) cats.add('Smartphones');
+        else if (p.brand.includes('Perfumes') || p.brand.includes('Fragrance')) cats.add('Perfumes');
+        else if (p.brand.includes('Audio') || p.brand.includes('Headphones')) cats.add('Audio');
+        else if (p.brand.includes('Laptops') || p.brand.includes('Computers')) cats.add('Laptops');
+        else if (p.brand.includes('Kaggle')) cats.add('Amazon Dataset');
+        else cats.add(p.brand.split('|')[0].trim());
+      }
+    });
+    return ['All', ...Array.from(cats)];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchesCat =
+        activeCategory === 'All' ||
+        (activeCategory === 'Smartphones' && p.brand?.includes('Smartphones')) ||
+        (activeCategory === 'Perfumes' && (p.brand?.includes('Perfumes') || p.brand?.includes('Fragrance'))) ||
+        (activeCategory === 'Audio' && (p.brand?.includes('Audio') || p.brand?.includes('Headphones'))) ||
+        (activeCategory === 'Laptops' && (p.brand?.includes('Laptops') || p.brand?.includes('Computers'))) ||
+        (activeCategory === 'Amazon Dataset' && p.brand?.includes('Kaggle')) ||
+        p.brand?.toLowerCase().includes(activeCategory.toLowerCase());
+
+      const matchesSearch =
+        !searchQuery.trim() ||
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.brand && p.brand.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchesCat && matchesSearch;
+    });
+  }, [products, activeCategory, searchQuery]);
 
   return (
     <PageContainer>
@@ -147,17 +189,116 @@ export default function Dashboard() {
 
       {/* Product history */}
       <section aria-labelledby="history" data-reveal>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 id="history" className="text-[22px] font-extrabold">Product History</h2>
-          <Link to={ROUTES.harvester} className="text-sm font-semibold text-rp-primary hover:text-rp-primary-hover">Add a product</Link>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="history" className="text-[22px] font-extrabold">Product Catalog & History</h2>
+            <p className="text-xs text-rp-muted">Browse and select from all {products.length} imported products</p>
+          </div>
+          <Link to={ROUTES.harvester} className="text-sm font-semibold text-rp-primary hover:text-rp-primary-hover">
+            + Add / Scrape new product
+          </Link>
         </div>
-        {loading ? <LoadingBlock /> : products.length ? (
-          <div className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-3 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((p) => (
-              <div key={p.id} className="w-[240px] shrink-0 snap-start md:w-auto"><ProductCard product={p} selected={p.id === productId} onSelect={() => setProductId(p.id)} /></div>
+
+        {/* Selected Product Action Banner */}
+        {selectedProduct && (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-rp-primary/30 bg-gradient-to-r from-rp-primary-light/60 via-rp-surface-soft to-rp-surface p-4 shadow-xs">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-rp-primary text-white font-extrabold shadow-sm">
+                {selectedProduct.title.slice(0, 1)}
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rp-primary">Selected Product</span>
+                  <Badge tone="primary">{selectedProduct.brand?.split('|')[0]?.trim() ?? 'Product'}</Badge>
+                </div>
+                <p className="truncate font-bold text-rp-navy text-sm md:text-base">{selectedProduct.title}</p>
+                <p className="text-xs text-rp-muted">
+                  ID: <span className="font-mono font-medium text-rp-navy">{selectedProduct.id}</span>
+                  {selectedProduct.price != null && ` · ₹${selectedProduct.price.toLocaleString('en-IN')}`}
+                  {selectedProduct.rating != null && ` · ★ ${selectedProduct.rating.toFixed(1)}`}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Link to={ROUTES.analysis}>
+                <Button variant="primary" size="sm">
+                  Deep-Dive Analysis →
+                </Button>
+              </Link>
+              <Link to={ROUTES.reviews}>
+                <Button variant="secondary" size="sm">
+                  Browse Reviews →
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* Category pills & search bar */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={cn(
+                  'px-3 py-1.5 rounded-full text-xs font-bold transition-all',
+                  activeCategory === cat
+                    ? 'bg-rp-primary text-white shadow-xs'
+                    : 'bg-rp-surface-soft text-rp-muted hover:text-rp-navy border border-rp-border',
+                )}
+              >
+                {cat}
+                {cat === 'All' ? ` (${products.length})` : ''}
+              </button>
             ))}
           </div>
-        ) : <EmptyState title="No products yet" description="Analyze a product to start building your history." />}
+          <div className="w-full sm:w-64">
+            <Input
+              placeholder={`Search ${products.length} products...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              leading={<Search className="h-3.5 w-3.5 text-rp-muted" />}
+              className="text-xs"
+            />
+          </div>
+        </div>
+
+        {loading ? (
+          <LoadingBlock />
+        ) : filteredProducts.length ? (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+            {filteredProducts.map((p) => (
+              <div key={p.id}>
+                <ProductCard
+                  product={p}
+                  selected={p.id === productId}
+                  onSelect={() => setProductId(p.id)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
+          <EmptyState title="No products yet" description="Analyze a product to start building your history." />
+        ) : (
+          <EmptyState
+            title="No matching products"
+            description={`No products match "${searchQuery}" in category "${activeCategory}".`}
+            action={
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setActiveCategory('All');
+                  setSearchQuery('');
+                }}
+              >
+                Reset filters
+              </Button>
+            }
+          />
+        )}
       </section>
     </PageContainer>
   );
