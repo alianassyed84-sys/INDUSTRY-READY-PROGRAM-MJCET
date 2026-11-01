@@ -1,6 +1,6 @@
 # ReviewPulse Frontend
 
-React 18 + TypeScript (strict) + Vite 5 + Tailwind 3.4 + React Router 6 + TanStack Query 5 + GSAP 3.12 (ScrollTrigger) + Recharts + Three.js (landing hero only) + React Hook Form/Zod.
+React 18 + TypeScript (strict) + Vite 5 + Tailwind 3.4 + React Router 6 + TanStack Query 5 + GSAP 3.12 + Recharts + React Hook Form/Zod.
 
 ## Run
 
@@ -31,14 +31,15 @@ Start the FastAPI backend per its own README so it serves on `VITE_API_BASE_URL`
 | 11 | Settings & Account | `/settings` | AppShell |
 | 12 | About & Docs | `/about` | AppShell |
 
-## Design system handoff (Lavender Luxe)
+## Design system handoff (Midnight Pulse)
 
-- **Tokens:** CSS variables in `src/index.css` (`--rp-bg`, `--rp-surface`, `--rp-surface-soft`, `--rp-primary`, `--rp-primary-hover`, `--rp-primary-light`, `--rp-primary-soft`, `--rp-navy`, `--rp-text`, `--rp-muted`, `--rp-border`, `--rp-coral`, `--rp-success`, `--rp-warning`, `--rp-info`, `--rp-chart-grid`), mapped in `tailwind.config.js` as `rp-*` colors.
+- **Tokens:** CSS variables in `src/index.css` (`--rp-bg`, `--rp-surface`, `--rp-surface-soft`, `--rp-primary`, `--rp-primary-hover`, `--rp-primary-light`, `--rp-primary-soft`, `--rp-navy`, `--rp-text`, `--rp-muted`, `--rp-border`, `--rp-coral`, `--rp-success`, `--rp-warning`, `--rp-info`, `--rp-chart-grid`, `--rp-action`, `--rp-action-hover`, `--rp-overlay`, `--rp-magenta`), mapped in `tailwind.config.js` as `rp-*` colors.
+- **Theme:** Dark plum canvas, layered violet surfaces, lavender text accents, and teal positive signals. Tokens store RGB channels for opacity-aware Tailwind utilities. `rp-primary` is for text and chart accents; `rp-action` provides accessible white-on-violet buttons. `rp-navy` is the legacy heading color token, now soft white. Glows stay in hero sections and primary actions; data panels use quiet surfaces.
 - **Type:** Manrope Variable (`font-heading`), Inter Variable (`font-body`). `.tnum` for tabular numerals.
-- **Dimensions:** sidebar 252px / 76px collapsed (`w-sidebar`, `w-sidebar-collapsed`), topbar 80px (`h-topbar`), content max 1440px (`max-w-content`), card radius 20px, button radius 14px, inputs >= 48px, buttons >= 44px.
+- **Dimensions:** sidebar 252px / 76px collapsed (`w-sidebar`, `w-sidebar-collapsed`), topbar 80px (`h-topbar`), content max 1440px (`max-w-content`), card radius 20px, button radius 12px, inputs >= 48px, buttons >= 44px.
 - **Breakpoints:** sm 640, md 768, lg 1024, xl 1280, 2xl 1536. Below `lg` the sidebar becomes a drawer.
 - **Shared components:** `components/ui` (Button, Input, Card, Badge, Tooltip, Dialog, Dropdown, states: Skeleton/LoadingBlock/EmptyState/UnavailableState/ErrorState/DataSourceBadge), `components/layout` (AppShell, Sidebar, Topbar, PageContainer, PageHeader, Public layout), `components/shared` (KpiCard, ChartCard, ProductCard, ProductSelect, ReviewCard, ReviewFilters, AnalysisProgress, UrlAnalyzer, `charts.ts` chart theme).
-- **Motion:** `src/lib/motion.ts`: `pageEntrance` (opacity 0, y 12, 0.45s, power2.out, stagger 0.08; opt in with `data-reveal`), `scrollReveal` (`data-scroll`), `prefersReducedMotion`. All use scoped `gsap.context` with cleanup.
+- **Motion:** `src/lib/motion.ts` provides scoped, intersection-based page and scroll reveals. `MotionProvider` respects the device’s reduced-motion preference, persists the pause control locally, and pauses ambient motion while the tab is hidden. The landing SVG scene in `components/motion/PulseHero.tsx` uses a scrubbed GSAP ScrollTrigger sequence, with a short desktop hero pin and a shorter unpinned mobile sequence. Reduced motion shows the complete scene immediately. It uses no video or WebGL runtime.
 - **API:** `src/lib/api.ts`: a single `request()` helper plus `api.*` services returning `{ data, source, fallbackReason }`. Types in `src/lib/types.ts`. Hooks in `src/hooks/useProduct.tsx`.
 
 ## What is real vs. not connected

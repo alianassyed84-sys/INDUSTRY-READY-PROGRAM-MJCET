@@ -14,10 +14,10 @@ import { useInsights } from '@/hooks/useProduct';
 import { fmtDate, pct } from '@/lib/utils';
 import { api, type ApiError } from '@/lib/api';
 
-const Field = ({ label, value }: { label: string; value?: string | number }) => (
+const Field = ({ label, value }: { label: string; value?: string | number | null }) => (
   <div>
     <dt className="text-xs font-semibold uppercase tracking-wide text-rp-muted">{label}</dt>
-    <dd className="tnum mt-0.5 text-[15px] font-semibold text-rp-navy">{value ?? <span className="font-normal text-rp-muted">Unavailable</span>}</dd>
+    <dd className="tnum mt-0.5 text-[15px] font-semibold text-rp-navy">{value ?? <span className="font-normal text-rp-muted">Not available</span>}</dd>
   </div>
 );
 
@@ -50,8 +50,8 @@ export default function Analysis() {
         />
       )}
       {ins && p && (
-        <div className="grid gap-6 xl:grid-cols-2">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <div className="min-w-0 space-y-6">
             <Card data-reveal>
               <CardHeader title="Product overview" />
               <h2 className="text-xl font-extrabold">{p.title}</h2>
@@ -105,7 +105,7 @@ export default function Analysis() {
             </ChartCard>
           </div>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             <Card data-reveal>
               <CardHeader title="Review themes" />
               {ins.themes ? (

@@ -441,6 +441,7 @@ class SentimentResult:
     highlights: list[PolarHighlight]
     aspects: dict[str, AspectSentimentResult]
     limitations: list[str]
+    status: str = "supported"
 
 
 # ---------------------------------------------------------------------------
@@ -686,6 +687,29 @@ def analyze_sentiment(
             highlights=[],
             aspects={},
             limitations=["Empty or whitespace-only review text received."],
+        )
+
+    # Language gating: sentiment lexicon is English-only
+    from app.services.language_detection import detect_language
+
+    lang_res = detect_language(clean_text)
+    if lang_res.detected_language not in ("en", "unknown", None):
+        return SentimentResult(
+            text_length=len(text),
+            word_count=len(_TOKEN_RE.findall(clean_text)),
+            scores=SentimentScores(
+                compound=0.0, positive=0.0, negative=0.0, neutral=0.0
+            ),
+            label="unsupported_language",
+            confidence=0.0,
+            highlights=[],
+            aspects={},
+            limitations=[
+                f"Sentiment analysis lexicon is calibrated for English ('en'). "
+                f"Detected unsupported language '{lang_res.detected_language}' ({lang_res.detected_language_name}). "
+                "Analysis cannot be reliably performed without translation."
+            ],
+            status="unsupported_language",
         )
 
     # Split into sentences for clause-aware evaluation

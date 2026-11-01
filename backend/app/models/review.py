@@ -30,6 +30,8 @@ class Review(Base):
         index=True,
     )
     rating: Mapped[float | None] = mapped_column(Float, nullable=True)
+    source_polarity: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    product_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     review_title: Mapped[str | None] = mapped_column(Text, nullable=True)
     review_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(

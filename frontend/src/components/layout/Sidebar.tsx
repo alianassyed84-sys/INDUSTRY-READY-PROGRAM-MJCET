@@ -18,7 +18,7 @@ function Links({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () 
           cn(
             'flex min-h-[44px] items-center gap-3 rounded-btn px-3.5 text-sm font-semibold transition-colors',
             collapsed && 'justify-center px-0',
-            isActive ? 'bg-rp-primary text-white shadow-[0_8px_18px_-8px_rgba(113,56,245,.65)]' : 'text-rp-text hover:bg-rp-primary-light',
+            isActive ? 'rp-nav-active' : 'text-rp-text hover:bg-rp-primary-light',
           )
         }
       >
@@ -33,7 +33,7 @@ function Links({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () 
       <nav aria-label="Primary" className={cn('flex flex-1 flex-col gap-1', collapsed && 'items-stretch')}>
         {NAV_ITEMS.map((i) => link(i.to, i.label, i.icon))}
       </nav>
-      <div className="border-t border-rp-border pt-3">{link(ROUTES.settings, 'Settings & Account', Settings)}</div>
+      <div className="border-t border-rp-border pt-3">{link(ROUTES.settings, 'Settings', Settings)}</div>
     </>
   );
 }
@@ -43,7 +43,7 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Props) {
     <>
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-rp-border bg-rp-surface px-3 py-5 transition-[width] duration-200 lg:flex',
+          'rp-sidebar fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-rp-border bg-rp-surface px-3 py-5 transition-[width] duration-200 lg:flex',
           collapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
         )}
       >
@@ -53,8 +53,8 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Props) {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
-          <button className="absolute inset-0 bg-rp-navy/40 backdrop-blur-sm" onClick={onCloseMobile} aria-label="Close navigation" />
-          <aside className="absolute inset-y-0 left-0 flex w-[min(86vw,300px)] flex-col bg-rp-surface px-3 py-5 shadow-lift">
+          <button className="absolute inset-0 bg-rp-overlay/80 backdrop-blur-sm" onClick={onCloseMobile} aria-label="Close navigation" />
+          <aside className="rp-drawer absolute inset-y-0 left-0 flex w-[min(86vw,300px)] flex-col bg-rp-surface px-3 py-5 shadow-lift">
             <div className="mb-6 flex items-center justify-between px-1.5">
               <Logo />
               <button onClick={onCloseMobile} aria-label="Close navigation" className="grid h-11 w-11 place-items-center rounded-xl hover:bg-rp-primary-light"><X className="h-5 w-5" /></button>

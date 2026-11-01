@@ -1,20 +1,72 @@
-import { BarChart3, BookOpen, FileText, Gauge, Globe2, Hash, LayoutDashboard, MessagesSquare, Download, type LucideIcon } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  Link2,
+  FolderUp,
+  FlaskConical,
+  HelpCircle,
+  type LucideIcon,
+} from 'lucide-react';
 
 export const ROUTES = {
-  landing: '/', dashboard: '/dashboard', reviews: '/reviews', analysis: '/analysis', language: '/language',
-  topics: '/topics', readability: '/readability', login: '/login', register: '/register', recover: '/recover',
-  harvester: '/harvester', analytics: '/analytics', settings: '/settings', about: '/about',
+  landing: '/',
+  dashboard: '/dashboard',
+  products: '/products',
+  product: '/product/:id/:tab',
+  analyze: '/analyze',
+  data: '/data',
+  textLab: '/text-lab',
+  help: '/help',
+  settings: '/settings',
+  technical: '/technical',
+  login: '/login',
+  register: '/register',
+  recover: '/recover',
+
+  // Aliases for redirects per FRONTEND_SPEC.md v4
+  reviews: '/reviews',
+  analysis: '/analysis',
+  language: '/language',
+  topics: '/topics',
+  readability: '/readability',
+  harvester: '/harvester',
+  analytics: '/analytics',
+  about: '/about',
 } as const;
 
-export interface NavItem { to: string; label: string; icon: LucideIcon }
+export type ProductTab =
+  | 'overview'
+  | 'reviews'
+  | 'sentiment'
+  | 'topics'
+  | 'languages'
+  | 'readability'
+  | 'price';
+
+export const PRODUCT_TABS: ProductTab[] = [
+  'overview',
+  'reviews',
+  'sentiment',
+  'topics',
+  'languages',
+  'readability',
+  'price',
+];
+
+export const productRoute = (id: string, tab: ProductTab = 'overview') =>
+  `/product/${encodeURIComponent(id)}/${tab}`;
+
+export interface NavItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+}
+
 export const NAV_ITEMS: NavItem[] = [
   { to: ROUTES.dashboard, label: 'Dashboard', icon: LayoutDashboard },
-  { to: ROUTES.reviews, label: 'Product Reviews', icon: MessagesSquare },
-  { to: ROUTES.analysis, label: 'Review Analysis', icon: BarChart3 },
-  { to: ROUTES.language, label: 'Language Detection', icon: Globe2 },
-  { to: ROUTES.topics, label: 'Topic Extraction', icon: Hash },
-  { to: ROUTES.readability, label: 'Readability', icon: Gauge },
-  { to: ROUTES.harvester, label: 'Review Harvester', icon: Download },
-  { to: ROUTES.analytics, label: 'Analytics & Reports', icon: FileText },
-  { to: ROUTES.about, label: 'About & Docs', icon: BookOpen },
+  { to: ROUTES.products, label: 'All Products', icon: Package },
+  { to: ROUTES.analyze, label: 'Analyze a Link', icon: Link2 },
+  { to: ROUTES.data, label: 'Data Sources', icon: FolderUp },
+  { to: ROUTES.textLab, label: 'Text Lab', icon: FlaskConical },
+  { to: ROUTES.help, label: 'Help', icon: HelpCircle },
 ];

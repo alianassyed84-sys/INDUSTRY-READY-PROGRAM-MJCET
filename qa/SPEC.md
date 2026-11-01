@@ -1,0 +1,4 @@
+INGEST: N1 Amazon product URL -> N2 URL validation + ASIN extraction -> N5. N3 Review dataset/CSV -> N4 dataset validation + parsing -> N5. N5 Catalog & review harvester -> N6 product matching -> N7 duplicate detection + idempotency -> N8 review & product records -> N9 SQLite reviewpulse.db.
+SERVE: N9 -> N10 FastAPI backend -> N11 API gateway (Render) -> N12 React 18 + TypeScript frontend.
+ANALYSE: N9 <-> N13 linguistic engine -> N14 language detection, N15 sentiment, N16 aspect-based sentiment, N17 readability, N18 TF-IDF topics -> N19 analysis results (written back to N9). N9 -> N20 price tracking engine -> N21 price snapshots & history -> N19.
+PRESENT: N12 -> N22 Dashboard, N23 Reviews Explorer, N24 Sentiment & Analysis, N25 Topic Extractor, N26 Readability Auditor, N27 Price History -> N28 Product Intelligence.

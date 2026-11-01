@@ -110,7 +110,15 @@ export async function request<T>(path: string, init?: RequestInit & { signal?: A
       parsedBody = await res.json();
       if (parsedBody && typeof parsedBody === 'object' && 'detail' in parsedBody) {
         const d = (parsedBody as { detail: unknown }).detail;
-        errorDetail = typeof d === 'string' ? d : JSON.stringify(d);
+        if (typeof d === 'string') {
+          errorDetail = d;
+        } else if (Array.isArray(d)) {
+          errorDetail = d
+            .map((item: any) => (typeof item === 'object' && item && item.msg ? item.msg : JSON.stringify(item)))
+            .join('; ');
+        } else {
+          errorDetail = JSON.stringify(d);
+        }
       }
     } catch {
       // Body is not JSON
@@ -123,12 +131,14 @@ export async function request<T>(path: string, init?: RequestInit & { signal?: A
   return (await res.json()) as T;
 }
 
+export const IS_DEMO_ENABLED: boolean = import.meta.env.VITE_ENABLE_DEMO === 'true';
+
 /**
- * Tries the live backend first. If network is offline/unreachable, returns
- * clearly labelled demo fixtures. Real HTTP error responses (4xx, 5xx) are thrown
- * and never disguised as demo data.
+ * Tries the live backend first.
+ * Demo fixtures are DEFAULT OFF and only enabled when VITE_ENABLE_DEMO=true.
+ * When backend is unreachable and demo is off, throws a plain-language error with "Try again".
  */
-async function withDemoFallback<T>(live: () => Promise<T>, demo: () => T): Promise<ApiEnvelope<T>> {
+export async function withDemoFallback<T>(live: () => Promise<T>, demo: () => T): Promise<ApiEnvelope<T>> {
   try {
     const data = await live();
     return { data, source: 'live' };
@@ -137,7 +147,17 @@ async function withDemoFallback<T>(live: () => Promise<T>, demo: () => T): Promi
     if (e instanceof ApiError && e.status !== undefined) {
       throw e;
     }
-    return { data: demo(), source: 'demo', fallbackReason: (e as Error).message };
+
+    const enableDemo = import.meta.env.VITE_ENABLE_DEMO === 'true';
+    if (enableDemo) {
+      return { data: demo(), source: 'demo', fallbackReason: (e as Error).message };
+    }
+
+    throw new ApiError(
+      'The ReviewPulse backend is currently unreachable. Please check your connection and try again.',
+      undefined,
+      (e as ApiError)?.requestId,
+    );
   }
 }
 

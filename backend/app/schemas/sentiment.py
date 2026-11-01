@@ -156,12 +156,16 @@ class SentimentResponse(BaseModel):
     scores: SentimentScoresSchema = Field(
         ..., description="Overall sentiment score breakdown."
     )
+    status: str = Field(
+        "supported",
+        description="Status of sentiment evaluation ('supported' or 'unsupported_language').",
+    )
     label: str = Field(
         ...,
-        pattern="^(positive|negative|neutral)$",
+        pattern="^(positive|negative|neutral|unsupported_language)$",
         description=(
             "Primary sentiment polarity classification: "
-            "'positive', 'negative', or 'neutral'."
+            "'positive', 'negative', 'neutral', or 'unsupported_language'."
         ),
     )
     confidence: float = Field(

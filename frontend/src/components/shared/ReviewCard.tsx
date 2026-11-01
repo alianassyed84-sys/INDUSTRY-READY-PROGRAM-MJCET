@@ -12,7 +12,7 @@ export function ReviewCard({ review }: { review: Review }) {
   const [open, setOpen] = useState(false);
   const long = review.text.length > 220;
   return (
-    <Card interactive className="!p-5">
+    <Card data-reveal interactive className="!p-5">
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {review.rating != null && (
           <span className="tnum inline-flex items-center gap-1 text-sm font-bold" aria-label={`${review.rating} out of 5 stars`}>

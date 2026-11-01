@@ -20,7 +20,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       products,
-      productId: picked ?? products[0]?.id,
+      productId: picked ?? products.find((p) => Boolean(p.imageUrl))?.id ?? products[0]?.id,
       setProductId: setPicked,
       loading: q.isLoading,
       source: q.data?.source ?? 'demo',

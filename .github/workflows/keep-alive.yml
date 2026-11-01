@@ -1,0 +1,19 @@
+name: Render Backend Keep-Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes (Render spins down after 15 minutes of inactivity)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows manual execution from GitHub UI
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping ReviewPulse Backend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 45 https://irpversion2-2.onrender.com/api/v1/health)
+          echo "Render Health Probe Status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Warning: Health endpoint returned $STATUS (may be waking up)"
+          fi

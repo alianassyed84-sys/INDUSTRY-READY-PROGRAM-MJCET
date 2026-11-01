@@ -16,7 +16,7 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
       aria-labelledby="dialog-title"
-      className="w-[min(92vw,480px)] rounded-card border border-rp-border bg-rp-surface p-0 shadow-lift backdrop:bg-rp-navy/40 backdrop:backdrop-blur-sm"
+      className="rp-dialog w-[min(92vw,480px)] rounded-card border border-rp-border bg-rp-surface p-0 text-rp-text shadow-lift backdrop:bg-rp-overlay/80 backdrop:backdrop-blur-sm"
     >
       <div className="p-6">
         <div className="mb-3 flex items-start justify-between gap-4">

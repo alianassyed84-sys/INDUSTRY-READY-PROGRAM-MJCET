@@ -31,9 +31,9 @@ export default function Dashboard() {
   return (
     <PageContainer>
       {/* Hero */}
-      <section data-reveal className="relative overflow-hidden rounded-3xl border border-rp-primary-soft bg-gradient-to-br from-rp-primary-light via-rp-surface-soft to-rp-surface p-6 md:p-9">
-        <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-rp-primary/15 blur-3xl" />
-        <h1 className="text-page font-extrabold leading-tight md:text-display">Explore the pulse of products</h1>
+      <section data-reveal className="rp-hero relative overflow-hidden rounded-3xl border border-rp-primary-soft/70 p-6 md:p-9">
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-rp-magenta/10 blur-3xl" />
+        <h1 className="max-w-3xl text-page font-bold leading-tight md:text-[42px]">Explore the pulse of products</h1>
         <p className="mt-2 text-lg text-rp-muted">Discover what customers really think.</p>
         <ul className="mt-5 flex flex-wrap gap-2.5">
           {PROPS.map(({ icon: Icon, label }) => (
@@ -72,7 +72,7 @@ export default function Dashboard() {
             {q.isLoading ? <LoadingBlock label="Loading radar" /> : ins?.aspects?.length ? (
               <div className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={ins.aspects} outerRadius="75%">
+                  <RadarChart data={ins.aspects} outerRadius="65%" margin={{ top: 12, right: 24, bottom: 12, left: 24 }}>
                     <PolarGrid stroke={CHART.grid} />
                     <PolarAngleAxis dataKey="aspect" tick={CHART.tick} />
                     <PolarRadiusAxis domain={[-1, 1]} tickCount={5} tick={CHART.tick} axisLine={false} />

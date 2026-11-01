@@ -12,8 +12,21 @@ import type {
 } from './types';
 
 /**
+ * Derives marketplace name from the canonical product URL domain.
+ * Returns undefined if missing or unrecognized so the UI hides the badge rather than guessing.
+ */
+export function deriveMarketplace(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  const lower = url.toLowerCase();
+  if (lower.includes('amazon.')) return 'Amazon.in';
+  if (lower.includes('flipkart.')) return 'Flipkart';
+  return undefined;
+}
+
+/**
  * Maps backend ProductListItem or ProductDetail to frontend Product model.
- * Guarantees asin, title, price, listPrice, rating, and imageUrl are derived correctly.
+ * Never sets brand to category. Derives marketplace from URL or leaves undefined.
+ * Missing backend numbers become null (never 0).
  */
 export function adaptProduct(item: BackendProductListItem | BackendProductDetail): Product {
   const detail = item as Partial<BackendProductDetail>;
@@ -21,31 +34,35 @@ export function adaptProduct(item: BackendProductListItem | BackendProductDetail
     id: item.product_id,
     title: item.product_name,
     asin: item.product_id,
-    brand: item.category ?? undefined,
-    marketplace: 'Amazon.in',
-    price: item.discounted_price ?? undefined,
-    listPrice: item.actual_price ?? undefined,
-    rating: item.rating ?? undefined,
-    ratingCount: item.rating_count ?? undefined,
-    imageUrl: detail.img_link ?? undefined,
+    brand: undefined,
+    category: item.category ?? undefined,
+    marketplace: deriveMarketplace(detail.product_link),
+    price: item.discounted_price ?? null,
+    listPrice: item.actual_price ?? null,
+    rating: item.rating ?? null,
+    ratingCount: item.rating_count ?? null,
+    imageUrl: item.img_link ?? detail.img_link ?? undefined,
   };
 }
 
 /**
  * Maps backend ReviewListItem to frontend Review model.
+ * Does NOT expose created_at (import/insertion timestamp) as the review publication date.
+ * Does NOT hardcode 'Amazon.in' as source.
  */
 export function adaptReview(item: BackendReviewListItem): Review {
   return {
     id: item.review_id,
     text: item.review_content || item.review_title || '(No review text provided)',
-    rating: item.rating ?? undefined,
-    date: item.created_at ? new Date(item.created_at).toISOString() : undefined,
-    source: 'Amazon.in',
+    rating: item.rating ?? null,
+    date: undefined,
+    source: undefined,
   };
 }
 
 /**
  * Maps backend ProductInsightsResponse (and optional price history / detail) to frontend Insights model.
+ * Missing readability metrics preserve null rather than coercing to 0.
  */
 export function adaptInsights(
   backend: BackendProductInsightsResponse,
@@ -85,9 +102,11 @@ export function adaptInsights(
         id: backend.product_id,
         title: backend.product_name,
         asin: backend.product_id,
-        marketplace: 'Amazon.in',
-        rating: backend.ratings.average_rating ?? undefined,
-        ratingCount: backend.ratings.total_ratings_count ?? undefined,
+        brand: undefined,
+        category: undefined,
+        marketplace: undefined,
+        rating: backend.ratings.average_rating ?? null,
+        ratingCount: backend.ratings.total_ratings_count ?? null,
       };
 
   return {
@@ -107,8 +126,8 @@ export function adaptInsights(
     },
     aspects,
     readability: {
-      fleschReadingEase: backend.readability.average_reading_ease ?? 0,
-      gradeLevel: backend.readability.consensus_grade_level ?? 0,
+      fleschReadingEase: backend.readability.average_reading_ease ?? null,
+      gradeLevel: backend.readability.consensus_grade_level ?? null,
       distribution: [],
       analyzed: backend.total_reviews_analyzed,
       excluded: Math.max(0, backend.total_reviews_in_db - backend.total_reviews_analyzed),

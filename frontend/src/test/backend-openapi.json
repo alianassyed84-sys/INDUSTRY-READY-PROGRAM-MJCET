@@ -1,0 +1,3433 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ReviewPulse API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "Get Health",
+        "description": "Return 200 when the application process is responsive.",
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "summary": "Get Ready",
+        "description": "Report dependency readiness with live database connectivity checking.",
+        "operationId": "get_ready_api_v1_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analysis/readability": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Analyze text readability and linguistic complexity",
+        "description": "Calculates classic English readability metrics (Flesch Reading Ease, Flesch-Kincaid Grade Level, Gunning Fog Index, Coleman-Liau, and ARI) alongside structural statistics and reliability assessments.",
+        "operationId": "audit_readability_api_v1_analysis_readability_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadabilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadabilityResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analysis/language": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Identify the language of submitted text",
+        "description": "Uses character n-gram rank-order profiling (Cavnar & Trenkle, 1994) to estimate the most likely language of the input text. Supports: English, German, French, Spanish, Italian, Portuguese, Dutch, Polish, Russian, Arabic, Chinese, and Japanese.",
+        "operationId": "identify_language_api_v1_analysis_language_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LanguageDetectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageDetectionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analysis/topics": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Extract TF-IDF keyphrases from a corpus of review texts",
+        "description": "Applies Term Frequency\u2013Inverse Document Frequency (TF-IDF) to a submitted corpus of documents and returns ranked keyphrases for each document (or a single focus document). IDF is computed from the submitted corpus; no external data or pre-trained model is used. Supports unigrams and bigrams. Scores are purely statistical and do not represent semantic meaning.",
+        "operationId": "label_topics_api_v1_analysis_topics_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analysis/sentiment": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Analyze sentiment polarity and aspect-level sentiment for a review",
+        "description": "Performs rule- and lexicon-based sentiment analysis on a consumer review text. Calculates compound polarity [-1.0 to +1.0], positive/negative/neutral proportions, and extracts polar highlight tokens with negation, booster, and clause modifiers. Optionally extracts targeted sentiment for specific product aspects.",
+        "operationId": "evaluate_sentiment_api_v1_analysis_sentiment_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SentimentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentimentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/harvester/seed": {
+      "post": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Seed full product catalog and reviews from bundled fixture",
+        "operationId": "seed_endpoint_api_v1_harvester_seed_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Seed Endpoint Api V1 Harvester Seed Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/jobs": {
+      "post": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Start a review import job",
+        "description": "Starts an import job for the specified source and runs it synchronously (completes before responding). Requires administrative privileges. Source CSV path is determined strictly by server configuration.",
+        "operationId": "start_job_api_v1_harvester_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobStartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/harvester/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Get collection job status",
+        "description": "Retrieve the status and statistics of a collection job by ID.",
+        "operationId": "get_job_api_v1_harvester_jobs__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "List imported products",
+        "description": "Return a paginated list of products stored in the database.",
+        "operationId": "get_products_api_v1_harvester_products_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional category filter",
+              "title": "Category"
+            },
+            "description": "Optional category filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProducts"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products/{product_id}/compare": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Compare Amazon and Flipkart reviews and intelligence for a product",
+        "description": "Return side-by-side review intelligence comparing Amazon and Flipkart.",
+        "operationId": "get_product_comparison_api_v1_harvester_products__product_id__compare_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductComparisonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products/{product_id}": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Get product detail",
+        "description": "Return full product detail including about text and links.",
+        "operationId": "get_product_api_v1_harvester_products__product_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products/{product_id}/insights": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Get aggregated product intelligence and review analytics",
+        "description": "Computes on-demand sentiment distribution, top TF-IDF topics, rating statistics, and readability metrics for all reviews of a product. Optionally extracts aspect-targeted polarity via the 'aspects' parameter.",
+        "operationId": "get_product_insights_api_v1_harvester_products__product_id__insights_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max reviews to analyze",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Max reviews to analyze"
+          },
+          {
+            "name": "aspects",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated list of target aspects to evaluate (e.g. 'quality,battery,price')",
+              "title": "Aspects"
+            },
+            "description": "Comma-separated list of target aspects to evaluate (e.g. 'quality,battery,price')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductInsightsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products/{product_id}/price-history": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Get chronological price history and analytics for a product",
+        "description": "Retrieves recorded price snapshots, tracking period, first/latest observed price, min/max observed prices, price change amount and percentage, and multi-currency guards.",
+        "operationId": "get_product_price_history_api_v1_harvester_products__product_id__price_history_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter snapshots observed on or after this timestamp",
+              "title": "Start Date"
+            },
+            "description": "Filter snapshots observed on or after this timestamp"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter snapshots observed on or before this timestamp",
+              "title": "End Date"
+            },
+            "description": "Filter snapshots observed on or before this timestamp"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max snapshots to return",
+              "default": 100,
+              "title": "Limit"
+            },
+            "description": "Max snapshots to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceHistoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/products/{product_id}/check-price": {
+      "post": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Poll configured provider for a fresh price observation",
+        "description": "Queries the active provider for current product pricing, records a new snapshot if valid, and returns updated price history statistics.",
+        "operationId": "check_product_price_api_v1_harvester_products__product_id__check_price_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Product Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceHistoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/reviews": {
+      "get": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "List imported reviews",
+        "description": "Return a paginated list of reviews, optionally filtered by product.",
+        "operationId": "get_reviews_api_v1_harvester_reviews_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter reviews by product_id",
+              "title": "Product Id"
+            },
+            "description": "Filter reviews by product_id"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedReviews"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/harvester/analyze-url": {
+      "post": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Validate and analyze Amazon.in product URL",
+        "description": "Validates an Amazon.in or Flipkart product URL, retrieves product metadata from database or configured provider, persists price snapshots, and computes NLP review insights.",
+        "operationId": "analyze_url_api_v1_harvester_analyze_url_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeUrlRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductUrlAnalysisResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/harvester/flipkart/scrape": {
+      "post": {
+        "tags": [
+          "harvester",
+          "harvester"
+        ],
+        "summary": "Scrape Flipkart product reviews using Apify Actor",
+        "description": "Executes Apify Actor 'automation-lab/flipkart-product-reviews-scraper' to export individual public product reviews, stores them in ReviewPulse database, and computes NLP sentiment intelligence.",
+        "operationId": "scrape_flipkart_api_v1_harvester_flipkart_scrape_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlipkartScrapeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlipkartScrapeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeUrlRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Product URL: Amazon.in (e.g. 'https://www.amazon.in/dp/B084J4MZK6') or Flipkart (e.g. 'https://www.flipkart.com/.../p/itm...?pid=MOBGTAGPNRQA7CS3')"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "AnalyzeUrlRequest",
+        "description": "Payload for on-demand product URL analysis."
+      },
+      "AspectInsight": {
+        "properties": {
+          "aspect": {
+            "type": "string",
+            "title": "Aspect"
+          },
+          "average_polarity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Average Polarity",
+            "description": "Average aspect compound score [-1.0, 1.0]."
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^(positive|negative|neutral)$",
+            "title": "Label"
+          },
+          "mentions_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mentions Count",
+            "default": 0
+          },
+          "snippets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Snippets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "aspect",
+          "average_polarity",
+          "label"
+        ],
+        "title": "AspectInsight",
+        "description": "Aggregated sentiment for a specific product aspect."
+      },
+      "AspectSentimentSchema": {
+        "properties": {
+          "aspect": {
+            "type": "string",
+            "title": "Aspect",
+            "description": "The product attribute/aspect evaluated."
+          },
+          "compound": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Compound",
+            "description": "Aspect-targeted compound sentiment score [-1.0, +1.0]."
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^(positive|negative|neutral)$",
+            "title": "Label",
+            "description": "Sentiment category for this aspect: 'positive', 'negative', or 'neutral'."
+          },
+          "mentions_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mentions Count",
+            "description": "Number of sentences mentioning this aspect."
+          },
+          "snippets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Snippets",
+            "description": "Relevant review sentences mentioning this aspect."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "aspect",
+          "compound",
+          "label",
+          "mentions_count"
+        ],
+        "title": "AspectSentimentSchema",
+        "description": "Aspect-specific sentiment measurement."
+      },
+      "ComparisonVerdict": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "price_winner": {
+            "type": "string",
+            "title": "Price Winner"
+          },
+          "rating_winner": {
+            "type": "string",
+            "title": "Rating Winner"
+          },
+          "recommendation": {
+            "type": "string",
+            "title": "Recommendation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "summary",
+          "price_winner",
+          "rating_winner",
+          "recommendation"
+        ],
+        "title": "ComparisonVerdict",
+        "description": "Executive comparison summary between platforms."
+      },
+      "DocumentTopicsSchema": {
+        "properties": {
+          "document_index": {
+            "type": "integer",
+            "title": "Document Index",
+            "description": "0-based index of the document in the submitted corpus."
+          },
+          "keyphrases": {
+            "items": {
+              "$ref": "#/components/schemas/KeyphraseSchema"
+            },
+            "type": "array",
+            "title": "Keyphrases",
+            "description": "Ranked keyphrases, most distinctive first."
+          },
+          "token_count": {
+            "type": "integer",
+            "title": "Token Count",
+            "description": "Number of tokens after preprocessing (stop-word removal, etc.)."
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Per-document warnings (e.g., very short document)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_index",
+          "token_count"
+        ],
+        "title": "DocumentTopicsSchema",
+        "description": "Keyphrase extraction result for a single document."
+      },
+      "FlipkartReviewItem": {
+        "properties": {
+          "reviewId": {
+            "type": "string",
+            "title": "Reviewid"
+          },
+          "reviewUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewurl"
+          },
+          "productId": {
+            "type": "string",
+            "title": "Productid"
+          },
+          "reviewProductId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewproductid"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "reviewer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer"
+          },
+          "displayedDate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Displayeddate"
+          },
+          "certifiedBuyer": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certifiedbuyer"
+          },
+          "verifiedPurchase": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verifiedpurchase"
+          },
+          "helpfulCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpfulcount"
+          },
+          "unhelpfulCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unhelpfulcount"
+          },
+          "variant": {
+            "items": {
+              "$ref": "#/components/schemas/FlipkartVariantAttribute"
+            },
+            "type": "array",
+            "title": "Variant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reviewId",
+          "productId"
+        ],
+        "title": "FlipkartReviewItem",
+        "description": "Individual review record matching the Apify Actor output specification."
+      },
+      "FlipkartScrapeRequest": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Full HTTPS Flipkart product or reviews URL including pid parameter"
+          },
+          "max_items": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Max Items",
+            "description": "Global maximum unique reviews to export across pages (1-1000)",
+            "default": 25
+          },
+          "max_pages_per_product": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Max Pages Per Product",
+            "description": "Maximum review pages to fetch starting at page 1 (1-100)",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "FlipkartScrapeRequest",
+        "description": "Request payload to trigger Flipkart Product Reviews Scraper Actor."
+      },
+      "FlipkartScrapeResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "canonical_url": {
+            "type": "string",
+            "title": "Canonical Url"
+          },
+          "reviews_count": {
+            "type": "integer",
+            "title": "Reviews Count"
+          },
+          "estimated_cost_usd": {
+            "type": "number",
+            "title": "Estimated Cost Usd"
+          },
+          "is_mock_provider": {
+            "type": "boolean",
+            "title": "Is Mock Provider"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductDetailResponse"
+          },
+          "reviews": {
+            "items": {
+              "$ref": "#/components/schemas/FlipkartReviewItem"
+            },
+            "type": "array",
+            "title": "Reviews"
+          },
+          "insights": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductInsightsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status_note": {
+            "type": "string",
+            "title": "Status Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "canonical_url",
+          "reviews_count",
+          "estimated_cost_usd",
+          "is_mock_provider",
+          "product",
+          "reviews",
+          "status_note"
+        ],
+        "title": "FlipkartScrapeResponse",
+        "description": "Response from executing the Flipkart Reviews Scraper Actor."
+      },
+      "FlipkartVariantAttribute": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "FlipkartVariantAttribute",
+        "description": "Variant attribute name-value pair (e.g. Color: Blue)."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "title": "HealthResponse"
+      },
+      "JobStartRequest": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "const": "csv_amazon",
+            "title": "Source",
+            "description": "Review source identifier. Currently only 'csv_amazon' is supported (the bundled Amazon product review CSV dataset).",
+            "default": "csv_amazon"
+          },
+          "max_reviews": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Reviews",
+            "description": "Optional maximum number of reviews to import."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "JobStartRequest",
+        "description": "Payload for starting a new collection job."
+      },
+      "JobStatusResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "pending | running | done | failed"
+          },
+          "products_seen": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Products Seen",
+            "default": 0
+          },
+          "products_inserted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Products Inserted",
+            "default": 0
+          },
+          "products_skipped": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Products Skipped",
+            "default": 0
+          },
+          "reviews_seen": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reviews Seen",
+            "default": 0
+          },
+          "reviews_inserted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reviews Inserted",
+            "default": 0
+          },
+          "reviews_skipped": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reviews Skipped",
+            "default": 0
+          },
+          "warning_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Warning Count",
+            "default": 0
+          },
+          "error_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Error Count",
+            "default": 0
+          },
+          "error_sample": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Error Sample",
+            "description": "Up to 10 error messages sampled during the run."
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "status"
+        ],
+        "title": "JobStatusResponse",
+        "description": "Status snapshot for a single collection job."
+      },
+      "KeyphraseSchema": {
+        "properties": {
+          "term": {
+            "type": "string",
+            "title": "Term",
+            "description": "Extracted unigram or bigram keyphrase."
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Score",
+            "description": "TF-IDF score. Higher means more distinctive in this document."
+          },
+          "term_frequency": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Term Frequency",
+            "description": "Normalized term frequency within this document."
+          },
+          "document_frequency": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Document Frequency",
+            "description": "Number of corpus documents in which this term appears."
+          },
+          "ngram_size": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Ngram Size",
+            "description": "1 = single word (unigram), 2 = two-word phrase (bigram)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "term",
+          "score",
+          "term_frequency",
+          "document_frequency",
+          "ngram_size"
+        ],
+        "title": "KeyphraseSchema",
+        "description": "A single ranked keyphrase and its TF-IDF metadata."
+      },
+      "LanguageCandidateSchema": {
+        "properties": {
+          "language_code": {
+            "type": "string",
+            "title": "Language Code",
+            "description": "ISO 639-1 language code."
+          },
+          "language_name": {
+            "type": "string",
+            "title": "Language Name",
+            "description": "Human-readable language name."
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Confidence score (0.0-1.0, higher is better)."
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank",
+            "description": "Rank position (1 = best match)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "language_code",
+          "language_name",
+          "confidence",
+          "rank"
+        ],
+        "title": "LanguageCandidateSchema",
+        "description": "Individual language candidate score."
+      },
+      "LanguageDetectionRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "The text content to identify the language of.",
+            "examples": [
+              "ReviewPulse is an AI-powered intelligence platform."
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "LanguageDetectionRequest",
+        "description": "Input payload for language identification."
+      },
+      "LanguageDetectionResponse": {
+        "properties": {
+          "detected_language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected Language",
+            "description": "ISO 639-1 code of the detected language, or null if detection was not possible."
+          },
+          "detected_language_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detected Language Name",
+            "description": "Human-readable name of the detected language, or null."
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Confidence score of the top detection result (0.0-1.0)."
+          },
+          "confidence_level": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unreliable"
+            ],
+            "title": "Confidence Level",
+            "description": "Qualitative confidence classification."
+          },
+          "is_reliable": {
+            "type": "boolean",
+            "title": "Is Reliable",
+            "description": "True if the detection confidence is sufficient and the top candidate is clearly separated from the runner-up."
+          },
+          "script_fast_path": {
+            "type": "boolean",
+            "title": "Script Fast Path",
+            "description": "True if detection was performed via script analysis (Arabic, Russian, Chinese, Japanese) rather than full n-gram profiling."
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/LanguageCandidateSchema"
+            },
+            "type": "array",
+            "title": "Candidates",
+            "description": "All evaluated language candidates ranked by confidence."
+          },
+          "character_count": {
+            "type": "integer",
+            "title": "Character Count",
+            "description": "Number of non-whitespace characters in the analyzed text."
+          },
+          "analyzed_ngrams": {
+            "type": "integer",
+            "title": "Analyzed Ngrams",
+            "description": "Number of distinct n-grams in the input profile used for scoring. Zero when script fast-path was used."
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Documented constraints, assumptions, and validity cautions."
+          }
+        },
+        "type": "object",
+        "required": [
+          "confidence",
+          "confidence_level",
+          "is_reliable",
+          "script_fast_path",
+          "character_count",
+          "analyzed_ngrams"
+        ],
+        "title": "LanguageDetectionResponse",
+        "description": "Language Identifier response payload."
+      },
+      "PaginatedProducts": {
+        "properties": {
+          "total_returned": {
+            "type": "integer",
+            "title": "Total Returned"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProductListItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_returned",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "title": "PaginatedProducts",
+        "description": "Paginated product listing."
+      },
+      "PaginatedReviews": {
+        "properties": {
+          "total_returned": {
+            "type": "integer",
+            "title": "Total Returned"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewListItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_returned",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "title": "PaginatedReviews",
+        "description": "Paginated review listing."
+      },
+      "PlatformAspectInsight": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "sentiment": {
+            "type": "string",
+            "title": "Sentiment"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "score",
+          "sentiment"
+        ],
+        "title": "PlatformAspectInsight",
+        "description": "Targeted aspect sentiment evaluation for a platform."
+      },
+      "PlatformComparisonData": {
+        "properties": {
+          "platform": {
+            "type": "string",
+            "title": "Platform"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          },
+          "review_count": {
+            "type": "integer",
+            "title": "Review Count"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "original_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Price"
+          },
+          "delivery": {
+            "type": "string",
+            "title": "Delivery"
+          },
+          "sentiment": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Sentiment"
+          },
+          "aspects": {
+            "items": {
+              "$ref": "#/components/schemas/PlatformAspectInsight"
+            },
+            "type": "array",
+            "title": "Aspects"
+          },
+          "top_reviews": {
+            "items": {
+              "$ref": "#/components/schemas/PlatformReviewItem"
+            },
+            "type": "array",
+            "title": "Top Reviews"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "platform",
+          "rating",
+          "review_count",
+          "delivery",
+          "sentiment",
+          "aspects",
+          "top_reviews"
+        ],
+        "title": "PlatformComparisonData",
+        "description": "Synthesized intelligence and reviews for one e-commerce platform."
+      },
+      "PlatformReviewItem": {
+        "properties": {
+          "reviewer": {
+            "type": "string",
+            "title": "Reviewer"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified",
+            "default": true
+          },
+          "variant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variant"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reviewer",
+          "rating",
+          "title",
+          "content",
+          "date"
+        ],
+        "title": "PlatformReviewItem",
+        "description": "A customer review from a specific e-commerce platform."
+      },
+      "PolarHighlightSchema": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token",
+            "description": "The matched word or token in the review text."
+          },
+          "raw_valence": {
+            "type": "number",
+            "title": "Raw Valence",
+            "description": "Baseline dictionary valence rating [-4.0 to +4.0]."
+          },
+          "adjusted_valence": {
+            "type": "number",
+            "title": "Adjusted Valence",
+            "description": "Valence after modifiers (negation, boosters, ALL-CAPS, punctuation, clause)."
+          },
+          "modifiers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Modifiers",
+            "description": "List of modifier rules applied (e.g. 'negated_by(not)', 'ALL_CAPS')."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token",
+          "raw_valence",
+          "adjusted_valence"
+        ],
+        "title": "PolarHighlightSchema",
+        "description": "A polar token in the text that influenced the sentiment score."
+      },
+      "PriceHistoryResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "observations_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Observations Count",
+            "default": 0
+          },
+          "first_observed_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Observed Price"
+          },
+          "latest_observed_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Observed Price"
+          },
+          "current_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Price"
+          },
+          "highest_observed_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highest Observed Price"
+          },
+          "lowest_observed_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lowest Observed Price"
+          },
+          "price_change_amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Change Amount"
+          },
+          "price_change_percentage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Change Percentage"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "is_multi_currency": {
+            "type": "boolean",
+            "title": "Is Multi Currency",
+            "default": false
+          },
+          "tracking_start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking Start"
+          },
+          "tracking_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tracking End"
+          },
+          "tracking_period_days": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Tracking Period Days",
+            "default": 0.0
+          },
+          "is_historical_peak": {
+            "type": "boolean",
+            "title": "Is Historical Peak",
+            "default": false
+          },
+          "status_note": {
+            "type": "string",
+            "title": "Status Note"
+          },
+          "snapshots": {
+            "items": {
+              "$ref": "#/components/schemas/PriceSnapshotSchema"
+            },
+            "type": "array",
+            "title": "Snapshots"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "status_note"
+        ],
+        "title": "PriceHistoryResponse",
+        "description": "Price history summary derived strictly from recorded observations."
+      },
+      "PriceSnapshotSchema": {
+        "properties": {
+          "price": {
+            "type": "number",
+            "title": "Price"
+          },
+          "original_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "unknown"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "price",
+          "observed_at"
+        ],
+        "title": "PriceSnapshotSchema",
+        "description": "A recorded price data point."
+      },
+      "ProductComparisonResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "img_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Img Link"
+          },
+          "amazon": {
+            "$ref": "#/components/schemas/PlatformComparisonData"
+          },
+          "flipkart": {
+            "$ref": "#/components/schemas/PlatformComparisonData"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/ComparisonVerdict"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "amazon",
+          "flipkart",
+          "verdict"
+        ],
+        "title": "ProductComparisonResponse",
+        "description": "Side-by-side comparison between Amazon and Flipkart for a product."
+      },
+      "ProductDetailResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "rating_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating Count"
+          },
+          "discounted_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discounted Price"
+          },
+          "actual_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Price"
+          },
+          "discount_percentage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Percentage"
+          },
+          "img_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Img Link"
+          },
+          "about_product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "About Product"
+          },
+          "product_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product Link"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name"
+        ],
+        "title": "ProductDetailResponse",
+        "description": "Full product record including about text and links."
+      },
+      "ProductInsightsResponse": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "total_reviews_in_db": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Reviews In Db",
+            "default": 0
+          },
+          "total_reviews_analyzed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Reviews Analyzed",
+            "default": 0
+          },
+          "ratings": {
+            "$ref": "#/components/schemas/RatingBreakdown"
+          },
+          "sentiment": {
+            "$ref": "#/components/schemas/SentimentInsightSummary"
+          },
+          "top_topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicInsight"
+            },
+            "type": "array",
+            "title": "Top Topics"
+          },
+          "readability": {
+            "$ref": "#/components/schemas/ReadabilitySummary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name",
+          "ratings",
+          "sentiment",
+          "readability"
+        ],
+        "title": "ProductInsightsResponse",
+        "description": "Comprehensive analytical insights for a product's reviews."
+      },
+      "ProductListItem": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "product_name": {
+            "type": "string",
+            "title": "Product Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "rating_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating Count"
+          },
+          "discounted_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discounted Price"
+          },
+          "actual_price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Price"
+          },
+          "discount_percentage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Percentage"
+          },
+          "img_link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Img Link"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "product_id",
+          "product_name"
+        ],
+        "title": "ProductListItem",
+        "description": "Compact product record for paginated listings."
+      },
+      "ProductUrlAnalysisResponse": {
+        "properties": {
+          "asin": {
+            "type": "string",
+            "title": "Asin",
+            "description": "Product identifier (ASIN for Amazon, PID for Flipkart)"
+          },
+          "canonical_url": {
+            "type": "string",
+            "title": "Canonical Url"
+          },
+          "product": {
+            "$ref": "#/components/schemas/ProductDetailResponse"
+          },
+          "price_history": {
+            "$ref": "#/components/schemas/PriceHistoryResponse"
+          },
+          "insights": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductInsightsResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status_note": {
+            "type": "string",
+            "title": "Status Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "asin",
+          "canonical_url",
+          "product",
+          "price_history",
+          "status_note"
+        ],
+        "title": "ProductUrlAnalysisResponse",
+        "description": "Response combining product metadata, observed price history, and NLP insights."
+      },
+      "RatingBreakdown": {
+        "properties": {
+          "average_rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Rating",
+            "description": "Average review rating (1.0 to 5.0)."
+          },
+          "total_ratings_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total Ratings Count",
+            "description": "Total count of reviews with valid ratings.",
+            "default": 0
+          },
+          "stars_1": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stars 1",
+            "description": "Count of 1-star ratings.",
+            "default": 0
+          },
+          "stars_2": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stars 2",
+            "description": "Count of 2-star ratings.",
+            "default": 0
+          },
+          "stars_3": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stars 3",
+            "description": "Count of 3-star ratings.",
+            "default": 0
+          },
+          "stars_4": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stars 4",
+            "description": "Count of 4-star ratings.",
+            "default": 0
+          },
+          "stars_5": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stars 5",
+            "description": "Count of 5-star ratings.",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "RatingBreakdown",
+        "description": "Product ratings distribution and averages."
+      },
+      "ReadabilityRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 100000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "The text content to analyze for readability and linguistic complexity.",
+            "examples": [
+              "ReviewPulse is an AI-powered intelligence platform that analyzes customer reviews with speed and precision."
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "ReadabilityRequest",
+        "description": "Input payload for linguistic complexity and readability analysis."
+      },
+      "ReadabilityResponse": {
+        "properties": {
+          "is_analyzable": {
+            "type": "boolean",
+            "title": "Is Analyzable",
+            "description": "True if text contains sufficient linguistic tokens for statistical scoring."
+          },
+          "reliability": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unreliable"
+            ],
+            "title": "Reliability",
+            "description": "Confidence classification based on sample size and token count."
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Target language standard (default: en).",
+            "default": "en"
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/TextStatisticsSchema",
+            "description": "Text structure and length counts."
+          },
+          "flesch_reading_ease": {
+            "$ref": "#/components/schemas/ReadabilityScoreSchema",
+            "description": "Flesch Reading Ease (0-100 scale)."
+          },
+          "flesch_kincaid_grade": {
+            "$ref": "#/components/schemas/ReadabilityScoreSchema",
+            "description": "Flesch-Kincaid Grade Level."
+          },
+          "gunning_fog": {
+            "$ref": "#/components/schemas/ReadabilityScoreSchema",
+            "description": "Gunning Fog Index."
+          },
+          "coleman_liau": {
+            "$ref": "#/components/schemas/ReadabilityScoreSchema",
+            "description": "Coleman-Liau Index."
+          },
+          "automated_readability_index": {
+            "$ref": "#/components/schemas/ReadabilityScoreSchema",
+            "description": "Automated Readability Index."
+          },
+          "consensus_grade_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consensus Grade Level",
+            "description": "Consensus average grade level computed across all four grade-level formulas."
+          },
+          "reading_time_seconds": {
+            "type": "number",
+            "title": "Reading Time Seconds",
+            "description": "Estimated reading time in seconds assuming 200 words per minute."
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Documented constraints, assumptions, and validity cautions for this evaluation."
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_analyzable",
+          "reliability",
+          "statistics",
+          "flesch_reading_ease",
+          "flesch_kincaid_grade",
+          "gunning_fog",
+          "coleman_liau",
+          "automated_readability_index",
+          "reading_time_seconds"
+        ],
+        "title": "ReadabilityResponse",
+        "description": "Comprehensive Readability Auditor response payload."
+      },
+      "ReadabilityScoreSchema": {
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score",
+            "description": "Calculated numerical formula score, or null if text is too short for reliable calculation."
+          },
+          "grade_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade Level",
+            "description": "Equivalent US school grade level, or null if uncalculated."
+          },
+          "interpretation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interpretation",
+            "description": "Qualitative educational or reading comprehension level."
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Methodology and interpretation note for this formula."
+          }
+        },
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "ReadabilityScoreSchema",
+        "description": "Detailed score result for an individual readability metric."
+      },
+      "ReadabilitySummary": {
+        "properties": {
+          "average_reading_ease": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Average Reading Ease",
+            "description": "Average Flesch Reading Ease score [0-100]."
+          },
+          "consensus_grade_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consensus Grade Level",
+            "description": "Average consensus US school grade level."
+          },
+          "reading_level_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reading Level Label",
+            "description": "Human-readable reading level interpretation."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReadabilitySummary",
+        "description": "Linguistic readability statistics across reviews."
+      },
+      "ReviewListItem": {
+        "properties": {
+          "review_id": {
+            "type": "string",
+            "title": "Review Id"
+          },
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "review_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Title"
+          },
+          "review_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Content"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "review_id",
+          "product_id"
+        ],
+        "title": "ReviewListItem",
+        "description": "A single review record."
+      },
+      "SentimentCounts": {
+        "properties": {
+          "positive": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Positive",
+            "default": 0
+          },
+          "neutral": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Neutral",
+            "default": 0
+          },
+          "negative": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Negative",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SentimentCounts",
+        "description": "Categorical count breakdown of review sentiments."
+      },
+      "SentimentInsightSummary": {
+        "properties": {
+          "average_polarity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Average Polarity",
+            "description": "Overall average compound score [-1.0, 1.0].",
+            "default": 0.0
+          },
+          "sentiment_label": {
+            "type": "string",
+            "pattern": "^(positive|negative|neutral)$",
+            "title": "Sentiment Label",
+            "default": "neutral"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/SentimentCounts"
+          },
+          "top_positive_highlights": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Positive Highlights"
+          },
+          "top_negative_highlights": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Top Negative Highlights"
+          },
+          "aspects": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AspectInsight"
+            },
+            "type": "object",
+            "title": "Aspects"
+          },
+          "excluded_unsupported_language_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Excluded Unsupported Language Count",
+            "description": "Count of reviews excluded from sentiment analysis due to unsupported language.",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SentimentInsightSummary",
+        "description": "Aggregated sentiment analysis across product reviews."
+      },
+      "SentimentRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 50000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "Review text to analyze (1\u201350000 characters).",
+            "examples": [
+              "The battery life is amazing and the camera is fantastic, but customer service was terrible."
+            ]
+          },
+          "aspects": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aspects",
+            "description": "Optional list of target product attributes/aspects to evaluate (up to 20 aspects, e.g. ['battery', 'camera', 'price']).",
+            "examples": [
+              [
+                "battery",
+                "camera",
+                "customer service"
+              ]
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "SentimentRequest",
+        "description": "Input payload for sentiment analysis."
+      },
+      "SentimentResponse": {
+        "properties": {
+          "text_length": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Text Length",
+            "description": "Total characters in the input review."
+          },
+          "word_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Word Count",
+            "description": "Total word tokens detected."
+          },
+          "scores": {
+            "$ref": "#/components/schemas/SentimentScoresSchema",
+            "description": "Overall sentiment score breakdown."
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Status of sentiment evaluation ('supported' or 'unsupported_language').",
+            "default": "supported"
+          },
+          "label": {
+            "type": "string",
+            "pattern": "^(positive|negative|neutral|unsupported_language)$",
+            "title": "Label",
+            "description": "Primary sentiment polarity classification: 'positive', 'negative', 'neutral', or 'unsupported_language'."
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Estimated confidence score in the categorical classification [0.0, 1.0]."
+          },
+          "highlights": {
+            "items": {
+              "$ref": "#/components/schemas/PolarHighlightSchema"
+            },
+            "type": "array",
+            "title": "Highlights",
+            "description": "Key polar terms that drove the sentiment calculation, with active modifiers."
+          },
+          "aspects": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AspectSentimentSchema"
+            },
+            "type": "object",
+            "title": "Aspects",
+            "description": "Sentiment breakdown for each specified aspect target."
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Applicable disclaimers or edge-case notes for this review."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text_length",
+          "word_count",
+          "scores",
+          "label",
+          "confidence"
+        ],
+        "title": "SentimentResponse",
+        "description": "Output payload for the sentiment analysis endpoint."
+      },
+      "SentimentScoresSchema": {
+        "properties": {
+          "compound": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Compound",
+            "description": "Normalized aggregate sentiment score bounded between -1.0 (most negative) and +1.0 (most positive)."
+          },
+          "positive": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Positive",
+            "description": "Normalized proportion of positive valence tokens [0.0, 1.0]."
+          },
+          "negative": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Negative",
+            "description": "Normalized proportion of negative valence tokens [0.0, 1.0]."
+          },
+          "neutral": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Neutral",
+            "description": "Normalized proportion of neutral words [0.0, 1.0]."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "compound",
+          "positive",
+          "negative",
+          "neutral"
+        ],
+        "title": "SentimentScoresSchema",
+        "description": "Breakdown of sentiment scores."
+      },
+      "TextStatisticsSchema": {
+        "properties": {
+          "character_count": {
+            "type": "integer",
+            "title": "Character Count",
+            "description": "Count of non-whitespace characters."
+          },
+          "letter_count": {
+            "type": "integer",
+            "title": "Letter Count",
+            "description": "Count of alphabetical letters."
+          },
+          "word_count": {
+            "type": "integer",
+            "title": "Word Count",
+            "description": "Count of recognizable linguistic words."
+          },
+          "sentence_count": {
+            "type": "integer",
+            "title": "Sentence Count",
+            "description": "Count of segmented sentences."
+          },
+          "syllable_count": {
+            "type": "integer",
+            "title": "Syllable Count",
+            "description": "Estimated count of syllables."
+          },
+          "complex_word_count": {
+            "type": "integer",
+            "title": "Complex Word Count",
+            "description": "Count of words with 3 or more syllables."
+          },
+          "unique_word_count": {
+            "type": "integer",
+            "title": "Unique Word Count",
+            "description": "Count of distinct vocabulary words."
+          },
+          "avg_words_per_sentence": {
+            "type": "number",
+            "title": "Avg Words Per Sentence",
+            "description": "Average words per sentence."
+          },
+          "avg_syllables_per_word": {
+            "type": "number",
+            "title": "Avg Syllables Per Word",
+            "description": "Average syllables per word."
+          },
+          "avg_letters_per_word": {
+            "type": "number",
+            "title": "Avg Letters Per Word",
+            "description": "Average letters per word."
+          },
+          "complex_word_percentage": {
+            "type": "number",
+            "title": "Complex Word Percentage",
+            "description": "Percentage of words that are complex."
+          },
+          "type_token_ratio": {
+            "type": "number",
+            "title": "Type Token Ratio",
+            "description": "Lexical diversity ratio (unique words / total words)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "character_count",
+          "letter_count",
+          "word_count",
+          "sentence_count",
+          "syllable_count",
+          "complex_word_count",
+          "unique_word_count",
+          "avg_words_per_sentence",
+          "avg_syllables_per_word",
+          "avg_letters_per_word",
+          "complex_word_percentage",
+          "type_token_ratio"
+        ],
+        "title": "TextStatisticsSchema",
+        "description": "Descriptive structural statistics of the text."
+      },
+      "TopicInsight": {
+        "properties": {
+          "term": {
+            "type": "string",
+            "title": "Term"
+          },
+          "relevance_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Relevance Score"
+          },
+          "frequency": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Frequency"
+          },
+          "ngram_size": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Ngram Size"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "term",
+          "relevance_score",
+          "frequency",
+          "ngram_size"
+        ],
+        "title": "TopicInsight",
+        "description": "Extracted topic/keyphrase aggregated across reviews."
+      },
+      "TopicsRequest": {
+        "properties": {
+          "documents": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Documents",
+            "description": "List of text documents to analyze (1\u2013500 items). Each document is treated as one row in the TF-IDF corpus.",
+            "examples": [
+              [
+                "The battery life is excellent and the screen is bright.",
+                "Poor battery performance and the display is dull.",
+                "Great screen quality but charging takes too long."
+              ]
+            ]
+          },
+          "top_n": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Top N",
+            "description": "Maximum number of keyphrases to return per document (1\u201350).",
+            "default": 10
+          },
+          "focus_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Index",
+            "description": "If provided, return keyphrases only for the document at this 0-based index. All other documents still contribute to IDF. If omitted, keyphrases are returned for every document."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "documents"
+        ],
+        "title": "TopicsRequest",
+        "description": "Input payload for TF-IDF keyphrase extraction.\n\nProvide a ``documents`` list (corpus). To surface keyphrases for a single\ndocument relative to the rest of the corpus, set ``focus_index`` to that\ndocument's 0-based position.\n\nTF-IDF requires a corpus to compute inverse document frequencies. Submitting\na single document without any reference corpus makes IDF degenerate (all\nterms receive equal weight); the response will include a warning in\n``limitations``."
+      },
+      "TopicsResponse": {
+        "properties": {
+          "corpus_size": {
+            "type": "integer",
+            "title": "Corpus Size",
+            "description": "Number of documents in the submitted corpus."
+          },
+          "focus_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Index",
+            "description": "The document index for which keyphrases were extracted, or null if all documents were analyzed."
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentTopicsSchema"
+            },
+            "type": "array",
+            "title": "Documents",
+            "description": "Per-document keyphrase results."
+          },
+          "preprocessing": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Preprocessing",
+            "description": "Preprocessing configuration used for this analysis."
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "description": "Corpus-level warnings and documented constraints on the analysis."
+          }
+        },
+        "type": "object",
+        "required": [
+          "corpus_size"
+        ],
+        "title": "TopicsResponse",
+        "description": "TF-IDF keyphrase extraction response."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

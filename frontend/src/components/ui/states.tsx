@@ -36,6 +36,17 @@ function StateShell({ icon, tone, title, description, action, className }: State
 export const EmptyState = (p: StateProps) => <StateShell {...p} tone="bg-rp-primary-light text-rp-primary" icon={<Inbox className="h-6 w-6" />} />;
 export const UnavailableState = (p: StateProps) => <StateShell {...p} tone="bg-rp-warning/15 text-rp-warning" icon={<Hammer className="h-6 w-6" />} />;
 
+export function LoadingState({ label = 'Loading...', className }: { label?: string; className?: string }) {
+  return (
+    <div role="status" aria-live="polite" className={cn('flex flex-col items-center justify-center p-8 text-center space-y-3', className)}>
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-64" />
+      <Skeleton className="h-24 w-full max-w-md" />
+      <span className="sr-only">{label}</span>
+    </div>
+  );
+}
+
 export function ErrorState({
   title = 'Something went wrong',
   description,

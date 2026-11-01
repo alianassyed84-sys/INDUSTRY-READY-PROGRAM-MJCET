@@ -30,6 +30,7 @@ from app.services.harvester.base import (
     NormalizedUser,
 )
 from app.services.harvester.csv_adapter import CsvAmazonAdapter
+from app.services.image_provider.base import ProductImageProvider
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +62,52 @@ def _get_upsert_stmt(
     )
 
 
-async def upsert_product(session: AsyncSession, p: NormalizedProduct) -> bool:
-    """Insert product if product_id is new.  Returns True if inserted."""
+async def upsert_product(
+    session: AsyncSession,
+    p: NormalizedProduct,
+    image_provider: ProductImageProvider | None = None,
+) -> bool:
+    """Insert product if product_id is new with authentic image resolution and uniqueness."""
+    img_link = p.img_link
+    image_source = p.image_source
+    image_status = p.image_status or "none"
+
+    # 1. Resolve image according to source order
+    if img_link:
+        image_source = image_source or "dataset"
+        image_status = "verified" if image_status == "none" else image_status
+    elif image_provider and p.identity_key:
+        provider_url = await image_provider.fetch_product_image(p.identity_key, p.product_name)
+        if provider_url:
+            img_link = provider_url
+            image_source = "provider"
+            image_status = "verified"
+        else:
+            img_link = None
+            image_source = "none"
+            image_status = "none"
+    else:
+        img_link = None
+        image_source = image_source or "none"
+        image_status = "none"
+
+    # 2. Check uniqueness on img_link
+    if img_link:
+        stmt_dup = select(Product).where(
+            Product.img_link == img_link,
+            Product.product_id != p.product_id,
+        )
+        existing = (await session.execute(stmt_dup)).scalars().first()
+        if existing:
+            logger.warning(
+                "Image link conflict detected: %s duplicates existing image on %s. Setting image_status='conflict'.",
+                p.product_id,
+                existing.product_id,
+            )
+            img_link = None
+            image_status = "conflict"
+            image_source = "none"
+
     values = {
         "product_id": p.product_id,
         "product_name": p.product_name,
@@ -73,8 +118,14 @@ async def upsert_product(session: AsyncSession, p: NormalizedProduct) -> bool:
         "rating": p.rating,
         "rating_count": p.rating_count,
         "about_product": p.about_product,
-        "img_link": p.img_link,
+        "img_link": img_link,
+        "image_source": image_source,
+        "image_status": image_status,
         "product_link": p.product_link,
+        "kind": p.kind,
+        "identity_key": p.identity_key,
+        "identification_confidence": p.identification_confidence,
+        "is_synthetic": p.is_synthetic,
     }
     stmt = _get_upsert_stmt(session, Product, values, ["product_id"])
     result = await session.execute(stmt)
@@ -101,6 +152,8 @@ async def upsert_review(session: AsyncSession, r: NormalizedReview) -> bool:
         "rating": r.rating,
         "review_title": r.review_title,
         "review_content": r.review_content,
+        "source_polarity": r.source_polarity,
+        "product_confidence": r.product_confidence,
     }
     stmt = _get_upsert_stmt(session, Review, values, ["review_id"])
     result = await session.execute(stmt)
@@ -235,8 +288,11 @@ async def list_products(
     limit: int = 20,
     offset: int = 0,
     category: str | None = None,
+    kind: str | None = "product",
 ) -> list[Product]:
     stmt = select(Product)
+    if kind is not None:
+        stmt = stmt.where(Product.kind == kind)
     if category:
         stmt = stmt.where(Product.category.ilike(f"%{category}%"))
     stmt = stmt.order_by(Product.id.desc()).limit(limit).offset(offset)
@@ -245,8 +301,12 @@ async def list_products(
 
 
 async def get_product_by_id(session: AsyncSession, product_id: str) -> Product | None:
+    clean_id = (product_id or "").strip()
     result = await session.execute(
-        select(Product).where(Product.product_id == product_id)
+        select(Product).where(
+            (Product.product_id == clean_id)
+            | (Product.product_link.ilike(f"%{clean_id}%"))
+        )
     )
     return result.scalar_one_or_none()
 

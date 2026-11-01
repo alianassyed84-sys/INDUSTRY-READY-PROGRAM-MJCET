@@ -3,7 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Float, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, DateTime, Float, Index, Integer, Numeric, String, Text, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -19,6 +19,16 @@ class Product(Base):
         String(64), unique=True, nullable=False, index=True
     )
     product_name: Mapped[str] = mapped_column(String(1024), nullable=False, index=True)
+    identity_key: Mapped[str | None] = mapped_column(
+        String(128), unique=True, nullable=True, index=True
+    )
+    kind: Mapped[str] = mapped_column(
+        String(32), default="product", server_default="product", nullable=False, index=True
+    )
+    identification_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    is_synthetic: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="0", nullable=False
+    )
     category: Mapped[str | None] = mapped_column(String(512), nullable=True, index=True)
     discounted_price: Mapped[Decimal | None] = mapped_column(
         Numeric(12, 2), nullable=True
@@ -29,9 +39,22 @@ class Product(Base):
     rating_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     about_product: Mapped[str | None] = mapped_column(Text, nullable=True)
     img_link: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    image_source: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    image_status: Mapped[str] = mapped_column(
+        String(32), default="none", server_default="none", nullable=False
+    )
     product_link: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        Index(
+            "ix_products_img_link_unique",
+            "img_link",
+            unique=True,
+            sqlite_where=text("img_link IS NOT NULL"),
+        ),
     )
 
     reviews: Mapped[list["Review"]] = relationship(  # noqa: F821

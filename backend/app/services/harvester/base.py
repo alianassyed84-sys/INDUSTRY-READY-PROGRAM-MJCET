@@ -33,7 +33,13 @@ class NormalizedProduct:
     rating_count: int | None = None
     about_product: str | None = None
     img_link: str | None = None
+    image_source: str | None = None
+    image_status: str = "none"
     product_link: str | None = None
+    kind: str = "product"
+    identity_key: str | None = None
+    identification_confidence: float | None = None
+    is_synthetic: bool = False
 
 
 @dataclass
@@ -54,6 +60,8 @@ class NormalizedReview:
     rating: float | None = None
     review_title: str | None = None
     review_content: str | None = None
+    source_polarity: str | None = None
+    product_confidence: float | None = None
 
 
 # ---------------------------------------------------------------------------

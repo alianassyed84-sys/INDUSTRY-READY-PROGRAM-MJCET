@@ -9,14 +9,18 @@ pricing, and reviews across both Amazon and Flipkart.
 from __future__ import annotations
 
 import asyncio
+import gzip
+import json
 import logging
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_sessionmaker
+from app.models.price_snapshot import PriceSnapshot
 from app.models.product import Product
 from app.models.review import Review
 from app.models.user import User
@@ -45,7 +49,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.6,
         "rating_count": 12480,
         "about_product": "Forged in titanium with aerospace-grade strength. Powered by the groundbreaking A17 Pro chip, custom Action button, 48MP main camera with 5x telephoto, and USB-C connectivity.",
-        "img_link": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-IPHONE-15PRO.jpg",
         "product_link": "https://www.amazon.in/dp/B0CHX1W1XY",
         "reviews": [
             # Amazon Reviews
@@ -110,7 +114,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.5,
         "rating_count": 6320,
         "about_product": "Galaxy S24 Ultra with Galaxy AI live translate, integrated S-Pen stylus, 200MP camera system with ProVisual Engine, flat 6.8 inch Dynamic AMOLED 2X display with anti-reflective glass.",
-        "img_link": "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-SAMSUNG-S24U.jpg",
         "product_link": "https://www.amazon.in/dp/B0CS5X8P7B",
         "reviews": [
             {
@@ -157,7 +161,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.4,
         "rating_count": 5210,
         "about_product": "Flagship Snapdragon 8 Gen 3 with 4th Gen Hasselblad Camera System, 5400 mAh battery with 100W SUPERVOOC charging and 2K 120Hz ProXDR display.",
-        "img_link": "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-ONEPLUS-12.jpg",
         "product_link": "https://www.amazon.in/dp/B0CQYGXB5K",
         "reviews": [
             {
@@ -188,7 +192,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.6,
         "rating_count": 4890,
         "about_product": "Dior Sauvage Eau de Parfum radiates sensual and mysterious facets. Calabrian bergamot signed with woody ambroxan notes enveloped in Papua New Guinean vanilla absolute.",
-        "img_link": "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-DIOR-SAUVAGE.jpg",
         "product_link": "https://www.amazon.in/dp/B0798C5R2D",
         "reviews": [
             {
@@ -235,7 +239,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.7,
         "rating_count": 3410,
         "about_product": "An ode to masculine freedom in an aromatic-woody fragrance with a captivating trail. Fresh grapefruit accord, dry cedar, and New Caledonian sandalwood.",
-        "img_link": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-BLEU-CHANEL.jpg",
         "product_link": "https://www.amazon.in/dp/B00P7K487C",
         "reviews": [
             {
@@ -266,7 +270,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.5,
         "rating_count": 7120,
         "about_product": "Versace Eros combines vibrant mint leaves, Italian lemon zest, and green apple with tonka beans, amber, geranium flower, and cedarwood.",
-        "img_link": "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-VERSACE-EROS.jpg",
         "product_link": "https://www.amazon.in/dp/B00B4TR3KG",
         "reviews": [
             {
@@ -297,7 +301,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.7,
         "rating_count": 6150,
         "about_product": "The seductive fragrance of adrenaline-rich black coffee paired with sweet white flowers, sensual vanilla, and cedarwood base notes.",
-        "img_link": "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-YSL-BLACKOPIUM.jpg",
         "product_link": "https://www.amazon.in/dp/B00NPJBEOC",
         "reviews": [
             {
@@ -328,7 +332,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.5,
         "rating_count": 8900,
         "about_product": "Industry-leading active noise canceling with two processors and 8 microphones. Up to 30-hour battery life with quick charging, crystal clear call quality with 4 beamforming mics.",
-        "img_link": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-SONY-WH1000XM5.jpg",
         "product_link": "https://www.amazon.in/dp/B09XS7JWHH",
         "reviews": [
             {
@@ -359,7 +363,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.6,
         "rating_count": 14300,
         "about_product": "Up to 2x more Active Noise Cancellation, Adaptive Audio, Transparency mode, and Personalized Spatial Audio with dynamic head tracking. Dust, sweat, and water resistant.",
-        "img_link": "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-AIRPODS-PRO2.jpg",
         "product_link": "https://www.amazon.in/dp/B0CHWRXH8B",
         "reviews": [
             {
@@ -390,7 +394,7 @@ SEEDED_CATALOG: list[dict[str, Any]] = [
         "rating": 4.8,
         "rating_count": 3840,
         "about_product": "Super-lightweight Mac laptop with Apple M3 chip. Strikingly thin design with up to 18 hours of battery life and Liquid Retina display with support for dual external displays.",
-        "img_link": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+        "img_link": "/products/AMZN-MACBOOK-AIR-M3.jpg",
         "product_link": "https://www.amazon.in/dp/B0CX23M8H4",
         "reviews": [
             {
@@ -452,6 +456,9 @@ async def seed_catalog(session: AsyncSession) -> int:
             prod_obj.rating_count = norm_product.rating_count
             prod_obj.about_product = norm_product.about_product
             prod_obj.img_link = norm_product.img_link
+            if norm_product.img_link:
+                prod_obj.image_source = "ai_generated"
+                prod_obj.image_status = "verified"
             prod_obj.product_link = norm_product.product_link
             seeded_count += 1
 
@@ -491,9 +498,85 @@ async def seed_catalog(session: AsyncSession) -> int:
                 ),
             )
 
+    await _seed_fixture_if_needed(session)
     await session.commit()
-    logger.info("Successfully seeded %d categorized products", seeded_count)
-    return seeded_count
+    final_count = (await session.scalar(select(func.count()).select_from(Product))) or seeded_count
+    logger.info("Successfully verified/seeded %d categorized products", final_count)
+    return final_count
+
+
+async def _seed_fixture_if_needed(session: AsyncSession) -> int:
+    """Populate full 61-product catalog + reviews from bundled compressed fixture if DB is sparse."""
+    prod_count = (await session.scalar(select(func.count()).select_from(Product))) or 0
+    if prod_count >= 60:
+        return 0
+
+    fixture_path = Path(__file__).parent / "catalog_fixture.json.gz"
+    if not fixture_path.exists():
+        return 0
+
+    try:
+        with gzip.open(fixture_path, "rt", encoding="utf-8") as f:
+            data = json.load(f)
+
+        existing_pids = set((await session.scalars(select(Product.product_id))).all())
+        new_products = [
+            Product(
+                product_id=p["product_id"],
+                product_name=p["product_name"],
+                category=p["category"],
+                discounted_price=Decimal(str(p["discounted_price"])) if p.get("discounted_price") is not None else None,
+                actual_price=Decimal(str(p["actual_price"])) if p.get("actual_price") is not None else None,
+                discount_percentage=p.get("discount_percentage"),
+                rating=p.get("rating"),
+                rating_count=p.get("rating_count"),
+                about_product=p.get("about_product"),
+                img_link=p.get("img_link"),
+                product_link=p.get("product_link"),
+            )
+            for p in data.get("products", [])
+            if p["product_id"] not in existing_pids
+        ]
+        if new_products:
+            session.add_all(new_products)
+            await session.flush()
+
+        existing_uids = set((await session.scalars(select(User.user_id))).all())
+        new_users = [
+            User(user_id=u["user_id"], user_name=u.get("user_name"))
+            for u in data.get("users", [])
+            if u["user_id"] not in existing_uids
+        ]
+        if new_users:
+            session.add_all(new_users)
+            await session.flush()
+
+        existing_rids = set((await session.scalars(select(Review.review_id))).all())
+        new_reviews = [
+            Review(
+                review_id=r["review_id"],
+                product_id=r["product_id"],
+                user_id=r.get("user_id"),
+                rating=r.get("rating"),
+                review_title=r.get("review_title"),
+                review_content=r.get("review_content"),
+            )
+            for r in data.get("reviews", [])
+            if r["review_id"] not in existing_rids
+        ]
+        if new_reviews:
+            session.add_all(new_reviews)
+            await session.flush()
+
+        logger.info(
+            "Seeded %d extra products and %d reviews from catalog fixture",
+            len(new_products),
+            len(new_reviews),
+        )
+        return len(new_products)
+    except Exception as exc:
+        logger.warning("Failed to load catalog fixture: %s", exc)
+        return 0
 
 
 async def run_cli() -> None:

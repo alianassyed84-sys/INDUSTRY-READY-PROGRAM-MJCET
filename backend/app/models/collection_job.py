@@ -39,6 +39,11 @@ class CollectionJob(Base):
         nullable=True,
         comment="JSON array of up to 10 error messages sampled during the run",
     )
+    filter_report: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+        comment="JSON dictionary of dropped/flagged review counts per reason",
+    )
     started_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

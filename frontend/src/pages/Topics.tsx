@@ -45,7 +45,7 @@ export default function Topics() {
 
       {topics.length > 0 && (
         <>
-          <div className="grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
             <ChartCard title="Topic frequency" subtitle="How many times each term appears" summary={`Topic frequency: ${shown.map((t) => `${t.term} ${t.frequency}`).join(', ')}.`}>
               {shown.length ? (
                 <div style={{ height: Math.max(220, shown.length * 44) }}>
@@ -68,7 +68,7 @@ export default function Topics() {
               )}
             </ChartCard>
 
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <Card data-reveal>
                 <CardHeader title="Top topics" subtitle="Frequency and TF-IDF relevance" />
                 <Input aria-label="Search topics" placeholder="Search topics" leading={<Search className="h-4 w-4" />} value={term} onChange={(e) => setTerm(e.target.value)} />

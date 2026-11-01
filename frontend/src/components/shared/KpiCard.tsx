@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 
 export function KpiCard({ label, value, hint, icon }: { label: string; value: ReactNode; hint?: string; icon?: ReactNode }) {
   return (
-    <Card interactive data-reveal className="!p-5">
+    <Card interactive data-reveal className="rp-kpi !p-5">
       <div className="flex items-center justify-between">
         <p className="text-[13px] font-semibold text-rp-muted">{label}</p>
         {icon && <span className="grid h-9 w-9 place-items-center rounded-xl bg-rp-primary-light text-rp-primary">{icon}</span>}

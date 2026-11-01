@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ROUTES } from '@/lib/routes';
+import { useMotion } from '@/hooks/useMotion';
+import { pageEntrance } from '@/lib/motion';
 import { useSession } from '@/hooks/useSession';
 
 const email = z.string().trim().min(1, 'Enter your email.').email('Enter a valid email address.');
@@ -19,9 +21,12 @@ const registerSchema = z.object({ name: z.string().trim().min(2, 'Enter your ful
 const recoverSchema = z.object({ email });
 
 function Shell({ title, subtitle, children, footer }: { title: string; subtitle: string; children: React.ReactNode; footer: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { enabled } = useMotion();
+  useEffect(() => enabled && ref.current ? pageEntrance(ref.current) : undefined, [enabled, title]);
   return (
-    <div className="rp-ambient px-4 py-12 md:py-20">
-      <Card className="mx-auto w-full max-w-[460px] !p-7 md:!p-9">
+    <div ref={ref} className="rp-ambient px-4 py-12 md:py-20">
+      <Card data-reveal className="mx-auto w-full max-w-[460px] !p-7 md:!p-9">
         <Badge tone="warning" className="mb-4"><FlaskConical className="h-3.5 w-3.5" aria-hidden /> Prototype: no auth backend connected</Badge>
         <h1 className="text-[30px] font-extrabold">{title}</h1>
         <p className="mt-1.5 text-sm text-rp-muted">{subtitle}</p>
