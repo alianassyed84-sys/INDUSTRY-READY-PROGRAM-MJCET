@@ -9,8 +9,8 @@ const icon = (s: StageState) => ({
   error: <AlertCircle className="h-4 w-4" />, unavailable: <Minus className="h-4 w-4" />,
 }[s]);
 const ring: Record<StageState, string> = {
-  done: 'bg-rp-success text-white', active: 'bg-rp-primary text-white', pending: 'bg-rp-primary-light text-rp-muted',
-  error: 'bg-rp-coral text-white', unavailable: 'bg-rp-warning/15 text-rp-warning',
+  done: 'bg-rp-success text-rp-bg', active: 'bg-rp-action text-white', pending: 'bg-rp-primary-light text-rp-muted',
+  error: 'bg-rp-coral text-rp-bg', unavailable: 'bg-rp-warning/15 text-rp-warning',
 };
 
 /** Shows only real states handed to it; it never advances on its own. */

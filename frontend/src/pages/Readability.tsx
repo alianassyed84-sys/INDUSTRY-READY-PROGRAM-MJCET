@@ -42,33 +42,53 @@ export default function Readability() {
       {r && (
         <>
           <section aria-label="Readability summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <KpiCard label="Flesch Reading Ease" value={r.fleschReadingEase.toFixed(1)} hint={band(r.fleschReadingEase)} />
-            <KpiCard label="Grade level" value={r.gradeLevel.toFixed(1)} hint="Estimated US school grade" />
+            <KpiCard
+              label="Flesch Reading Ease"
+              value={r.fleschReadingEase != null ? r.fleschReadingEase.toFixed(1) : 'Not available'}
+              hint={r.fleschReadingEase != null ? band(r.fleschReadingEase) : 'Score uncalculated'}
+            />
+            <KpiCard
+              label="Grade level"
+              value={r.gradeLevel != null ? r.gradeLevel.toFixed(1) : 'Not available'}
+              hint="Estimated US school grade"
+            />
             <KpiCard label="Reviews analyzed" value={r.analyzed} hint="Included in the score" />
             <KpiCard label="Excluded" value={r.excluded} hint="Too short, blank or unsupported" />
           </section>
 
           <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
-            <ChartCard title="Readability distribution" subtitle="Reviews per readability level" summary={`Readability levels: ${r.distribution.map((d) => `${d.label} ${d.count}`).join(', ')}.`}>
-              <div className="h-[290px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={r.distribution} margin={{ left: -12, right: 8 }}>
-                    <CartesianGrid stroke={CHART.grid} vertical={false} />
-                    <XAxis dataKey="label" tick={CHART.tick} axisLine={false} tickLine={false} />
-                    <YAxis allowDecimals={false} tick={CHART.tick} axisLine={false} tickLine={false} />
-                    <RTooltip {...CHART.tooltip} />
-                    <Bar dataKey="count" name="Reviews" radius={[8, 8, 0, 0]}>{r.distribution.map((d) => <Cell key={d.label} fill={d.count === 0 ? 'var(--rp-border)' : CHART.primary} />)}</Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <ChartCard
+              title="Readability distribution"
+              subtitle="Reviews per readability level"
+              summary={r.distribution.length ? `Readability levels: ${r.distribution.map((d) => `${d.label} ${d.count}`).join(', ')}.` : 'No distribution data available from backend.'}
+            >
+              {r.distribution.length > 0 ? (
+                <div className="h-[290px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={r.distribution} margin={{ left: -12, right: 8 }}>
+                      <CartesianGrid stroke={CHART.grid} vertical={false} />
+                      <XAxis dataKey="label" tick={CHART.tick} axisLine={false} tickLine={false} />
+                      <YAxis allowDecimals={false} tick={CHART.tick} axisLine={false} tickLine={false} />
+                      <RTooltip {...CHART.tooltip} />
+                      <Bar dataKey="count" name="Reviews" radius={[8, 8, 0, 0]}>{r.distribution.map((d) => <Cell key={d.label} fill={d.count === 0 ? 'rgb(var(--rp-border))' : CHART.primary} />)}</Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <p className="py-12 text-center text-sm text-rp-muted">Readability distribution is not provided by the backend.</p>
+              )}
               <p className="mt-2 text-xs text-rp-muted">A level with 0 reviews means none were found at that level, not that data is missing.</p>
             </ChartCard>
 
             <div className="space-y-6">
               <Card data-reveal tone="featured">
                 <CardHeader title="What the score means" />
-                <p className="tnum font-heading text-4xl font-extrabold text-rp-primary">{r.fleschReadingEase.toFixed(1)}</p>
-                <p className="mt-1 font-semibold text-rp-navy">{band(r.fleschReadingEase)}</p>
+                <p className="tnum font-heading text-4xl font-extrabold text-rp-primary">
+                  {r.fleschReadingEase != null ? r.fleschReadingEase.toFixed(1) : 'Not available'}
+                </p>
+                <p className="mt-1 font-semibold text-rp-navy">
+                  {r.fleschReadingEase != null ? band(r.fleschReadingEase) : 'Readability uncalculated'}
+                </p>
                 <p className="mt-2 text-sm text-rp-muted">Higher scores mean easier text. Typical short consumer reviews score high because they use short sentences and common words.</p>
               </Card>
               <Card data-reveal>

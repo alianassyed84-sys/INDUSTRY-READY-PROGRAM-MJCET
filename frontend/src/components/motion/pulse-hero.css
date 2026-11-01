@@ -1,0 +1,88 @@
+.rp-cinematic-stage {
+  display: grid;
+  min-height: calc(100svh - 76px);
+  place-items: center;
+}
+.rp-cinematic-hero.rp-ambient {
+  background-image: radial-gradient(ellipse at 50% 48%, rgb(var(--rp-action) / .13), transparent 62%);
+  background-size: 100% 100%;
+  animation: none !important;
+}
+.rp-cinematic-hero::before { left: 25%; right: auto; top: 15%; width: 50%; height: 65%; opacity: .16; }
+.rp-cinematic-hero::after { left: 35%; bottom: 0; width: 30%; height: 30%; opacity: .12; }
+.rp-cinematic-canvas {
+  width: min(1100px, calc((100svh - 116px) * 1.25), 100%);
+}
+.pulse-figure { position: relative; min-width: 0; margin: 0; }
+.pulse-scene { position: relative; perspective: 1100px; isolation: isolate; }
+.pulse-scene::before {
+  content: ''; position: absolute; inset: 5% 10%; z-index: -1; border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(var(--rp-action) / .15), transparent 68%);
+  animation: pulse-background-breathe 4.2s ease-in-out infinite;
+}
+.pulse-scene::after {
+  content: ''; position: absolute; inset: 7% 5%; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 32%, rgb(var(--rp-primary) / .7) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 21%, rgb(var(--rp-magenta) / .55) 0 1px, transparent 2px),
+    radial-gradient(circle at 84% 72%, rgb(var(--rp-success) / .42) 0 1px, transparent 2px),
+    radial-gradient(circle at 34% 82%, rgb(var(--rp-primary) / .5) 0 1px, transparent 2px);
+  background-size: 91px 83px, 137px 109px, 113px 127px, 149px 131px;
+  mask-image: radial-gradient(ellipse, #000 20%, transparent 76%);
+  opacity: .48;
+  animation: pulse-live-field 18s linear infinite;
+}
+.pulse-art { display: block; width: 100%; height: auto; overflow: visible; transform: rotateX(var(--scene-y, 0deg)) rotateY(var(--scene-x, 0deg)); transform-origin: center; transition: transform 520ms cubic-bezier(.2,.7,.2,1); }
+.pulse-label { fill: #f1e7fc; font: 600 13px 'Manrope Variable', sans-serif; }
+.pulse-copy { fill: #c3afd6; font: 400 12px 'Inter Variable', sans-serif; }
+.pulse-small { fill: #c4afd8; font: 500 10px 'Inter Variable', sans-serif; }
+.pulse-wordmark { fill: #f7efff; font: 750 28px 'Manrope Variable', sans-serif; letter-spacing: -.8px; }
+.pulse-panel { animation: pulse-panel-drift 9s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -.9s); }
+.pulse-bag-float { animation: pulse-core-drift 8s ease-in-out infinite; }
+.pulse-star { animation: pulse-starlight 5s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -.19s); }
+.pulse-stars { animation: pulse-field-drift 32s ease-in-out infinite alternate; }
+.pulse-signal { opacity: .7; }
+.pulse-heartbeat { animation: pulse-heart-live 1.35s ease-in-out infinite; }
+.pulse-heartlight { animation: pulse-heart-glow 1.35s ease-in-out infinite; }
+.pulse-heart-runner {
+  stroke-dasharray: .065 .22;
+  stroke-dashoffset: 0;
+  animation: pulse-line-run 1.35s linear infinite;
+}
+.pulse-ring { transform-box: view-box; transform-origin: 400px 325px; animation: pulse-aura-breathe 7s ease-in-out infinite; }
+.pulse-orbit { transform-box: view-box; transform-origin: 400px 325px; animation: pulse-orbit-turn 28s linear infinite; }
+.pulse-ring-two { animation-delay: -3.5s; }
+.pulse-needle { transform-origin: 101px 102px; animation: pulse-gauge-settle 9s ease-in-out infinite alternate; }
+.pulse-scene[data-scroll-ready='true'] [data-panel],
+.pulse-scene[data-scroll-ready='true'] [data-signal] { visibility: hidden; }
+.pulse-scene[data-active='false'] *,
+.pulse-scene[data-active='false']::before,
+.pulse-scene[data-active='false']::after { animation-play-state: paused !important; }
+@keyframes pulse-panel-drift { from { translate: 0 -2px; } to { translate: 0 3px; } }
+@keyframes pulse-core-drift { 0%,100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+@keyframes pulse-starlight { from { opacity: .18; } to { opacity: .48; } }
+@keyframes pulse-field-drift { from { transform: translate(-2px, 2px); } to { transform: translate(3px, -2px); } }
+@keyframes pulse-background-breathe { 0%,100% { opacity: .58; transform: scale(.94); } 12% { opacity: 1; transform: scale(1.04); } 25% { opacity: .7; transform: scale(.99); } }
+@keyframes pulse-live-field { from { background-position: 0 0, 0 0, 0 0, 0 0; } to { background-position: 91px -83px, -137px 109px, 113px 127px, -149px -131px; } }
+@keyframes pulse-heart-live { 0%,100% { opacity: .76; stroke-width: 4px; } 8% { opacity: 1; stroke-width: 5.2px; } 17% { opacity: .82; stroke-width: 4px; } 28% { opacity: 1; stroke-width: 4.8px; } 40% { opacity: .78; stroke-width: 4px; } }
+@keyframes pulse-heart-glow { 0%,100% { opacity: .2; } 8% { opacity: .58; } 17% { opacity: .26; } 28% { opacity: .48; } 42% { opacity: .22; } }
+@keyframes pulse-line-run { to { stroke-dashoffset: -.285; } }
+@keyframes pulse-orbit-turn { to { transform: rotate(360deg); } }
+@keyframes pulse-aura-breathe { 0%,100% { transform: scale(.99); opacity: .64; } 50% { transform: scale(1.02); opacity: 1; } }
+@keyframes pulse-gauge-settle { from { rotate: -2deg; } to { rotate: 2deg; } }
+@media (max-width: 639px) {
+  .rp-cinematic-canvas { width: min(100%, calc((100svh - 108px) * 1.25)); }
+  .pulse-art { width: 100%; }
+  .pulse-panel-secondary { opacity: .75; }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .pulse-scene { max-width: 680px; margin-inline: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse-scene *, .pulse-scene::before, .pulse-scene::after { animation: none !important; }
+  .pulse-art { transform: none; transition: none; }
+}
+html[data-motion='reduced'] .pulse-scene *,
+html[data-motion='reduced'] .pulse-scene::before,
+html[data-motion='reduced'] .pulse-scene::after { animation: none !important; }
+html[data-motion='reduced'] .pulse-art { transform: none; transition: none; }

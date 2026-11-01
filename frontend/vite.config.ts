@@ -12,7 +12,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          three: ['three'],
           charts: ['recharts'],
           vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query', 'gsap'],
         },

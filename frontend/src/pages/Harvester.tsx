@@ -195,7 +195,7 @@ export default function Harvester() {
       <Card data-reveal className="!p-6 border-2 border-rp-primary/20 bg-gradient-to-br from-rp-surface via-rp-surface to-rp-primary/5">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rp-border pb-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-rp-primary text-white shadow-md">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-rp-action text-white shadow-md">
               <ShoppingBag className="h-5 w-5" />
             </div>
             <div>
@@ -225,7 +225,7 @@ export default function Harvester() {
                   onClick={() => setFkMaxItems(num)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     fkMaxItems === num
-                      ? 'bg-rp-primary text-white shadow-sm'
+                      ? 'bg-rp-action text-white shadow-sm'
                       : 'bg-rp-surface-soft text-rp-muted hover:text-rp-navy'
                   }`}
                 >
@@ -247,7 +247,7 @@ export default function Harvester() {
                   onClick={() => setFkMaxPages(pages)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                     fkMaxPages === pages
-                      ? 'bg-rp-primary text-white shadow-sm'
+                      ? 'bg-rp-action text-white shadow-sm'
                       : 'bg-rp-surface-soft text-rp-muted hover:text-rp-navy'
                   }`}
                 >

@@ -22,6 +22,7 @@ ALLOWED_FLIPKART_HOSTNAMES: Final[frozenset[str]] = frozenset(
         "flipkart.com",
         "www.flipkart.com",
         "dl.flipkart.com",
+        "m.flipkart.com",
     }
 )
 
@@ -120,7 +121,7 @@ def validate_flipkart_url(raw_url: str) -> ValidatedFlipkartUrl:
 
     # 5. Extract and validate 'pid' from query parameters
     query_params = parse_qs(parsed.query, keep_blank_values=False)
-    pids = query_params.get("pid")
+    pids = query_params.get("pid") or query_params.get("PID")
     if not pids or not pids[0].strip():
         raise InvalidFlipkartUrlError(
             "Missing 'pid' query parameter in Flipkart URL. "

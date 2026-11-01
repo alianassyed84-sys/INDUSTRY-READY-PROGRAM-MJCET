@@ -23,10 +23,16 @@ __pycache__/
 htmlcov/
 coverage.xml
 
-# Databases
+# Databases & backups
 *.db
 *.sqlite
 *.sqlite3
+*.bak
+
+# Transient scratch, media, large datasets
+qa/scratch*
+*.mp4
+dataset_*.json
 
 # Frontend dependencies and builds
 node_modules/
@@ -44,3 +50,4 @@ Thumbs.db
 .tempmediaStorage/
 *.log
 
+.agents/

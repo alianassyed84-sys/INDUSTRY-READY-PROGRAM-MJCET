@@ -312,7 +312,7 @@ class TestCsvAmazonAdapter:
         assert len(records) == 2
 
     def test_kaggle_polarity_parsing(self, tmp_path: Path) -> None:
-        """Kaggle polarity 3-column CSV format is parsed and clustered into products."""
+        """Kaggle polarity 3-column CSV format is parsed into unmatched_group container without fake users/stars."""
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(
             '"2","Great CD","I loved this music album so much."\n'
@@ -323,13 +323,16 @@ class TestCsvAmazonAdapter:
         records = list(adapter.records())
         assert len(records) == 1
         product, users, reviews = records[0]
-        assert product.product_id == "AMZN-KAG-001"
+        assert product.kind == "unmatched_group"
+        assert product.is_synthetic is True
         assert len(reviews) == 2
-        assert reviews[0].rating == 5.0
+        assert reviews[0].rating is None
+        assert reviews[0].source_polarity == "positive"
         assert reviews[0].review_title == "Great CD"
-        assert reviews[1].rating == 1.0
+        assert reviews[1].rating is None
+        assert reviews[1].source_polarity == "negative"
         assert reviews[1].review_title == "Terrible"
-        assert len(users) == 2
+        assert len(users) == 0, "Fake users must not be generated"
 
     def test_directory_resolution(self, tmp_path: Path) -> None:
         """When given a directory path, auto-resolves test.csv inside."""

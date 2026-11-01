@@ -16,7 +16,7 @@ export function Tooltip({ label, side = 'right', children }: { label: string; si
     >
       {children}
       {open && (
-        <span id={id} role="tooltip" className={cn('pointer-events-none absolute z-50 whitespace-nowrap rounded-lg bg-rp-navy px-2.5 py-1.5 text-xs font-medium text-white shadow-lift', pos)}>
+        <span id={id} role="tooltip" className={cn('pointer-events-none absolute z-50 whitespace-nowrap rounded-lg border border-rp-primary-soft bg-rp-soft px-2.5 py-1.5 text-xs font-medium text-white shadow-lift', pos)}>
           {label}
         </span>
       )}

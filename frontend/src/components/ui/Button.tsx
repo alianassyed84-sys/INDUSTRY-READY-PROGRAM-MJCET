@@ -10,10 +10,10 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-rp-primary text-white shadow-[0_8px_20px_-8px_rgba(113,56,245,.6)] hover:bg-rp-primary-hover',
+  primary: 'rp-button-primary',
   secondary: 'border border-rp-border bg-rp-surface text-rp-navy hover:border-rp-primary-soft hover:bg-rp-primary-light',
   ghost: 'text-rp-text hover:bg-rp-primary-light',
-  danger: 'bg-rp-coral text-white hover:brightness-95',
+  danger: 'bg-rp-coral text-rp-bg hover:brightness-110',
 };
 const sizes = { sm: 'min-h-[36px] px-3.5 text-xs', md: 'min-h-[44px] px-5 text-sm', lg: 'min-h-[52px] px-7 text-[15px]', icon: 'h-11 w-11' };
 
@@ -24,7 +24,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled={disabled || loading}
       className={cn(
         'inline-flex items-center justify-center gap-2 rounded-btn font-semibold transition-colors',
-        'disabled:cursor-not-allowed disabled:opacity-55',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         variants[variant],
         sizes[size],
         className,

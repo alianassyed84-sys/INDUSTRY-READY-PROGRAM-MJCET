@@ -16,3 +16,6 @@ vi.stubGlobal('IntersectionObserver', Noop);
 HTMLDialogElement.prototype.showModal ??= function () { this.open = true; };
 HTMLDialogElement.prototype.close ??= function () { this.open = false; };
 window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+
+// For component integration tests that run offline without a real backend, enable demo fixtures
+vi.stubEnv('VITE_ENABLE_DEMO', 'true');

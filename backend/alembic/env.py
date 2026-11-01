@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -17,7 +18,7 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = Base.metadata
 
@@ -27,14 +28,32 @@ target_metadata = Base.metadata
 # ... etc.
 
 
+def get_effective_url() -> str:
+    """Resolve database URL with strict precedence:
+
+    1. Explicit environment variable DATABASE_URL
+    2. Explicitly configured alembic.ini 'sqlalchemy.url' (if not dummy placeholder)
+    3. Application settings.database_url
+    4. Default local SQLite fallback
+    """
+    env_db_url = os.environ.get("DATABASE_URL")
+    if env_db_url:
+        return get_async_database_url(env_db_url)
+
+    ini_url = config.get_main_option("sqlalchemy.url")
+    if ini_url and not ini_url.startswith("driver://"):
+        return get_async_database_url(ini_url)
+
+    settings = get_settings()
+    if settings.database_url:
+        return get_async_database_url(settings.database_url)
+
+    return "sqlite+aiosqlite:///reviewpulse.db"
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    settings = get_settings()
-    url = (
-        get_async_database_url(settings.database_url)
-        if settings.database_url
-        else config.get_main_option("sqlalchemy.url")
-    )
+    url = get_effective_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -47,7 +66,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        render_as_batch=connection.dialect.name == "sqlite",
+    )
 
     with context.begin_transaction():
         context.run_migrations()
@@ -58,13 +81,8 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
 
     """
-    settings = get_settings()
     section = config.get_section(config.config_ini_section, {})
-    main_url = config.get_main_option("sqlalchemy.url")
-    if main_url:
-        section["sqlalchemy.url"] = get_async_database_url(main_url)
-    elif settings.database_url:
-        section["sqlalchemy.url"] = get_async_database_url(settings.database_url)
+    section["sqlalchemy.url"] = get_effective_url()
 
     connectable = async_engine_from_config(
         section,

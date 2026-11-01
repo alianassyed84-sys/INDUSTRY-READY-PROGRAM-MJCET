@@ -198,41 +198,6 @@ class FlipkartReviewScraper:
             f"Apify sync run failed (HTTP {status}); aborting to prevent duplicate billing."
         )
 
-    async def _run_apify_async_poll(
-        self,
-        headers: dict[str, str],
-        actor_input: dict[str, Any],
-    ) -> list[dict[str, Any]]:
-        """Start Actor run and retrieve dataset items upon completion."""
-        start_url = f"{APIFY_BASE_URL}/acts/{APIFY_ACTOR_ID}/runs?waitForFinish=45"
-        status, resp_data = await asyncio.to_thread(
-            self._http_request_sync,
-            url=start_url,
-            method="POST",
-            headers=headers,
-            json_data=actor_input,
-        )
-
-        if status not in (200, 201) or not isinstance(resp_data, dict):
-            raise ProviderError(f"Failed to start Apify Actor run: HTTP {status}")
-
-        run_data = resp_data.get("data", {})
-        dataset_id = run_data.get("defaultDatasetId")
-        if not dataset_id:
-            raise ProviderError("No defaultDatasetId returned by Apify run")
-
-        # Fetch items from dataset
-        dataset_url = f"{APIFY_BASE_URL}/datasets/{dataset_id}/items"
-        d_status, items = await asyncio.to_thread(
-            self._http_request_sync,
-            url=dataset_url,
-            method="GET",
-            headers=headers,
-        )
-        if d_status != 200:
-            raise ProviderError(f"Failed to fetch dataset items: HTTP {d_status}")
-        return items if isinstance(items, list) else []
-
     def _generate_mock_items(
         self,
         validated: ValidatedFlipkartUrl,
