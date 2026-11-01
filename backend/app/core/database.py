@@ -22,11 +22,13 @@ class Base(DeclarativeBase):
 
 
 def get_async_database_url(url: str) -> str:
-    """Ensure the database URL uses the asyncpg driver."""
+    """Ensure the database URL uses an async driver (asyncpg or aiosqlite)."""
     if url.startswith("postgresql://"):
         return url.replace("postgresql://", "postgresql+asyncpg://", 1)
     if url.startswith("postgres://"):
         return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if url.startswith("sqlite:///") and not url.startswith("sqlite+aiosqlite:///"):
+        return url.replace("sqlite:///", "sqlite+aiosqlite:///", 1)
     return url
 
 

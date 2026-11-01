@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     """Runtime settings loaded from environment variables and an optional .env file."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
@@ -104,6 +104,17 @@ class Settings(BaseSettings):
         if isinstance(value, str) and value.strip() == "":
             return None
         return value
+ 
+    @field_validator("database_url", mode="after")
+    @classmethod
+    def canonicalize_sqlite_path(cls, v: str | None) -> str | None:
+        if v and v.startswith("sqlite+aiosqlite:///") and not v.startswith("sqlite+aiosqlite:////") and ":memory:" not in v:
+            import os
+            db_name = v.replace("sqlite+aiosqlite:///", "")
+            backend_db = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", db_name))
+            if os.path.exists(backend_db):
+                return f"sqlite+aiosqlite:///{backend_db.replace(os.sep, '/')}"
+        return v
 
     @field_validator("cors_origins", mode="before")
     @classmethod

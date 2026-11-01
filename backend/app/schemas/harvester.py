@@ -220,6 +220,11 @@ class SentimentInsightSummary(BaseModel):
     top_positive_highlights: list[str] = Field(default_factory=list)
     top_negative_highlights: list[str] = Field(default_factory=list)
     aspects: dict[str, AspectInsight] = Field(default_factory=dict)
+    excluded_unsupported_language_count: int = Field(
+        0,
+        ge=0,
+        description="Count of reviews excluded from sentiment analysis due to unsupported language.",
+    )
 
 
 class ReadabilitySummary(BaseModel):

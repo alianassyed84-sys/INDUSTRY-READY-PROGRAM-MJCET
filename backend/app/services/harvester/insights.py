@@ -111,9 +111,19 @@ async def compute_product_insights(
         )
 
     # Sentiment analysis
-    sentiment_results = [
+    all_sentiment_results = [
         analyze_sentiment(text, aspects=aspects) for text in analyzable_texts
     ]
+    sentiment_results = [
+        sr
+        for sr in all_sentiment_results
+        if getattr(sr, "status", "supported") != "unsupported_language"
+        and sr.label != "unsupported_language"
+    ]
+    excluded_unsupported_language_count = len(all_sentiment_results) - len(
+        sentiment_results
+    )
+
     compounds = [sr.scores.compound for sr in sentiment_results]
     avg_compound = round(sum(compounds) / len(compounds), 3) if compounds else 0.0
 
@@ -184,6 +194,7 @@ async def compute_product_insights(
         top_positive_highlights=top_pos_highlights,
         top_negative_highlights=top_neg_highlights,
         aspects=aspect_insights,
+        excluded_unsupported_language_count=excluded_unsupported_language_count,
     )
 
     # Topics extraction
@@ -250,7 +261,7 @@ async def compute_product_insights(
         product_id=product.product_id,
         product_name=product.product_name,
         total_reviews_in_db=total_reviews_in_db,
-        total_reviews_analyzed=len(analyzable_texts),
+        total_reviews_analyzed=len(sentiment_results),
         ratings=ratings_breakdown,
         sentiment=sentiment_summary,
         top_topics=top_topics,
