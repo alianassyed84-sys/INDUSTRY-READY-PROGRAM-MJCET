@@ -10,17 +10,11 @@ interface Ctx {
   loading: boolean;
   source: ApiEnvelope<unknown>['source'];
   fallbackReason?: string;
-  refetch: () => void;
 }
 const ProductCtx = createContext<Ctx | null>(null);
 
 export function ProductProvider({ children }: { children: ReactNode }) {
-  const q = useQuery({
-    queryKey: ['products'],
-    queryFn: ({ signal }) => api.products(signal),
-    staleTime: 60_000,
-    refetchInterval: (query) => (query.state.data?.source === 'demo' ? 6_000 : false),
-  });
+  const q = useQuery({ queryKey: ['products'], queryFn: ({ signal }) => api.products(signal), staleTime: 60_000 });
   const [picked, setPicked] = useState<string>();
   const products = q.data?.data ?? [];
   const value = useMemo<Ctx>(
@@ -31,11 +25,8 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       loading: q.isLoading,
       source: q.data?.source ?? 'demo',
       fallbackReason: q.data?.fallbackReason,
-      refetch: () => {
-        void q.refetch();
-      },
     }),
-    [products, picked, q.isLoading, q.data?.source, q.data?.fallbackReason, q.refetch],
+    [products, picked, q.isLoading, q.data?.source, q.data?.fallbackReason],
   );
   return <ProductCtx.Provider value={value}>{children}</ProductCtx.Provider>;
 }
