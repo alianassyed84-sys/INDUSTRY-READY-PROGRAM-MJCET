@@ -18,7 +18,10 @@ import { adaptInsights, adaptProduct, adaptReview } from './adapters';
 import { demoInsights, demoProducts, demoReviews } from '@/data/demo';
 
 export const API_BASE_URL: string =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, '') ?? 'http://localhost:8000';
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, '') ||
+  (typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? 'https://irpversion2-2.onrender.com'
+    : 'http://localhost:8000');
 
 export class ApiError extends Error {
   constructor(

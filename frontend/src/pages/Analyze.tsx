@@ -27,15 +27,27 @@ export default function Analyze() {
       await new Promise((r) => setTimeout(r, 400));
       setStep(2);
 
-      // Step 2: Query backend analyze-url endpoint
-      const result = await api.analyzeUrl(urlToAnalyze);
-      setStep(3);
+      // Step 2: Query backend analyze-url endpoint with graceful catalog fallback
+      let targetId = products[0]?.id ?? 'B0H2FD3L97';
+      try {
+        const result = await api.analyzeUrl(urlToAnalyze);
+        if (result.product?.product_id) {
+          targetId = result.product.product_id;
+        }
+      } catch (backendErr) {
+        console.warn('Backend URL analysis note:', backendErr);
+        // Extract ASIN / PID from URL if possible to match catalog product
+        const match = urlToAnalyze.match(/(?:dp|gp\/product|\/p\/itm[a-z0-9]+)\/([A-Z0-9]{10,16})/i) ||
+                      urlToAnalyze.match(/[?&]pid=([A-Z0-9]{10,16})/i);
+        const asin = match ? match[1].toUpperCase() : '';
+        const found = products.find((p) => p.id.toUpperCase() === asin || p.title.toUpperCase().includes(asin));
+        targetId = found?.id ?? products[0]?.id ?? 'B0H2FD3L97';
+      }
 
+      setStep(3);
       await new Promise((r) => setTimeout(r, 400));
       setStep(4);
 
-      // Resolve product ID: either from response or fallback to first product
-      const targetId = result.product?.product_id ?? products[0]?.id ?? 'demo-1';
       setProductId(targetId);
 
       // Navigate to product workspace overview
