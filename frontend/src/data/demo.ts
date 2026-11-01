@@ -5,9 +5,9 @@
 import type { Insights, Product, Review, Sentiment } from '@/lib/types';
 
 export const demoProducts: Product[] = [
-  { id: 'demo-1', title: 'Sample Wireless Earbuds', brand: 'DemoBrand', asin: 'B0DEMO0001', marketplace: 'Amazon.in', price: 2499, listPrice: 3999, rating: 4.1, ratingCount: 1860 },
-  { id: 'demo-2', title: 'Sample Smart Water Bottle', brand: 'DemoBrand', asin: 'B0DEMO0002', marketplace: 'Amazon.in', price: 1299, listPrice: 1799, rating: 3.8, ratingCount: 642 },
-  { id: 'demo-3', title: 'Sample Mechanical Keyboard', brand: 'DemoBrand', asin: 'B0DEMO0003', marketplace: 'Amazon.in', price: 4599, listPrice: 5999, rating: 4.4, ratingCount: 2310 },
+  { id: 'demo-1', title: 'Sample Wireless Earbuds', brand: 'DemoBrand', asin: 'B0DEMO0001', marketplace: 'Amazon.in', price: 2499, listPrice: 3999, rating: 4.1, ratingCount: 1860, imageUrl: '/products/AMZN-AIRPODS-PRO2.jpg' },
+  { id: 'demo-2', title: 'Sample Smart Water Bottle', brand: 'DemoBrand', asin: 'B0DEMO0002', marketplace: 'Amazon.in', price: 1299, listPrice: 1799, rating: 3.8, ratingCount: 642, imageUrl: '/products/AMZN-KAG-024.jpg' },
+  { id: 'demo-3', title: 'Sample Mechanical Keyboard', brand: 'DemoBrand', asin: 'B0DEMO0003', marketplace: 'Amazon.in', price: 4599, listPrice: 5999, rating: 4.4, ratingCount: 2310, imageUrl: '/products/B0H2FD3L97.jpg' },
 ];
 
 const texts: [string, number, Sentiment, string][] = [

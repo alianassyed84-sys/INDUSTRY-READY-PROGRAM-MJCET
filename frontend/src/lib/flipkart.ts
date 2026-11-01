@@ -31,11 +31,11 @@ export function parseFlipkartUrl(raw: string): FlipkartUrlCheck {
   }
 
   const host = url.hostname.toLowerCase().replace(/^www\./, '');
-  if (host !== 'flipkart.com' && host !== 'dl.flipkart.com') {
+  if (host !== 'flipkart.com' && host !== 'dl.flipkart.com' && host !== 'm.flipkart.com') {
     return { valid: false, error: 'Only Flipkart.com product URLs are supported.' };
   }
 
-  const pid = url.searchParams.get('pid')?.trim().toUpperCase();
+  const pid = (url.searchParams.get('pid') || url.searchParams.get('PID'))?.trim().toUpperCase();
   if (!pid) {
     return {
       valid: false,

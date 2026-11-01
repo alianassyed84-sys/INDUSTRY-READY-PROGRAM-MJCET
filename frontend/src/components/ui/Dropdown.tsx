@@ -20,7 +20,7 @@ export function Dropdown({ trigger, items, label, align = 'right' }: { trigger: 
         {trigger}
       </button>
       {open && (
-        <div role="menu" className={cn('absolute top-full z-50 mt-2 min-w-[200px] rounded-2xl border border-rp-border bg-rp-surface p-1.5 shadow-lift', align === 'right' ? 'right-0' : 'left-0')}>
+        <div role="menu" className={cn('rp-popover absolute top-full z-50 mt-2 min-w-[200px] rounded-2xl border border-rp-border bg-rp-surface p-1.5 shadow-lift', align === 'right' ? 'right-0' : 'left-0')}>
           {items.map((it) => (
             <button
               key={it.label}

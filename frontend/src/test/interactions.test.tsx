@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from '@/App';
 import { ProductProvider } from '@/hooks/useProduct';
 import { SessionProvider } from '@/hooks/useSession';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, productRoute } from '@/lib/routes';
 
 function renderApp(path: string) {
   const qc = new QueryClient({
@@ -62,7 +62,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.analysis);
+    renderApp(productRoute('demo-1', 'sentiment'));
     const textarea = await screen.findByPlaceholderText(/Type or paste a review to evaluate/i);
     await user.type(textarea, 'Battery is great.');
     const submitBtn = screen.getByRole('button', { name: /^Analyze Sentiment$/i });
@@ -98,7 +98,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.language);
+    renderApp(productRoute('demo-1', 'languages'));
     const textarea = await screen.findByPlaceholderText(/Type or paste any text to detect its language/i);
     await user.type(textarea, 'This is a high quality phone case.');
     const submitBtn = screen.getByRole('button', { name: /^Identify Language$/i });
@@ -128,7 +128,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.readability);
+    renderApp(productRoute('demo-1', 'readability'));
     const textarea = await screen.findByPlaceholderText(/Paste or type a customer review here/i);
     await user.type(textarea, 'The camera is crystal clear and very responsive.');
     const submitBtn = screen.getByRole('button', { name: /^Analyze Text Complexity$/i });
@@ -164,7 +164,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.topics);
+    renderApp(productRoute('demo-1', 'topics'));
     const submitBtn = await screen.findByRole('button', { name: /^Extract Live Keyphrases$/i });
     await user.click(submitBtn);
 
@@ -195,7 +195,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.analytics);
+    renderApp(productRoute('demo-1', 'price'));
     const pollBtn = await screen.findByRole('button', { name: /Poll Fresh Price/i });
     await user.click(pollBtn);
 
@@ -224,7 +224,7 @@ describe('Interactive On-Demand Tool Integrations', () => {
       return Promise.reject(new TypeError('offline'));
     }));
 
-    renderApp(ROUTES.harvester);
+    renderApp('/harvester-admin');
     const jobBtn = await screen.findByRole('button', { name: /Run CSV Import Job/i });
     await user.click(jobBtn);
 

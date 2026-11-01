@@ -9,14 +9,18 @@ import { ROUTES } from '@/lib/routes';
 
 interface Props {
   initial?: string;
+  value?: string;
+  onChange?: (url: string) => void;
   onSubmit?: (url: string, check: UniversalUrlCheck) => void;
   cta?: string;
   loading?: boolean;
 }
 
 /** The unified URL entry point used across Landing, Dashboard and Review Harvester. */
-export function UrlAnalyzer({ initial = '', onSubmit, cta = 'Analyze a Product', loading }: Props) {
-  const [url, setUrl] = useState(initial);
+export function UrlAnalyzer({ initial = '', value, onChange, onSubmit, cta = 'Analyze a Product', loading }: Props) {
+  const [internalUrl, setInternalUrl] = useState(initial);
+  const url = value !== undefined ? value : internalUrl;
+  const setUrl = onChange ?? setInternalUrl;
   const [touched, setTouched] = useState(false);
   const nav = useNavigate();
   const check = parseProductUrl(url);
@@ -26,8 +30,9 @@ export function UrlAnalyzer({ initial = '', onSubmit, cta = 'Analyze a Product',
     e.preventDefault();
     setTouched(true);
     if (!check.valid) return;
-    if (onSubmit) onSubmit(url.trim(), check);
-    else nav(`${ROUTES.harvester}?url=${encodeURIComponent(url.trim())}`);
+    const normalized = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    if (onSubmit) onSubmit(normalized, check);
+    else nav(`${ROUTES.analyze}?url=${encodeURIComponent(normalized)}`);
   };
 
   const paste = async () => {
@@ -70,12 +75,12 @@ export function UrlAnalyzer({ initial = '', onSubmit, cta = 'Analyze a Product',
       </div>
       {check.valid && (
         <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[13px] text-rp-muted" aria-live="polite">
-          <Badge tone="success">URL format valid</Badge>
+          <Badge tone="success">Product link recognized</Badge>
           <span>
-            {check.marketplace === 'Flipkart' ? 'PID' : 'ASIN'} <b className="tnum text-rp-navy">{check.id}</b> · {check.marketplace}
+            Product <b className="tnum text-rp-navy">{check.id}</b> · {check.marketplace}
           </span>
           {check.title && <span className="font-medium text-rp-primary">({check.title})</span>}
-          <span>(format valid; ready for ingestion)</span>
+          <span>(format verified)</span>
         </p>
       )}
     </form>

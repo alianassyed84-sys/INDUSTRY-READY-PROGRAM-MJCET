@@ -18,8 +18,8 @@ export function parseAmazonUrl(raw: string): UrlCheck {
     return { valid: false, error: 'That does not look like a valid URL.' };
   }
   const host = url.hostname.toLowerCase().replace(/^www\./, '');
-  if (host !== 'amazon.in') return { valid: false, error: 'Only Amazon.in product URLs are supported.' };
-  const m = url.pathname.match(/\/(?:dp|gp\/product|product-reviews)\/([^/?#]*)/i);
+  if (host !== 'amazon.in' && host !== 'm.amazon.in') return { valid: false, error: 'Only Amazon.in product URLs are supported.' };
+  const m = url.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d|product-reviews|product)\/([^/?#]*)/i);
   if (!m || !m[1]) return { valid: false, error: 'No ASIN found. Use a full product link, not just /dp/.' };
   if (!ASIN.test(m[1])) return { valid: false, error: `"${m[1]}" is not a valid 10-character ASIN.` };
   return { valid: true, asin: m[1].toUpperCase(), marketplace: 'Amazon.in' };

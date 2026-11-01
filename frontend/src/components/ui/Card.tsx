@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** `featured` is the lavender surface used for primary and selected content. */
+  /** `featured` is the violet surface used for primary and selected content. */
   tone?: 'default' | 'featured';
   interactive?: boolean;
 }

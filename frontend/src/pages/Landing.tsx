@@ -1,190 +1,192 @@
-import { Suspense, lazy, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpenCheck, Globe2, Hash, LineChart, SmilePlus, Tag, Link2, DownloadCloud, Cpu, Lightbulb, ShieldCheck, Database, FlaskConical } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { UploadCloud, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
+import { useMotion } from '@/hooks/useMotion';
+import PulseHero from '@/components/motion/PulseHero';
+import FeatureGallery from '@/components/motion/FeatureGallery';
+import AnalysisPreview from '@/components/motion/AnalysisPreview';
+import SignalJourney from '@/components/motion/SignalJourney';
+import DataTrust from '@/components/motion/DataTrust';
 import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
-import { ROUTES } from '@/lib/routes';
-import { gsap, prefersReducedMotion, scrollReveal } from '@/lib/motion';
+import { Button } from '@/components/ui/Button';
+import { scrollReveal } from '@/lib/motion';
 import { demoInsights } from '@/data/demo';
-import { pct } from '@/lib/utils';
+import { ROUTES } from '@/lib/routes';
 
-const ThreeHero = lazy(() => import('@/components/three/ThreeHero'));
-
-const FEATURES = [
-  { icon: SmilePlus, title: 'Sentiment', text: 'See how positive, neutral and negative reviews split, with polarity where the backend provides it.' },
-  { icon: Hash, title: 'Topics', text: 'TF-IDF keyphrase extraction surfaces the terms customers repeat most.' },
-  { icon: Globe2, title: 'Language', text: 'Identify which languages reviews are written in and how well they were classified.' },
-  { icon: BookOpenCheck, title: 'Readability', text: 'Flesch Reading Ease and grade-level estimates for review text.' },
-  { icon: LineChart, title: 'Price monitoring', text: 'Track stored price observations over time once snapshots exist.' },
+const DEMO_SAMPLES = [
+  { label: 'Wireless Earbuds', url: 'https://www.amazon.in/dp/B0DEMO0001', icon: '🎧' },
+  { label: 'Smart Water Bottle', url: 'https://www.amazon.in/dp/B0DEMO0002', icon: '💧' },
+  { label: 'Mechanical Keyboard', url: 'https://www.amazon.in/dp/B0DEMO0003', icon: '⌨️' },
 ];
 
-const STEPS = [
-  { icon: Link2, title: 'URL', text: 'Paste an Amazon.in product link.' },
-  { icon: DownloadCloud, title: 'Collection', text: 'Reviews are gathered by the backend harvester.' },
-  { icon: Cpu, title: 'Analysis', text: 'Sentiment, topics, language and readability are computed.' },
-  { icon: Lightbulb, title: 'Insights', text: 'Explore the results across ReviewPulse.' },
-];
+const MOOD_SNIPPETS = {
+  positive: {
+    label: 'Favorable',
+    pct: '68%',
+    tone: 'text-rp-success bg-rp-success/15 border-rp-success/30',
+    quote: 'Sound quality is crisp and the bass is punchy for the price. Pairing was instant.',
+    aspects: ['+ Sound clarity', '+ Battery life', '+ Instant pairing'],
+  },
+  neutral: {
+    label: 'Neutral',
+    pct: '22%',
+    tone: 'text-rp-warning bg-rp-warning/15 border-rp-warning/30',
+    quote: 'Fit is comfortable but they slip out when I run. Okay for desk use.',
+    aspects: ['~ Desk ergonomics', '~ Case hinge', '~ Medium isolation'],
+  },
+  negative: {
+    label: 'Critical',
+    pct: '10%',
+    tone: 'text-rp-coral bg-rp-coral/15 border-rp-coral/30',
+    quote: 'Microphone picks up a lot of background noise on calls, colleagues complained.',
+    aspects: ['- Background noise', '- Touch sensitivity', '- Bluetooth drops'],
+  },
+};
 
 export default function Landing() {
   const root = useRef<HTMLDivElement>(null);
+  const { enabled } = useMotion();
+  const nav = useNavigate();
+
+  const [sampleUrl, setSampleUrl] = useState('');
+  const [activeMood, setActiveMood] = useState<'positive' | 'neutral' | 'negative'>('positive');
 
   useEffect(() => {
     const el = root.current;
-    if (!el) return;
+    if (!el || !enabled) return;
     const stop = scrollReveal(el);
-    let ctx: gsap.Context | undefined;
-    if (!prefersReducedMotion()) {
-      ctx = gsap.context(() => {
-        gsap.from('[data-hero]', { opacity: 0, y: 16, duration: 0.55, ease: 'power2.out', stagger: 0.09, clearProps: 'opacity,transform' });
-      }, el);
-    }
-    return () => { stop(); ctx?.revert(); };
-  }, []);
+    return stop;
+  }, [enabled]);
 
   const d = demoInsights('demo-1');
   const s = d.sentiment!;
-  const total = s.positive + s.neutral + s.negative;
+  const currentMoodData = MOOD_SNIPPETS[activeMood];
 
   return (
     <div ref={root}>
       {/* 1. Hero */}
-      <section className="rp-ambient relative overflow-hidden">
-        <div className="mx-auto grid max-w-content items-center gap-8 px-4 py-12 md:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:py-20">
-          <div>
-            <Badge tone="primary" data-hero className="mb-5">AI-powered review analytics</Badge>
-            {/* 3. Headline + supporting text */}
-            <h1 data-hero className="text-display font-extrabold">
-              Understand what customers <span className="text-rp-primary">really</span> think.
-            </h1>
-            <p data-hero className="mt-5 max-w-xl text-lg text-rp-muted">
-              Turn thousands of product reviews into clear signals: sentiment, recurring complaints, languages and readability, all in one place.
-            </p>
-            {/* 2 + 4. URL entry with primary CTA */}
-            <div data-hero className="mt-8 max-w-2xl"><UrlAnalyzer cta="Analyze a Product" /></div>
-            {/* 5. Secondary CTA */}
-            <div data-hero className="mt-4 flex flex-wrap items-center gap-3">
-              <Link to={ROUTES.dashboard}><Button variant="secondary" size="lg">Explore Dashboard <ArrowRight className="h-4 w-4" aria-hidden /></Button></Link>
-              <span className="text-sm text-rp-muted">No sign-up needed to look around.</span>
-            </div>
+      <section className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50">
+        <div className="rp-cinematic-stage mx-auto max-w-content px-3 sm:px-5 lg:px-10">
+          <div className="rp-cinematic-canvas relative z-10 min-w-0">
+            <PulseHero />
           </div>
-          <div data-hero className="relative mx-auto h-[320px] w-full max-w-[560px] sm:h-[420px] lg:h-[520px]">
-            <div aria-hidden className="absolute inset-6 rounded-full bg-rp-primary/10 blur-3xl" />
-            <Suspense fallback={<div aria-hidden className="mx-auto mt-10 aspect-square w-2/3 rounded-full bg-gradient-to-br from-rp-primary-soft to-rp-primary/70" />}>
-              <ThreeHero />
-            </Suspense>
+
+          {/* Interactive Dual Entry Points: Product Link Box & Dataset Upload */}
+          <div className="relative z-20 mx-auto -mt-4 mb-10 max-w-2xl rounded-2xl border border-rp-border bg-rp-surface/95 p-6 shadow-xl backdrop-blur-md transition-all">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h2 className="font-heading text-lg font-bold text-rp-navy flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-rp-primary" />
+                Analyze Reviews
+              </h2>
+              <span className="text-[11px] font-semibold text-rp-primary bg-rp-primary-light px-2.5 py-0.5 rounded-full border border-rp-primary/20">
+                Interactive preview
+              </span>
+            </div>
+            <p className="text-sm text-rp-muted">Paste any Amazon.in or Flipkart link, or try a sample product below.</p>
+
+            {/* Interactive Quick Sample Chips */}
+            <div className="mt-4 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
+              {DEMO_SAMPLES.map((sample) => (
+                <button
+                  key={sample.label}
+                  type="button"
+                  onClick={() => setSampleUrl(sample.url)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                    sampleUrl === sample.url
+                      ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
+                      : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
+                  }`}
+                >
+                  <span aria-hidden>{sample.icon}</span>
+                  <span>{sample.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-4">
+              <UrlAnalyzer
+                value={sampleUrl || undefined}
+                onChange={setSampleUrl}
+                cta="Analyze link"
+              />
+            </div>
+
+            {/* Live Interactive Mood Pulse Simulator */}
+            <div className="mt-5 rounded-xl border border-rp-border/80 bg-rp-surface-soft/60 p-4 transition-all">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-2.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-rp-muted flex items-center gap-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-rp-primary" /> Live Customer Signal
+                </span>
+                <div className="flex items-center gap-1" role="tablist" aria-label="Customer mood preview">
+                  {(['positive', 'neutral', 'negative'] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeMood === m}
+                      onClick={() => setActiveMood(m)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200 ${
+                        activeMood === m
+                          ? 'bg-rp-surface text-rp-navy shadow-sm border border-rp-border'
+                          : 'text-rp-muted hover:text-rp-navy'
+                      }`}
+                    >
+                      {MOOD_SNIPPETS[m].label} ({MOOD_SNIPPETS[m].pct})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Animated Quote & Aspects */}
+              <div className="mt-3 space-y-2">
+                <div className="flex items-start gap-2.5 text-xs">
+                  <MessageSquare className="h-4 w-4 text-rp-primary shrink-0 mt-0.5" />
+                  <p className="italic text-rp-text leading-relaxed">
+                    &ldquo;{currentMoodData.quote}&rdquo;
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {currentMoodData.aspects.map((aspect) => (
+                    <span
+                      key={aspect}
+                      className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${currentMoodData.tone}`}
+                    >
+                      {aspect}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rp-border/60 pt-4">
+              <span className="text-xs text-rp-muted">Have a dataset file? Amazon/Flipkart CSV or JSON supported.</span>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => nav(ROUTES.data)}
+                className="shrink-0 text-xs py-2 px-3"
+              >
+                <UploadCloud className="mr-1.5 h-4 w-4" />
+                Upload a dataset
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* 6. Feature cards */}
-      <section id="features" className="mx-auto max-w-content scroll-mt-24 px-4 py-14 md:px-6 lg:px-10">
-        <div data-scroll className="mb-8 max-w-2xl">
-          <h2 className="text-2xl font-extrabold md:text-3xl">Five lenses on every product</h2>
-          <p className="mt-2 text-rp-muted">Each analysis page works from the same product, so findings connect.</p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {FEATURES.map(({ icon: Icon, title, text }) => (
-            <Card key={title} interactive data-scroll>
-              <span aria-hidden="true" className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-rp-primary-light text-rp-primary shadow-xs">
-                <Icon className="h-6 w-6 stroke-[2.25]" />
-              </span>
-              <h3 className="text-base font-bold text-rp-navy">{title}</h3>
-              <p className="mt-1.5 text-sm text-rp-muted">{text}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <FeatureGallery />
 
       {/* 7. Product-analysis preview */}
-      <section className="mx-auto max-w-content px-4 pb-14 md:px-6 lg:px-10">
-        {/* Section heading aligned with 40px grid margin */}
-        <div data-scroll className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-extrabold md:text-3xl">Product analysis preview</h2>
-            <p className="mt-1 text-sm text-rp-muted">{d.product.title}</p>
-          </div>
-          <div
-            role="status"
-            aria-label="Demo data notice: The analysis shown below is simulated sample data."
-            className="flex items-center gap-2 rounded-full border border-amber-300/80 bg-amber-50/90 px-3 py-1 text-xs font-semibold text-amber-900 shadow-xs"
-          >
-            <FlaskConical className="h-3.5 w-3.5 text-amber-700" aria-hidden="true" />
-            <span>Sample Demo Data</span>
-          </div>
-        </div>
-
-        <Card tone="featured" data-scroll className="!p-6 md:!p-8">
-          <div className="grid gap-4 md:grid-cols-3">
-            {([
-              ['Positive', s.positive, 'bg-rp-success', 'text-rp-success'],
-              ['Neutral', s.neutral, 'bg-amber-500', 'text-amber-700'],
-              ['Negative', s.negative, 'bg-rp-coral', 'text-rp-coral'],
-            ] as const).map(([l, n, c, tc]) => {
-              const percentage = pct(n, total);
-              return (
-                <div key={l} className="rounded-2xl border border-rp-border bg-rp-surface p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-rp-muted">{l} reviews</p>
-                    <span className={`text-xs font-bold ${tc}`}>{percentage}%</span>
-                  </div>
-                  <p className="tnum mt-1 font-heading text-3xl font-extrabold">{percentage}%</p>
-                  <div
-                    role="meter"
-                    aria-label={`${l} reviews proportion`}
-                    aria-valuenow={percentage}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    className="mt-3 h-2 overflow-hidden rounded-full bg-rp-border/80"
-                  >
-                    <div className={`h-full rounded-full transition-all duration-300 ${c}`} style={{ width: `${percentage}%` }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {d.topics!.slice(0, 5).map((t) => <Badge key={t.term} tone="primary"><Tag className="h-3 w-3" aria-hidden="true" />{t.term}</Badge>)}
-          </div>
-        </Card>
-      </section>
+      <AnalysisPreview productTitle={d.product.title} sentiment={s} topics={d.topics ?? []} />
 
       {/* 8. Workflow */}
-      <section id="workflow" className="mx-auto max-w-content scroll-mt-24 px-4 pb-14 md:px-6 lg:px-10">
-        <h2 data-scroll className="mb-8 text-2xl font-extrabold md:text-3xl">From link to insight</h2>
-        <ol className="grid gap-4 md:grid-cols-4">
-          {STEPS.map(({ icon: Icon, title, text }, i) => (
-            <li key={title} data-scroll className="relative">
-              <Card className="h-full">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-rp-primary text-white"><Icon className="h-6 w-6 stroke-[2.25]" aria-hidden="true" /></span>
-                  <span className="tnum font-heading text-2xl font-extrabold text-rp-primary-soft">0{i + 1}</span>
-                </div>
-                <h3 className="text-base font-bold text-rp-navy">{title}</h3>
-                <p className="mt-1.5 text-sm text-rp-muted">{text}</p>
-              </Card>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <SignalJourney />
 
       {/* 9. Trust and data source */}
-      <section id="trust" className="mx-auto max-w-content scroll-mt-24 px-4 pb-16 md:px-6 lg:px-10">
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card data-scroll>
-            <ShieldCheck className="mb-3 h-6 w-6 text-rp-primary" aria-hidden />
-            <h2 className="text-xl font-extrabold">Honest about the data</h2>
-            <p className="mt-2 text-sm text-rp-muted">Missing fields are shown as unavailable, never guessed. Any page showing sample content carries a visible “Demo data” label, and demo values are never blended with live results.</p>
-          </Card>
-          <Card data-scroll>
-            <Database className="mb-3 h-6 w-6 text-rp-primary" aria-hidden />
-            <h2 className="text-xl font-extrabold">Where reviews come from</h2>
-            <p className="mt-2 text-sm text-rp-muted">Reviews are loaded by the project’s own backend harvester (currently CSV-based; direct Amazon.in retrieval is still in development). ReviewPulse is independent and not affiliated with Amazon.</p>
-            <Link to={ROUTES.about} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-rp-primary hover:text-rp-primary-hover">Read the documentation <ArrowRight className="h-4 w-4" aria-hidden /></Link>
-          </Card>
-        </div>
-      </section>
+      <DataTrust />
     </div>
   );
 }

@@ -3,14 +3,15 @@ export type DataSource = 'live' | 'demo';
 export interface Product {
   id: string;
   title: string;
-  brand?: string;
-  imageUrl?: string;
-  asin?: string;
-  marketplace?: string;
-  price?: number;
-  listPrice?: number;
-  rating?: number;
-  ratingCount?: number;
+  brand?: string | null;
+  category?: string | null;
+  imageUrl?: string | null;
+  asin?: string | null;
+  marketplace?: string | null;
+  price?: number | null;
+  listPrice?: number | null;
+  rating?: number | null;
+  ratingCount?: number | null;
 }
 
 export type Sentiment = 'positive' | 'neutral' | 'negative';
@@ -18,11 +19,11 @@ export type Sentiment = 'positive' | 'neutral' | 'negative';
 export interface Review {
   id: string;
   text: string;
-  rating?: number;
-  date?: string;
-  language?: string;
-  sentiment?: Sentiment;
-  source?: string;
+  rating?: number | null;
+  date?: string | null;
+  language?: string | null;
+  sentiment?: Sentiment | null;
+  source?: string | null;
 }
 
 export interface Topic {
@@ -41,8 +42,8 @@ export interface Insights {
   themes?: { positive: string[]; negative: string[] };
   aspects?: { aspect: string; score: number; mentions: number }[];
   readability?: {
-    fleschReadingEase: number;
-    gradeLevel: number;
+    fleschReadingEase: number | null;
+    gradeLevel: number | null;
     distribution: { label: string; count: number }[];
     analyzed: number;
     excluded: number;
@@ -83,6 +84,7 @@ export interface BackendProductListItem {
   discounted_price: number | null;
   actual_price: number | null;
   discount_percentage: number | null;
+  img_link?: string | null;
 }
 
 export interface BackendProductDetail extends BackendProductListItem {

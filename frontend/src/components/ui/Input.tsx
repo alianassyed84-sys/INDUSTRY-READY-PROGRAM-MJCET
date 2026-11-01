@@ -34,7 +34,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={describedBy}
-            className="min-w-0 flex-1 bg-transparent py-3 text-[15px] text-rp-text outline-none placeholder:text-rp-muted/70 focus-visible:shadow-none"
+            className="min-w-0 flex-1 bg-transparent py-3 text-[15px] text-rp-text outline-none placeholder:text-rp-muted focus-visible:shadow-none"
             {...rest}
           />
           {trailing}

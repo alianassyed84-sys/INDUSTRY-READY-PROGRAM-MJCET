@@ -9,7 +9,7 @@ const SECTIONS = [
   ['readability', 'Readability'], ['provenance', 'Data & limits'], ['setup', 'Setup'], ['api', 'API overview'], ['troubleshooting', 'Troubleshooting'], ['version', 'Version'],
 ] as const;
 
-const Code = ({ children }: { children: string }) => <pre className="overflow-x-auto rounded-2xl bg-rp-navy p-4 text-[13px] leading-relaxed text-[#E5D8FF]"><code>{children}</code></pre>;
+const Code = ({ children }: { children: string }) => <pre className="overflow-x-auto rounded-2xl border border-rp-border bg-rp-bg p-4 text-[13px] leading-relaxed text-rp-primary-hover"><code>{children}</code></pre>;
 const Sec = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
   <Card id={id} data-reveal className="scroll-mt-28"><h2 className="mb-3 text-[22px] font-extrabold">{title}</h2><div className="space-y-3 text-[15px] leading-relaxed text-rp-text">{children}</div></Card>
 );
@@ -18,8 +18,8 @@ export default function About() {
   return (
     <PageContainer>
       <PageHeader title="About & Documentation" description="What ReviewPulse does, how its analyses work, and how to run it." />
-      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-        <nav aria-label="On this page" className="lg:sticky lg:top-24 lg:self-start">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <nav aria-label="On this page" className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-1 lg:overflow-visible">
             {SECTIONS.map(([id, label]) => <li key={id} className="shrink-0"><a href={`#${id}`} className="flex min-h-[40px] items-center rounded-xl px-3 text-sm font-semibold text-rp-muted hover:bg-rp-primary-light hover:text-rp-primary-hover">{label}</a></li>)}
           </ul>

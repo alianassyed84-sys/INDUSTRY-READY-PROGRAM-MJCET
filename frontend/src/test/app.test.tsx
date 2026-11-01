@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from '@/App';
 import { ProductProvider } from '@/hooks/useProduct';
 import { SessionProvider } from '@/hooks/useSession';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, productRoute } from '@/lib/routes';
 
 function renderAt(path: string) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -22,15 +22,14 @@ beforeEach(() => {
 describe('routes', () => {
   const app: [string, RegExp][] = [
     [ROUTES.dashboard, /Explore the pulse of products/],
-    [ROUTES.reviews, /^Product Reviews$/],
-    [ROUTES.analysis, /^Review Analysis$/],
-    [ROUTES.language, /^Language Detection$/],
-    [ROUTES.topics, /^Topic Extraction$/],
-    [ROUTES.readability, /^Readability Analysis$/],
-    [ROUTES.harvester, /^Review Harvester$/],
-    [ROUTES.analytics, /^Analytics & Reports$/],
+    [ROUTES.products, /^All Products$/],
+    [productRoute('demo-1', 'overview'), /Sample Wireless Earbuds/],
+    [ROUTES.analyze, /^Analyze a Product Link$/],
+    [ROUTES.data, /^Data Sources$/],
+    [ROUTES.textLab, /^Text Lab$/],
+    [ROUTES.help, /^Help & User Guide$/],
     [ROUTES.settings, /^Settings & Account$/],
-    [ROUTES.about, /^About & Documentation$/],
+    [ROUTES.technical, /^Technical Architecture & Details$/],
   ];
   it.each(app)('%s renders inside the shared shell', async (path, heading) => {
     renderAt(path);
@@ -38,28 +37,44 @@ describe('routes', () => {
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
   });
 
+  const redirects: [string, RegExp][] = [
+    [ROUTES.reviews, /^All Products$/],
+    [ROUTES.analysis, /^All Products$/],
+    [ROUTES.language, /^All Products$/],
+    [ROUTES.topics, /^All Products$/],
+    [ROUTES.readability, /^All Products$/],
+    [ROUTES.analytics, /^All Products$/],
+    [ROUTES.harvester, /^Analyze a Product Link$/],
+    [ROUTES.about, /^Help & User Guide$/],
+  ];
+  it.each(redirects)('%s redirects properly per FRONTEND_SPEC.md v4', async (path, targetHeading) => {
+    renderAt(path);
+    expect(await screen.findByRole('heading', { level: 1, name: targetHeading })).toBeInTheDocument();
+  });
+
   it.each([ROUTES.login, ROUTES.register, ROUTES.recover])('%s renders auth screen with prototype notice', async (path) => {
     renderAt(path);
     expect(await screen.findByText(/Prototype: no auth backend connected/)).toBeInTheDocument();
   });
 
-  it('landing page renders headline and both CTAs', async () => {
+  it('landing page leads with the standalone cinematic scene', async () => {
     renderAt(ROUTES.landing);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/really think/);
-    expect(screen.getByRole('button', { name: /Analyze a Product/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Explore Dashboard/ })).toBeInTheDocument();
+    expect(screen.getByLabelText(/product reviews connecting to sentiment/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Understand what customers/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Analyze a Product/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Explore Dashboard/ })).not.toBeInTheDocument();
   });
 });
 
 describe('data honesty', () => {
   it('labels fallback fixtures as demo data when the backend is unreachable', async () => {
-    renderAt(ROUTES.analysis);
+    renderAt(productRoute('demo-1', 'sentiment'));
     await waitFor(() => expect(screen.getAllByText('Demo data').length).toBeGreaterThan(0));
   });
 
   it('review search filters the list', async () => {
     const user = userEvent.setup();
-    renderAt(ROUTES.reviews);
+    renderAt(productRoute('demo-1', 'reviews'));
     await screen.findByText(/matching reviews/);
     await user.type(screen.getByLabelText('Search within reviews'), 'zzzz-no-match');
     expect(await screen.findByText(/No reviews match your filters/)).toBeInTheDocument();
@@ -67,7 +82,7 @@ describe('data honesty', () => {
 
   it('harvester rejects an incomplete URL and never claims retrieval succeeded', async () => {
     const user = userEvent.setup();
-    renderAt(ROUTES.harvester);
+    renderAt('/harvester-admin');
     await user.type(screen.getByLabelText('Amazon.in product URL'), 'https://www.amazon.in/dp/');
     await user.click(screen.getByRole('button', { name: /^Analyze$/ }));
     expect((await screen.findAllByText(/No ASIN found/)).length).toBeGreaterThan(0);
@@ -76,14 +91,14 @@ describe('data honesty', () => {
 
   it('analytics refuses to draw a price trend from fewer than two snapshots', async () => {
     const user = userEvent.setup();
-    renderAt(ROUTES.analytics);
+    renderAt(productRoute('demo-1', 'price'));
     await screen.findByText('Price history');
     await user.type(screen.getByLabelText('From'), '2026-10-09');
     expect(await screen.findByText(/Not enough price observations/)).toBeInTheDocument();
   });
 
   it('reviews view automatically filters when URL search query parameter is present', async () => {
-    renderAt(`${ROUTES.reviews}?q=zzzz-no-match`);
+    renderAt(`${productRoute('demo-1', 'reviews')}?q=zzzz-no-match`);
     expect(await screen.findByText(/No reviews match your filters/)).toBeInTheDocument();
   });
 
@@ -118,4 +133,3 @@ describe('error boundary', () => {
     spy.mockRestore();
   });
 });
-

@@ -14,7 +14,7 @@ import { useProductContext } from '@/hooks/useProduct';
 import { api, API_BASE_URL } from '@/lib/api';
 import { ROUTES } from '@/lib/routes';
 
-const SWATCHES = [['Primary', '#7138F5'], ['Navy', '#171B50'], ['Ivory', '#FAF7F2'], ['Coral', '#F36B57']] as const;
+const SWATCHES = [['Violet', 'rgb(var(--rp-primary))'], ['Midnight', 'rgb(var(--rp-bg))'], ['Magenta', 'rgb(var(--rp-magenta))'], ['Teal', 'rgb(var(--rp-success))']] as const;
 
 export default function Settings() {
   const { user, signOut } = useSession();
@@ -56,7 +56,7 @@ export default function Settings() {
 
         <Card data-reveal>
           <CardHeader title="Theme" action={<Palette className="h-5 w-5 text-rp-primary" aria-hidden />} />
-          <p className="text-sm text-rp-muted">ReviewPulse uses the <b className="text-rp-navy">Lavender Luxe</b> light theme. There is no theme switcher.</p>
+          <p className="text-sm text-rp-muted">ReviewPulse uses the <b className="text-rp-navy">Midnight Pulse</b> theme: deep plum surfaces, luminous violet accents, and calm, readable data.</p>
           <ul className="mt-4 flex flex-wrap gap-3">
             {SWATCHES.map(([n, c]) => <li key={n} className="flex items-center gap-2 text-sm"><span className="h-6 w-6 rounded-lg border border-rp-border" style={{ background: c }} aria-hidden />{n}</li>)}
           </ul>

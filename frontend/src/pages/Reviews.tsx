@@ -45,7 +45,7 @@ export default function Reviews() {
       (!filters.rating || r.rating === Number(filters.rating)) &&
       (!filters.language || r.language === filters.language) &&
       (!filters.sentiment || r.sentiment === filters.sentiment));
-    const t = (d?: string) => (d ? new Date(d).getTime() : 0);
+    const t = (d?: string | null) => (d ? new Date(d).getTime() : 0);
     return [...out].sort((a, b) => filters.sort === 'oldest' ? t(a.date) - t(b.date) : filters.sort === 'high' ? (b.rating ?? 0) - (a.rating ?? 0) : filters.sort === 'low' ? (a.rating ?? 0) - (b.rating ?? 0) : t(b.date) - t(a.date));
   }, [reviews, filters]);
 
