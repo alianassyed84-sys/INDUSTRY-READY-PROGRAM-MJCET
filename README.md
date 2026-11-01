@@ -1,6 +1,7 @@
 # ⚡ ReviewPulse — Autonomous E-Commerce Sentiment Intelligence & Linguistic Engine
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-v2.0.0%20(Modern%20UI%20%2B%20AI%20Catalog)-7138F5?style=for-the-badge" alt="Version 2.0" />
   <img src="https://img.shields.io/badge/Live%20Demo-reviewpulse--peach.vercel.app-7138F5?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo on Vercel" />
   <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12+" />
   <img src="https://img.shields.io/badge/FastAPI-0.115%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
@@ -8,9 +9,8 @@
   <img src="https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
-  <img src="https://img.shields.io/badge/Tests-396%2F396%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white" alt="396 Tests Passing" />
-  <img src="https://img.shields.io/badge/Dataset-Kaggle%20Amazon%203.6M-FF9900?style=for-the-badge&logo=amazon&logoColor=white" alt="Kaggle Amazon Dataset" />
-  <img src="https://img.shields.io/badge/Scraper-Flipkart%20Apify%20Actor-0284C7?style=for-the-badge&logo=apify&logoColor=white" alt="Flipkart Apify Actor" />
+  <img src="https://img.shields.io/badge/Tests-496%2F496%20Passing-brightgreen?style=for-the-badge&logo=checkmarx&logoColor=white" alt="496 Tests Passing" />
+  <img src="https://img.shields.io/badge/Catalog-67%20AI%20Photos-FF9900?style=for-the-badge&logo=amazon&logoColor=white" alt="67 AI Product Photos" />
   <img src="https://img.shields.io/badge/Institution-MJCET%20IRP-8E24AA?style=for-the-badge&logo=google-classroom&logoColor=white" alt="MJCET Industry Ready Program" />
   <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT" />
 </p>
@@ -53,10 +53,11 @@ Modern e-commerce enterprises (Amazon, Flipkart) process hundreds of thousands o
 **ReviewPulse** is an enterprise-grade, zero-dependency, sub-25ms review intelligence and linguistic auditing platform engineered for high-throughput consumer feedback analysis:
 
 - 🚀 **Zero External LLM Cost**: 100% deterministic, local, pure-Python linguistic engines for Aspect-Based Sentiment Analysis (ABSA), 5 classical readability formulas, and statistical TF-IDF topic modeling.
+- 🖼️ **67 Unique Hardcoded Product Photos**: 100% verified 1-to-1 unique product photography under `/frontend/public/products/<id>.jpg` across all catalog items with zero placeholder fallbacks.
 - 🛍️ **Flipkart Apify Actor Integration**: Production-ready scraper using `automation-lab/flipkart-product-reviews-scraper` Actor via REST API & deterministic fallback. Exports star ratings, verified buyer badges, variant attributes, and helpful votes.
 - 📦 **3,600,000+ Kaggle Amazon Dataset**: Native streaming and auto-detection engine for the [kritanjalijain/amazon-reviews](https://www.kaggle.com/datasets/kritanjalijain/amazon-reviews) polarity dataset via `kagglehub`.
 - 📈 **Price History & Volatility Tracking**: Multi-snapshot price observation engine with currency safety, deduplication, and discount alerts.
-- 🧪 **396 Automated Tests**: 100% passing test verification across both backend (352 Pytest) and frontend (44 Vitest) suites.
+- 🧪 **496 Automated Tests**: 100% passing test verification across both backend (419 Pytest) and frontend (77 Vitest) suites.
 
 ---
 
@@ -69,7 +70,7 @@ Modern e-commerce enterprises (Amazon, Flipkart) process hundreds of thousands o
 | **External API Dependencies** | **None** (Pure Python Math) | High (Requires API Keys & Network) | Fully air-gapped, zero downtime, zero quota limits |
 | **Readability Auditing** | `5 Academic Formulas` | Hallucinated / Non-standard | Standardized academic rigor (Flesch, Fog, SMOG) |
 | **Dataset Capacity** | `3,600,000+ Reviews` | Token Window Constrained | Unlimited chunked streaming via `kagglehub` |
-| **Test Verification** | `396 / 396 Passing` | Non-deterministic | 100% reproducible contract verification |
+| **Test Verification** | `496 / 496 Passing` | Non-deterministic | 100% reproducible contract verification (419 Pytest + 77 Vitest) |
 | **Frontend Frame Rate** | `60 FPS Steady` | 15–30 FPS (Streaming Wait) | Zero layout shift, glassmorphism UI with Tailwind & Recharts |
 
 ---
@@ -91,7 +92,7 @@ graph TD
     
     subgraph Presentation_Tier ["Presentation Tier (Vercel Edge)"]
         UI --> Router["React Router v6 SPA"]
-        Router --> Views["Dashboard, Reviews, Analysis, Analytics, Topics, Readability, Harvester"]
+        Router --> Views["Dashboard, All Products, Product Workspace (Overview/Analysis/Reviews/Analytics), Data Sources, Text Lab, Settings"]
         Views --> ApiClient["Axios Client with Rate Limit and Retry Interceptor"]
     end
 
@@ -325,19 +326,20 @@ irppp/
 │   │   ├── schemas/                    # Pydantic v2 data validation schemas
 │   │   └── services/                   # Linguistic engines & harvester services
 │   ├── scripts/                        # Dataset import & streaming utilities
-│   └── tests/                          # 352 Pytest automated test suites
+│   └── tests/                          # 419 Pytest automated test suites
 ├── frontend/
 │   ├── public/                         # Brand icons, logo, and static assets
+│   │   └── products/                   # 67 unique hardcoded 1:1 AI product photos
 │   ├── src/
 │   │   ├── components/                 # Reusable UI cards, tables, charts, dialogs
 │   │   │   ├── layout/                 # AppShell, Topbar, Sidebar, Public navbar
+│   │   │   ├── motion/                 # Cinematic PulseHero, FeatureGallery, SignalJourney
 │   │   │   ├── shared/                 # KpiCard, ChartCard, UrlAnalyzer, ProductSelect
-│   │   │   ├── three/                  # Three.js 3D hero visualization
 │   │   │   └── ui/                     # Accessible buttons, inputs, badges, tooltips
-│   │   ├── hooks/                      # Custom hooks (useSession, useProduct)
+│   │   ├── hooks/                      # Custom hooks (useSession, useProduct, useMotion)
 │   │   ├── lib/                        # Axios API client, query cache, motion tokens
-│   │   ├── pages/                      # 10 application views (Dashboard, Reviews, etc.)
-│   │   └── test/                       # 44 Vitest component tests
+│   │   ├── pages/                      # 11 application views (Overview, Products, Text Lab, etc.)
+│   │   └── test/                       # 77 Vitest component tests
 │   ├── index.html                      # HTML5 entry with variable typography
 │   ├── vite.config.ts                  # Vite build configuration & test runners
 │   └── tailwind.config.js              # Custom theme tokens & design system
