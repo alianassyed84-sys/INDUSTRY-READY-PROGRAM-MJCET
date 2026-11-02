@@ -18,6 +18,8 @@ services:
         fromDatabase:
           name: reviewpulse-db
           property: connectionString
+      - key: AMAZON_PROVIDER
+        value: mock
 
 databases:
   - name: reviewpulse-db

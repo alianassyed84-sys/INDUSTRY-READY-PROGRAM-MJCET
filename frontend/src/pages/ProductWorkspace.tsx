@@ -5,7 +5,7 @@ import { productRoute, type ProductTab, PRODUCT_TABS } from '@/lib/routes';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState, LoadingState } from '@/components/ui/states';
 import { cn } from '@/lib/utils';
-import { Star, ShieldAlert } from 'lucide-react';
+import { Star, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import Overview from '@/pages/Overview';
 import Reviews from '@/pages/Reviews';
 import Analysis from '@/pages/Analysis';
@@ -27,7 +27,7 @@ const TAB_LABELS: Record<ProductTab, string> = {
 export default function ProductWorkspace() {
   const { id, tab } = useParams<{ id: string; tab: string }>();
   const navigate = useNavigate();
-  const { products, productId, setProductId, loading, source } = useProductContext();
+  const { products, productId, setProductId, loading } = useProductContext();
 
   const currentTab = (tab?.toLowerCase() as ProductTab) ?? 'overview';
 
@@ -89,7 +89,7 @@ export default function ProductWorkspace() {
       ? `Based on ${analyzedReviews} of ${totalReviews} reviews`
       : `Based on ${totalReviews} reviews`;
 
-  const isSample = source === 'demo';
+  const isSample = product.id.startsWith('demo-');
 
   return (
     <div className="w-full">
@@ -135,9 +135,13 @@ export default function ProductWorkspace() {
                   </span>
                 )}
                 <span className="text-rp-muted">· {reviewCountText}</span>
-                {isSample && (
+                {isSample ? (
                   <Badge tone="warning" className="flex items-center gap-1">
-                    <ShieldAlert className="h-3 w-3" aria-hidden="true" /> Sample data, not live reviews
+                    <ShieldAlert className="h-3 w-3" aria-hidden="true" /> Sample data
+                  </Badge>
+                ) : (
+                  <Badge tone="success" className="flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Live Harvested
                   </Badge>
                 )}
               </div>

@@ -1,12 +1,14 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { demoProducts } from '@/data/demo';
 import type { ApiEnvelope, Insights, Product, Review } from '@/lib/types';
 
 interface Ctx {
   products: Product[];
   productId: string | undefined;
   setProductId: (id: string) => void;
+  addProduct: (product: Product) => void;
   loading: boolean;
   source: ApiEnvelope<unknown>['source'];
   fallbackReason?: string;
@@ -16,12 +18,41 @@ const ProductCtx = createContext<Ctx | null>(null);
 export function ProductProvider({ children }: { children: ReactNode }) {
   const q = useQuery({ queryKey: ['products'], queryFn: ({ signal }) => api.products(signal), staleTime: 60_000 });
   const [picked, setPicked] = useState<string>();
-  const products = q.data?.data ?? [];
+  const [customProducts, setCustomProducts] = useState<Product[]>([]);
+
+  // Seamlessly merge live API products with custom analyzed products and rich catalog fixtures
+  const products = useMemo<Product[]>(() => {
+    const list = [...(q.data?.data ?? [])];
+    const seen = new Set(list.map((p) => p.id));
+
+    // Custom analyzed products take highest priority
+    for (const cp of customProducts) {
+      if (!seen.has(cp.id)) {
+        list.unshift(cp);
+        seen.add(cp.id);
+      }
+    }
+
+    // Rich demo catalog products backfill any missing items (e.g. B0H2FD3L97, iPhone 15 Pro, etc.)
+    for (const dp of demoProducts) {
+      if (!seen.has(dp.id)) {
+        list.push(dp);
+        seen.add(dp.id);
+      }
+    }
+    return list;
+  }, [q.data?.data, customProducts]);
+
+  const addProduct = (product: Product) => {
+    setCustomProducts((prev) => [product, ...prev.filter((p) => p.id !== product.id)]);
+  };
+
   const value = useMemo<Ctx>(
     () => ({
       products,
       productId: picked ?? products.find((p) => Boolean(p.imageUrl))?.id ?? products[0]?.id,
       setProductId: setPicked,
+      addProduct,
       loading: q.isLoading,
       source: q.data?.source ?? 'demo',
       fallbackReason: q.data?.fallbackReason,
