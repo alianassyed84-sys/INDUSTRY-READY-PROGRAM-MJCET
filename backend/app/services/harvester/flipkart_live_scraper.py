@@ -100,6 +100,79 @@ def resolve_product_image(raw_title: str, pid: str, live_img_url: str | None = N
     return "/products/AMZN-IPHONE-15PRO.jpg"
 
 
+def is_live_page_relevant(raw_title: str, url: str) -> bool:
+    """Verify that the scraped live page matches the intended product URL,
+    preventing Flipkart sponsored redirects (e.g. returning an iPhone page
+    when the user requested a Motorola or Samsung product).
+    """
+    if not raw_title or not url:
+        return True
+
+    title_lower = raw_title.lower()
+    url_lower = url.lower()
+
+    brands = (
+        "motorola",
+        "moto",
+        "samsung",
+        "apple",
+        "iphone",
+        "nothing",
+        "boat",
+        "oneplus",
+        "realme",
+        "xiaomi",
+        "redmi",
+        "poco",
+        "lenovo",
+        "sony",
+        "dior",
+        "chanel",
+        "versace",
+    )
+
+    url_brands = [b for b in brands if b in url_lower]
+    title_brands = [b for b in brands if b in title_lower]
+
+    if url_brands and title_brands:
+        has_overlap = any(b in title_lower for b in url_brands) or any(
+            b in url_lower for b in title_brands
+        )
+        if not has_overlap:
+            logger.info(
+                "Flipkart redirect detected: URL brand %s does not match scraped title brand %s",
+                url_brands,
+                title_brands,
+            )
+            return False
+
+    # Also check path slug words
+    path_parts = [
+        p
+        for p in url.split("?")[0].split("/")
+        if p and p not in ("p", "dl", "product-reviews")
+    ]
+    if path_parts:
+        slug = path_parts[-1] if "itm" not in path_parts[-1] else path_parts[0]
+        slug_words = [
+            w
+            for w in slug.lower().split("-")
+            if len(w) > 3
+            and w not in ("with", "plus", "edition", "online", "price", "best")
+        ]
+        if slug_words:
+            matched = [w for w in slug_words if w in title_lower]
+            if len(slug_words) >= 3 and len(matched) == 0:
+                logger.info(
+                    "Flipkart redirect detected: URL slug '%s' has 0 word matches in title '%s'",
+                    slug,
+                    raw_title,
+                )
+                return False
+
+    return True
+
+
 def parse_flipkart_html(content: str, pid: str, canonical_url: str) -> ProviderProduct | None:
     """Parse raw Flipkart India HTML into typed ProviderProduct contract."""
     # 1. Structured JSON-LD Data
@@ -129,12 +202,13 @@ def parse_flipkart_html(content: str, pid: str, canonical_url: str) -> ProviderP
             if "Buy Products Online" not in cand and "Online Shopping" not in cand:
                 raw_title = cand
 
-    # If title is generic or absent, this is not a valid live product page
+    # If title is generic, absent, or a redirect to an unrelated sponsored item, reject
     if (
         not raw_title
         or raw_title.lower() == "flipkart"
         or "online shopping" in raw_title.lower()
         or "buy products online" in raw_title.lower()
+        or not is_live_page_relevant(raw_title, canonical_url)
     ):
         return None
 
