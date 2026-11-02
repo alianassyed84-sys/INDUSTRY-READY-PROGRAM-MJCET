@@ -123,7 +123,17 @@ export function resolveStudioImage(title?: string, id?: string, currentSrc?: str
   const i = (id || '').toUpperCase();
   const c = (currentSrc || '').toLowerCase();
 
-  // Exact smartphone / device mappings
+  // 1. If an authentic live website image exists (from Flipkart CDN or Amazon CDN), PRESERVE IT!
+  if (
+    currentSrc &&
+    !c.includes('amzn-kag-001') &&
+    !c.includes('undefined') &&
+    (c.startsWith('https://') || c.startsWith('http://') || c.startsWith('/products/'))
+  ) {
+    return currentSrc;
+  }
+
+  // 2. Exact smartphone / device mappings for fallback
   if (t.includes('motorola') || t.includes('edge 50') || t.includes('edge-50') || i === 'MOBGTAGPNRQA7CS3') {
     return '/products/MOBGTAGPNRQA7CS3.jpg';
   }
@@ -181,16 +191,6 @@ export function resolveStudioImage(title?: string, id?: string, currentSrc?: str
   }
   if (t.includes('phone') || t.includes('mobile') || t.includes('5g') || t.includes('smartphone')) {
     return '/products/AMZN-ONEPLUS-12.jpg';
-  }
-
-  // If currentSrc is a valid public image and not the kettle or missing, keep it
-  if (
-    currentSrc &&
-    !c.includes('amzn-kag-001') &&
-    !c.includes('undefined') &&
-    (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('/products/'))
-  ) {
-    return currentSrc;
   }
 
   // Safe default: high-res clean tech asset

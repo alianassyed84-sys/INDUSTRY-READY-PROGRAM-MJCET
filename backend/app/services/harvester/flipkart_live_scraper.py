@@ -50,11 +50,22 @@ def _fetch_flipkart_page_sync(url: str, timeout: float = 12.0) -> str | None:
 
 
 def resolve_product_image(raw_title: str, pid: str, live_img_url: str | None = None) -> str:
-    """Resolve the most accurate, high-fidelity studio image for a Flipkart product."""
+    """Resolve the most accurate, high-fidelity image for a Flipkart product.
+
+    1. If an authentic live image URL was extracted from Flipkart, use it directly
+       (upgraded to high resolution studio quality 832x832).
+    2. Fall back to local verified studio photography only when live extraction is absent.
+    """
+    # 1. Authentic live Flipkart CDN image (high resolution)
+    if live_img_url and live_img_url.startswith("http"):
+        # Upgrade small thumbnail dimensions (e.g. 128/128 or 300/300) to high-res studio shot (832/832)
+        hi_res_url = re.sub(r"/image/\d+/\d+/", "/image/832/832/", live_img_url)
+        return hi_res_url
+
     title_lower = (raw_title or "").lower()
     pid_upper = (pid or "").upper()
 
-    # 1. High-fidelity studio product photography matching the exact model
+    # 2. Local high-fidelity studio product photography fallback
     if "motorola" in title_lower or "edge 50" in title_lower or "edge-50" in title_lower or pid_upper == "MOBGTAGPNRQA7CS3":
         return "/products/MOBGTAGPNRQA7CS3.jpg"
     if "iphone" in title_lower or "apple" in title_lower:
@@ -85,10 +96,6 @@ def resolve_product_image(raw_title: str, pid: str, live_img_url: str | None = N
         return "/products/AMZN-YSL-BLACKOPIUM.jpg"
     if any(k in title_lower for k in ("phone", "mobile", "5g", "smartphone")):
         return "/products/AMZN-ONEPLUS-12.jpg"
-
-    # 2. Live CDN image if available
-    if live_img_url and live_img_url.startswith("http"):
-        return live_img_url
 
     return "/products/AMZN-IPHONE-15PRO.jpg"
 
@@ -221,11 +228,35 @@ def parse_flipkart_html(content: str, pid: str, canonical_url: str) -> ProviderP
             live_img_candidate = imgs
 
     if not live_img_candidate:
-        m_og_img = re.search(r'<meta property="og:image" content="([^"]+)"', content)
+        m_og_img = (
+            re.search(r'property="og:image"\s+content="([^"]+)"', content)
+            or re.search(r'content="([^"]+)"\s+property="og:image"', content)
+            or re.search(r'<meta property="og:image" content="([^"]+)"', content)
+        )
         if m_og_img:
             live_img_candidate = m_og_img.group(1)
 
-    # Resolve to authentic verified high-resolution studio photo or live CDN asset
+    if not live_img_candidate:
+        m_tw_img = (
+            re.search(r'name="twitter:image"\s+content="([^"]+)"', content)
+            or re.search(r'content="([^"]+)"\s+name="twitter:image"', content)
+            or re.search(r'<meta name="twitter:image" content="([^"]+)"', content)
+        )
+        if m_tw_img:
+            live_img_candidate = m_tw_img.group(1)
+
+    if not live_img_candidate:
+        # Scan for high-res flixcart CDN product image tags in HTML
+        m_cdn = re.findall(r'(https://rukmini\d*\.flixcart\.com/image/[^\s"\'<>]+)', content)
+        hi_cand = [
+            img
+            for img in m_cdn
+            if not any(x in img for x in ("icon", "badge", "logo", "40/40", "80/80", "128/128"))
+        ]
+        if hi_cand:
+            live_img_candidate = hi_cand[0]
+
+    # Resolve to authentic verified live website asset or studio photo fallback
     img_url = resolve_product_image(raw_title, pid, live_img_candidate)
 
     # Category heuristic based on title

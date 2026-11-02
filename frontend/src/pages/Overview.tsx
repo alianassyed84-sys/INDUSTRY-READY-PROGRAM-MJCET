@@ -204,6 +204,7 @@ export default function Overview() {
                 alt={`${product.title} product review`}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                referrerPolicy="no-referrer"
                 onError={(e) => {
                   const el = e.currentTarget;
                   const fallback = resolveStudioImage(product.title, product.id);

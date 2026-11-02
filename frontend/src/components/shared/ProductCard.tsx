@@ -28,6 +28,7 @@ export function ProductCard({ product, selected, onSelect }: { product: Product;
               src={currentImg}
               alt={product.title}
               loading="lazy"
+              referrerPolicy="no-referrer"
               onError={() => {
                 const fallback = resolveStudioImage(product.title, product.id);
                 if (currentImg !== fallback) {

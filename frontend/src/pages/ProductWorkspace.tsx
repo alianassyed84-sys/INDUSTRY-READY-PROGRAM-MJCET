@@ -108,6 +108,7 @@ export default function ProductWorkspace() {
                     src={product.imageUrl}
                     alt={product.title}
                     className="h-full w-full object-contain"
+                    referrerPolicy="no-referrer"
                     onError={(e) => {
                       const el = e.currentTarget;
                       const fallback = resolveStudioImage(product.title, product.id);
