@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { ReviewCard } from '@/components/shared/ReviewCard';
 import { useProductContext, useInsights, useReviews } from '@/hooks/useProduct';
 import { productRoute } from '@/lib/routes';
+import { resolveStudioImage } from '@/lib/flipkart';
 
 export default function Overview() {
   const { productId, products } = useProductContext();
@@ -203,6 +204,13 @@ export default function Overview() {
                 alt={`${product.title} product review`}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                onError={(e) => {
+                  const el = e.currentTarget;
+                  const fallback = resolveStudioImage(product.title, product.id);
+                  if (el.src !== fallback && !el.src.endsWith(fallback)) {
+                    el.src = fallback;
+                  }
+                }}
               />
               <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/10" />
             </div>

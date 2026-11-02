@@ -5,7 +5,7 @@ import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
 import { Card } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/states';
 import { api } from '@/lib/api';
-import { normalizeFlipkartUrl } from '@/lib/flipkart';
+import { normalizeFlipkartUrl, resolveStudioImage } from '@/lib/flipkart';
 import { productRoute } from '@/lib/routes';
 import { useProductContext } from '@/hooks/useProduct';
 import { CheckCircle2, Loader2, Sparkles, Link2, DownloadCloud, Cpu } from 'lucide-react';
@@ -47,6 +47,11 @@ export default function Analyze() {
           targetId = result.product.product_id;
           resolved = true;
           if (addProduct) {
+            const rawImg = result.product.img_link;
+            const cleanImg = (rawImg && !rawImg.includes('AMZN-KAG-001'))
+              ? rawImg
+              : resolveStudioImage(result.product.product_name, result.product.product_id);
+
             addProduct({
               id: result.product.product_id,
               title: result.product.product_name,
@@ -59,7 +64,7 @@ export default function Analyze() {
               listPrice: result.product.actual_price || 0,
               rating: result.product.rating || 4.2,
               ratingCount: result.product.rating_count || 100,
-              imageUrl: result.product.img_link || undefined,
+              imageUrl: cleanImg,
             });
           }
         }
@@ -131,7 +136,7 @@ export default function Analyze() {
                 listPrice: 3499,
                 rating: 4.3,
                 ratingCount: 165,
-                imageUrl: '/products/AMZN-KAG-001.jpg',
+                imageUrl: resolveStudioImage(cleanTitle, dynId),
               });
             }
           }

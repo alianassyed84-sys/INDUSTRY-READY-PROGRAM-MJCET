@@ -352,7 +352,11 @@ class FlipkartReviewScraper:
         title_lower = (product_name or "").lower()
         pid_upper = pid.upper()
         category = "E-commerce (Flipkart)"
-        if "motorola" in title_lower or "edge" in title_lower or "itme3dafc8455fa7" in pid.lower() or pid_upper == "MOBGTAGPNRQA7CS3":
+        if "iphone" in title_lower or "apple" in title_lower:
+            img_link = "/products/AMZN-IPHONE-15PRO.jpg"
+            discounted_price = Decimal("59900.00")
+            actual_price = Decimal("69900.00")
+        elif "motorola" in title_lower or "edge" in title_lower or "itme3dafc8455fa7" in pid.lower() or pid_upper == "MOBGTAGPNRQA7CS3":
             img_link = "/products/MOBGTAGPNRQA7CS3.jpg"
             discounted_price = Decimal("22999.00")
             actual_price = Decimal("25999.00")
@@ -364,20 +368,20 @@ class FlipkartReviewScraper:
             img_link = "/products/MOBHQC8ZMRCP62TS.jpg"
             discounted_price = Decimal("23999.00")
             actual_price = Decimal("25999.00")
-        elif "iphone" in title_lower or "apple" in title_lower:
-            img_link = "/products/AMZN-IPHONE-15PRO.jpg"
-            discounted_price = Decimal("127990.00")
-            actual_price = Decimal("134900.00")
         elif "macbook" in title_lower or "laptop" in title_lower:
             img_link = "/products/AMZN-MACBOOK-AIR-M3.jpg"
             discounted_price = Decimal("114900.00")
             actual_price = Decimal("124900.00")
-        elif "earphone" in title_lower or "headphone" in title_lower or "boat" in title_lower:
+        elif "earphone" in title_lower or "headphone" in title_lower or "boat" in title_lower or "airdopes" in title_lower:
             img_link = "/products/B071Z8M4KX.jpg"
             discounted_price = Decimal("399.00")
             actual_price = Decimal("999.00")
+        elif "tab" in title_lower or "tablet" in title_lower or "ipad" in title_lower:
+            img_link = "/products/B0H2FD3L97.jpg"
+            discounted_price = Decimal("31998.00")
+            actual_price = Decimal("52000.00")
         else:
-            img_link = "/products/AMZN-KAG-001.jpg"
+            img_link = "/products/AMZN-IPHONE-15PRO.jpg"
             discounted_price = Decimal("19999.00")
             actual_price = Decimal("24999.00")
 

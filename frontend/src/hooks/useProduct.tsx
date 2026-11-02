@@ -27,7 +27,10 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
     // Custom analyzed products take highest priority
     for (const cp of customProducts) {
-      if (!seen.has(cp.id)) {
+      const idx = list.findIndex((p) => p.id === cp.id);
+      if (idx !== -1) {
+        list[idx] = { ...list[idx], ...cp };
+      } else {
         list.unshift(cp);
         seen.add(cp.id);
       }

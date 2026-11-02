@@ -5,6 +5,7 @@ import { productRoute, type ProductTab, PRODUCT_TABS } from '@/lib/routes';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState, LoadingState } from '@/components/ui/states';
 import { cn } from '@/lib/utils';
+import { resolveStudioImage } from '@/lib/flipkart';
 import { Star, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import Overview from '@/pages/Overview';
 import Reviews from '@/pages/Reviews';
@@ -107,6 +108,13 @@ export default function ProductWorkspace() {
                     src={product.imageUrl}
                     alt={product.title}
                     className="h-full w-full object-contain"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      const fallback = resolveStudioImage(product.title, product.id);
+                      if (el.src !== fallback && !el.src.endsWith(fallback)) {
+                        el.src = fallback;
+                      }
+                    }}
                   />
                 </div>
               )}

@@ -848,20 +848,33 @@ async def analyze_url(
                 logger.info("Live Flipkart scraper attempt note for %s: %s", pid, live_err)
 
         # 2. When product already exists, sync with 100% real live website price & metadata
-        if product is not None and live_data is not None and live_data.current_price:
-            if product.discounted_price != live_data.current_price:
-                product.discounted_price = Decimal(str(live_data.current_price))
+        if product is not None and live_data is not None:
+            updated = False
+            if live_data.current_price:
+                target_price = Decimal(str(live_data.current_price))
+                if product.discounted_price != target_price:
+                    product.discounted_price = target_price
+                    updated = True
                 if live_data.original_price:
-                    product.actual_price = Decimal(str(live_data.original_price))
-                    product.discount_percentage = live_data.discount_percentage
-                if live_data.rating:
-                    product.rating = live_data.rating
-                if live_data.rating_count:
-                    product.rating_count = live_data.rating_count
-                if live_data.title and len(live_data.title) > 5:
-                    product.product_name = live_data.title
-                if live_data.img_url and (not product.img_link or "AMZN-KAG" in product.img_link):
-                    product.img_link = live_data.img_url
+                    target_orig = Decimal(str(live_data.original_price))
+                    if product.actual_price != target_orig:
+                        product.actual_price = target_orig
+                        product.discount_percentage = live_data.discount_percentage
+                        updated = True
+            if live_data.rating and product.rating != live_data.rating:
+                product.rating = live_data.rating
+                updated = True
+            if live_data.rating_count and product.rating_count != live_data.rating_count:
+                product.rating_count = live_data.rating_count
+                updated = True
+            if live_data.title and len(live_data.title) > 5 and product.product_name != live_data.title:
+                product.product_name = live_data.title
+                updated = True
+            if live_data.img_url and (product.img_link != live_data.img_url or "AMZN-KAG-001" in (product.img_link or "")):
+                product.img_link = live_data.img_url
+                updated = True
+
+            if updated and live_data.current_price:
                 await record_price_snapshot(
                     db,
                     product_id=product.product_id,
@@ -870,11 +883,13 @@ async def analyze_url(
                     currency="INR",
                     source="flipkart_live_sync",
                 )
+            if updated:
                 await db.commit()
                 logger.info(
-                    "Synchronized Flipkart %s with 100%% real live website price: %s",
+                    "Synchronized Flipkart %s with 100%% real live website price: %s, image: %s",
                     pid,
                     live_data.current_price,
+                    product.img_link,
                 )
 
         # 3. Check if existing product has no reviews yet; if so, populate from live reviews

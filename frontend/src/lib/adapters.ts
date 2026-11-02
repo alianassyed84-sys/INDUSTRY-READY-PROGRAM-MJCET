@@ -10,6 +10,7 @@ import type {
   Review,
   Topic,
 } from './types';
+import { resolveStudioImage } from './flipkart';
 
 /**
  * Derives marketplace name from the canonical product URL domain.
@@ -41,7 +42,12 @@ export function adaptProduct(item: BackendProductListItem | BackendProductDetail
     listPrice: item.actual_price ?? null,
     rating: item.rating ?? null,
     ratingCount: item.rating_count ?? null,
-    imageUrl: item.img_link ?? detail.img_link ?? undefined,
+    imageUrl:
+      item.img_link && !item.img_link.includes('AMZN-KAG-001')
+        ? item.img_link
+        : detail.img_link && !detail.img_link.includes('AMZN-KAG-001')
+          ? detail.img_link
+          : resolveStudioImage(item.product_name, item.product_id, item.img_link ?? detail.img_link ?? undefined),
   };
 }
 

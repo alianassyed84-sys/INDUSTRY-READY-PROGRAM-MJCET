@@ -113,3 +113,86 @@ export function parseProductUrl(raw: string): UniversalUrlCheck {
     error: az.error,
   };
 }
+
+/**
+ * Resolves high-fidelity studio product photography matching the product title/id.
+ * Prevents broken images, 404s, or mismatched electric kettle fallbacks.
+ */
+export function resolveStudioImage(title?: string, id?: string, currentSrc?: string): string {
+  const t = (title || '').toLowerCase();
+  const i = (id || '').toUpperCase();
+  const c = (currentSrc || '').toLowerCase();
+
+  // Exact smartphone / device mappings
+  if (t.includes('motorola') || t.includes('edge 50') || t.includes('edge-50') || i === 'MOBGTAGPNRQA7CS3') {
+    return '/products/MOBGTAGPNRQA7CS3.jpg';
+  }
+  if (t.includes('iphone') || t.includes('apple') || i.includes('IPHONE')) {
+    return '/products/AMZN-IPHONE-15PRO.jpg';
+  }
+  if (t.includes('s24') || t.includes('galaxy s24') || i === 'MOBGTAGPTB3VS24W' || i.includes('S24')) {
+    return '/products/MOBGTAGPTB3VS24W.jpg';
+  }
+  if (t.includes('nothing') || t.includes('phone (2a)') || t.includes('phone 2a') || i === 'MOBHQC8ZMRCP62TS') {
+    return '/products/MOBHQC8ZMRCP62TS.jpg';
+  }
+  if (t.includes('macbook') || t.includes('laptop') || t.includes('notebook')) {
+    return '/products/AMZN-MACBOOK-AIR-M3.jpg';
+  }
+  if (t.includes('sony') || t.includes('wh1000') || t.includes('wh-1000')) {
+    return '/products/AMZN-SONY-WH1000XM5.jpg';
+  }
+  if (t.includes('airpod')) {
+    return '/products/AMZN-AIRPODS-PRO2.jpg';
+  }
+  if (t.includes('oneplus')) {
+    return '/products/AMZN-ONEPLUS-12.jpg';
+  }
+  if (
+    t.includes('boat') ||
+    t.includes('basshead') ||
+    t.includes('earphone') ||
+    t.includes('headphone') ||
+    t.includes('airdopes') ||
+    i === 'B071Z8M4KX'
+  ) {
+    return '/products/B071Z8M4KX.jpg';
+  }
+  if (t.includes('tab') || t.includes('tablet') || t.includes('ipad') || t.includes('lenovo') || i === 'B0H2FD3L97') {
+    return '/products/B0H2FD3L97.jpg';
+  }
+  if (t.includes('sauvage') || t.includes('dior')) {
+    return '/products/AMZN-DIOR-SAUVAGE.jpg';
+  }
+  if (t.includes('bleu') || t.includes('chanel')) {
+    return '/products/AMZN-BLEU-CHANEL.jpg';
+  }
+  if (t.includes('eros') || t.includes('versace')) {
+    return '/products/AMZN-VERSACE-EROS.jpg';
+  }
+  if (t.includes('perfume') || t.includes('parfum') || t.includes('fragrance') || t.includes('cologne')) {
+    return '/products/AMZN-YSL-BLACKOPIUM.jpg';
+  }
+  if (t.includes('kettle') || i === 'AMZN-KAG-001') {
+    return '/products/AMZN-KAG-001.jpg';
+  }
+  if (t.includes('samsung') || t.includes('galaxy')) {
+    return '/products/AMZN-SAMSUNG-S24U.jpg';
+  }
+  if (t.includes('phone') || t.includes('mobile') || t.includes('5g') || t.includes('smartphone')) {
+    return '/products/AMZN-ONEPLUS-12.jpg';
+  }
+
+  // If currentSrc is a valid public image and not the kettle or missing, keep it
+  if (
+    currentSrc &&
+    !c.includes('amzn-kag-001') &&
+    !c.includes('undefined') &&
+    (c.startsWith('http://') || c.startsWith('https://') || c.startsWith('/products/'))
+  ) {
+    return currentSrc;
+  }
+
+  // Safe default: high-res clean tech asset
+  return '/products/AMZN-IPHONE-15PRO.jpg';
+}

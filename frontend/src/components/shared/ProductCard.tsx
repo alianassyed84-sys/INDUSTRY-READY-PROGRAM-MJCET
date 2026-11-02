@@ -4,10 +4,11 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 import type { Product } from '@/lib/types';
+import { resolveStudioImage } from '@/lib/flipkart';
 
 export function ProductCard({ product, selected, onSelect }: { product: Product; selected?: boolean; onSelect?: () => void }) {
-  const [imgError, setImgError] = useState(false);
-  const effectiveImageUrl = !imgError ? (product.imageUrl || `/products/${product.id}.jpg`) : null;
+  const initialUrl = product.imageUrl || resolveStudioImage(product.title, product.id);
+  const [currentImg, setCurrentImg] = useState<string | null>(initialUrl);
 
   return (
     <Card
@@ -22,12 +23,19 @@ export function ProductCard({ product, selected, onSelect }: { product: Product;
     >
       <div>
         <div className="relative mb-3 flex h-48 w-full items-center justify-center overflow-hidden rounded-xl bg-white border border-rp-border/80 p-3 shadow-xs">
-          {effectiveImageUrl ? (
+          {currentImg ? (
             <img
-              src={effectiveImageUrl}
+              src={currentImg}
               alt={product.title}
               loading="lazy"
-              onError={() => setImgError(true)}
+              onError={() => {
+                const fallback = resolveStudioImage(product.title, product.id);
+                if (currentImg !== fallback) {
+                  setCurrentImg(fallback);
+                } else {
+                  setCurrentImg(null);
+                }
+              }}
               className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
@@ -36,7 +44,7 @@ export function ProductCard({ product, selected, onSelect }: { product: Product;
               <span className="text-xs font-semibold">No product photo</span>
             </div>
           )}
-          {effectiveImageUrl && (
+          {currentImg && (
             <div className="absolute top-2 right-2">
               <Badge tone="primary" className="text-[10px] font-bold py-0.5 px-1.5 shadow-xs">
                 Photo
