@@ -72,11 +72,30 @@ export function parseFlipkartUrl(raw: string): FlipkartUrlCheck {
   };
 }
 
+/** Normalize Flipkart URLs by recovering PID from /p/itm... path when missing in query parameters. */
+export function normalizeFlipkartUrl(raw: string): string {
+  let val = raw.trim();
+  if (!val) return val;
+  if (!val.toLowerCase().includes('flipkart.com')) return val;
+  if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(val)) {
+    val = `https://${val}`;
+  }
+  if (!/[?&]pid=/i.test(val)) {
+    const itmMatch = val.match(/\/p\/([a-zA-Z0-9_]{6,32})/i);
+    if (itmMatch) {
+      const sep = val.includes('?') ? '&' : '?';
+      val = `${val}${sep}pid=${itmMatch[1].toUpperCase()}`;
+    }
+  }
+  return val;
+}
+
 /** Unified product URL parser accepting either Amazon.in or Flipkart links. */
 export function parseProductUrl(raw: string): UniversalUrlCheck {
   const value = raw.trim().toLowerCase();
   if (value.includes('flipkart.com')) {
-    const fk = parseFlipkartUrl(raw);
+    const normalized = normalizeFlipkartUrl(raw);
+    const fk = parseFlipkartUrl(normalized);
     return {
       valid: fk.valid,
       marketplace: 'Flipkart',

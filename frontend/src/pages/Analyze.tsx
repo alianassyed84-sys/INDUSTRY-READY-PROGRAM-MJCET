@@ -5,6 +5,7 @@ import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
 import { Card } from '@/components/ui/Card';
 import { ErrorState } from '@/components/ui/states';
 import { api } from '@/lib/api';
+import { normalizeFlipkartUrl } from '@/lib/flipkart';
 import { productRoute } from '@/lib/routes';
 import { useProductContext } from '@/hooks/useProduct';
 import { CheckCircle2, Loader2, Sparkles, Link2, DownloadCloud, Cpu } from 'lucide-react';
@@ -28,18 +29,20 @@ export default function Analyze() {
       setStep(2);
 
       // Pre-extract ASIN / PID and URL keywords for deterministic matching
+      const normalizedUrl = normalizeFlipkartUrl(urlToAnalyze);
       const asinMatch =
-        urlToAnalyze.match(/(?:dp|gp\/product|\/p\/itm[a-z0-9]+)\/([A-Z0-9]{10,16})/i) ||
-        urlToAnalyze.match(/[?&]pid=([A-Z0-9]{10,16})/i);
+        normalizedUrl.match(/(?:dp|gp\/product)\/([A-Z0-9]{10,16})/i) ||
+        normalizedUrl.match(/\/p\/([A-Za-z0-9_]{6,32})/i) ||
+        normalizedUrl.match(/[?&]pid=([A-Z0-9]{6,32})/i);
       const extractedAsin = asinMatch ? asinMatch[1].toUpperCase() : '';
-      const urlLower = urlToAnalyze.toLowerCase();
+      const urlLower = normalizedUrl.toLowerCase();
 
       // Step 2: Query backend analyze-url endpoint with graceful catalog fallback
       let targetId = 'B0H2FD3L97';
       let resolved = false;
 
       try {
-        const result = await api.analyzeUrl(urlToAnalyze);
+        const result = await api.analyzeUrl(normalizedUrl);
         if (result?.product?.product_id) {
           targetId = result.product.product_id;
           resolved = true;
@@ -48,7 +51,9 @@ export default function Analyze() {
               id: result.product.product_id,
               title: result.product.product_name,
               asin: result.product.product_id,
-              brand: result.product.category?.split('|')?.[0]?.trim() || 'Amazon Brand',
+              brand: result.product.product_link?.includes('flipkart')
+                ? 'Flipkart Verified'
+                : (result.product.category?.split('|')?.[0]?.trim() || 'Amazon Brand'),
               marketplace: result.product.product_link?.includes('flipkart') ? 'Flipkart' : 'Amazon.in',
               price: result.product.discounted_price || result.product.actual_price || 0,
               listPrice: result.product.actual_price || 0,
@@ -72,10 +77,16 @@ export default function Analyze() {
           urlLower.includes('tab')
         ) {
           targetId = 'B0H2FD3L97';
+        } else if (urlLower.includes('motorola') || urlLower.includes('edge-50') || extractedAsin === 'MOBGTAGPNRQA7CS3') {
+          targetId = 'MOBGTAGPNRQA7CS3';
+        } else if (urlLower.includes('nothing') || extractedAsin === 'MOBHQC8ZMRCP62TS') {
+          targetId = 'MOBHQC8ZMRCP62TS';
+        } else if (urlLower.includes('realme') || extractedAsin === 'MOBFWQ6BXGZGGQHY') {
+          targetId = 'MOBFWQ6BXGZGGQHY';
+        } else if (urlLower.includes('samsung') || urlLower.includes('s24') || urlLower.includes('galaxy')) {
+          targetId = urlLower.includes('flipkart') ? 'MOBGTAGPTB3VS24W' : 'AMZN-SAMSUNG-S24U';
         } else if (urlLower.includes('iphone') || urlLower.includes('apple-iphone')) {
           targetId = 'AMZN-IPHONE-15PRO';
-        } else if (urlLower.includes('samsung') || urlLower.includes('s24') || urlLower.includes('galaxy')) {
-          targetId = 'AMZN-SAMSUNG-S24U';
         } else if (urlLower.includes('macbook') || urlLower.includes('apple-macbook')) {
           targetId = 'AMZN-MACBOOK-AIR-M3';
         } else if (urlLower.includes('sony') || urlLower.includes('wh1000') || urlLower.includes('wh-1000')) {

@@ -4,7 +4,7 @@ import { ArrowRight, ClipboardPaste, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import { parseProductUrl, type UniversalUrlCheck } from '@/lib/flipkart';
+import { normalizeFlipkartUrl, parseProductUrl, type UniversalUrlCheck } from '@/lib/flipkart';
 import { ROUTES } from '@/lib/routes';
 
 interface Props {
@@ -30,7 +30,8 @@ export function UrlAnalyzer({ initial = '', value, onChange, onSubmit, cta = 'An
     e.preventDefault();
     setTouched(true);
     if (!check.valid) return;
-    const normalized = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    const rawNormalized = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    const normalized = normalizeFlipkartUrl(rawNormalized);
     if (onSubmit) onSubmit(normalized, check);
     else nav(`${ROUTES.analyze}?url=${encodeURIComponent(normalized)}`);
   };
