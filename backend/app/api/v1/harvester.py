@@ -614,8 +614,8 @@ def _generate_mock_amazon_product(validated: Any) -> ProviderProduct:
     if asin == "B0H2FD3L97" or "lenovo" in lower_title or "tab" in lower_title:
         title = "Lenovo Idea Tab (Smartchoice) with Folio Keyboard + Tab Pen"
         category = "Computers & Accessories | Tablets"
-        current_price = 24999.0
-        orig_price = 38990.0
+        current_price = 31998.0
+        orig_price = 52000.0
         rating = 4.4
         img_link = "/products/B0H2FD3L97.jpg"
         review_templates = [
@@ -920,12 +920,43 @@ async def analyze_url(
         res = await db.execute(stmt)
         product = res.scalar_one_or_none()
 
+    is_test_asin = any(asin.startswith(prefix) for prefix in ("B0NOTFND", "B0BDAUTH", "B0RATELM", "B0COMMER", "B0UNKNOWN"))
+
+    # When product already exists, sync with 100% real live website price if available
+    if product is not None and not is_test_asin:
+        try:
+            from app.services.harvester.amazon_live_scraper import scrape_amazon_in_live
+            live_data = await scrape_amazon_in_live(validated.canonical_url, asin)
+            if live_data and live_data.current_price:
+                if product.discounted_price != live_data.current_price:
+                    product.discounted_price = live_data.current_price
+                    if live_data.original_price:
+                        product.actual_price = live_data.original_price
+                        product.discount_percentage = round(((live_data.original_price - live_data.current_price) / live_data.original_price) * 100, 1)
+                    if live_data.rating:
+                        product.rating = live_data.rating
+                    if live_data.rating_count:
+                        product.rating_count = live_data.rating_count
+                    if live_data.title and len(live_data.title) > 10:
+                        product.product_name = live_data.title
+                    await record_price_snapshot(
+                        db,
+                        product_id=product.product_id,
+                        price=live_data.current_price,
+                        original_price=live_data.original_price,
+                        currency="INR",
+                        source="amazon_live_sync",
+                    )
+                    await db.commit()
+                    logger.info("Synchronized %s with 100%% real live website price: %s", asin, live_data.current_price)
+        except Exception as sync_err:
+            logger.info("Live price sync note for %s: %s", asin, sync_err)
+
     if product is None:
         provider = get_product_provider(settings)
         provider_data = None
 
         # 1. First attempt live real-time harvesting directly from Amazon.in (bypassing synthetic models)
-        is_test_asin = any(asin.startswith(prefix) for prefix in ("B0NOTFND", "B0BDAUTH", "B0RATELM", "B0COMMER", "B0UNKNOWN"))
         if not is_test_asin:
             try:
                 from app.services.harvester.amazon_live_scraper import scrape_amazon_in_live
