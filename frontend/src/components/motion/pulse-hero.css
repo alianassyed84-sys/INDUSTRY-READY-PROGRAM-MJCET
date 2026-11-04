@@ -29,8 +29,8 @@
 .rp-cinematic-canvas {
   width: 100%;
   height: 100%;
-  max-height: min(520px, calc(100svh - 150px));
-  max-width: min(760px, 94vw);
+  max-height: min(580px, calc(100svh - 130px));
+  max-width: min(860px, 95vw);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,7 +55,7 @@
   opacity: .25;
   animation: pulse-live-field 18s linear infinite;
 }
-.pulse-art { display: block; width: 100%; height: 100%; max-height: min(520px, calc(100svh - 150px)); max-width: min(760px, 94vw); object-fit: contain; overflow: visible; transform: rotateX(var(--scene-y, 0deg)) rotateY(var(--scene-x, 0deg)); transform-origin: center; transition: transform 520ms cubic-bezier(.2,.7,.2,1); }
+.pulse-art { display: block; width: 100%; height: 100%; max-height: min(580px, calc(100svh - 130px)); max-width: min(860px, 95vw); object-fit: contain; overflow: visible; transform: rotateX(var(--scene-y, 0deg)) rotateY(var(--scene-x, 0deg)); transform-origin: center; transition: transform 520ms cubic-bezier(.2,.7,.2,1); }
 .pulse-label { fill: #f1e7fc; font: 600 13px 'Manrope Variable', sans-serif; }
 .pulse-copy { fill: #c3afd6; font: 400 12px 'Inter Variable', sans-serif; }
 .pulse-small { fill: #c4afd8; font: 500 10px 'Inter Variable', sans-serif; }

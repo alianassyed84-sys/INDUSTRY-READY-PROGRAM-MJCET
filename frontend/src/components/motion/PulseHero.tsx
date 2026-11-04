@@ -10,12 +10,12 @@ const STARS = Array.from({ length: 64 }, (_, i) => ({
   r: i % 11 === 0 ? 2.2 : i % 3 === 0 ? 1.3 : .7,
 }));
 const SIGNALS = [
-  { panel: 'review', path: 'M350 300 C292 270 300 185 220 185' },
-  { panel: 'context', path: 'M350 340 C290 347 265 354 184 354' },
-  { panel: 'trend', path: 'M357 370 C300 395 308 460 258 485' },
-  { panel: 'sentiment', path: 'M454 291 C510 252 500 174 564 161' },
-  { panel: 'health', path: 'M459 326 C504 326 550 326 614 326' },
-  { panel: 'topics', path: 'M452 367 C514 398 509 471 578 489' },
+  { panel: 'review', path: 'M330 260 C275 240 270 175 195 165' },
+  { panel: 'context', path: 'M315 320 C260 330 240 335 165 335' },
+  { panel: 'trend', path: 'M335 385 C275 405 260 450 200 470' },
+  { panel: 'sentiment', path: 'M470 250 C535 220 530 150 585 140' },
+  { panel: 'health', path: 'M485 315 C540 315 570 310 630 310' },
+  { panel: 'topics', path: 'M470 375 C535 400 540 455 605 470' },
 ];
 const PANEL_SEQUENCE = [
   { panel: 'review', at: 1.05 },
@@ -52,19 +52,23 @@ export default function PulseHero() {
     const node = root.current;
     if (!node) return;
     const ctx = gsap.context(() => {
+      const isSmallScreen = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches;
+
       if (systemReduced) {
         gsap.set('[data-heartbeat]', { strokeDasharray: 1, strokeDashoffset: 0 });
         gsap.set('[data-core], [data-heartlight], [data-aura], [data-bag], [data-signal], [data-panel], [data-scene-copy]', {
           autoAlpha: 1,
-          clearProps: 'filter,transform',
+          clearProps: 'filter',
+        });
+        gsap.set('[data-core]', {
+          attr: { transform: `translate(400 310) scale(${isSmallScreen() ? 1.2 : 1.38}) translate(-400 -310)` },
         });
         return;
       }
 
       node.dataset.scrollReady = 'true';
-      const isSmallScreen = () => window.matchMedia('(max-width: 639px)').matches;
 
-      // Initial visual setup for rapid orchestral entrance
+      // Initial visual setup: carrybag prominently scaled in center
       gsap.set('[data-heartbeat]', { strokeDasharray: 1, strokeDashoffset: 0, autoAlpha: 0.88 });
       gsap.set('[data-heartlight]', { autoAlpha: 0.35 });
       gsap.set('[data-aura]', { autoAlpha: 0.9 });
@@ -79,6 +83,9 @@ export default function PulseHero() {
         filter: 'blur(3px)',
         transformOrigin: 'center center',
       });
+      gsap.set('[data-core]', {
+        attr: { transform: `translate(400 310) scale(${isSmallScreen() ? 1.2 : 1.38}) translate(-400 -310)` },
+      });
 
       // Orchestrated intro choreography: plays immediately on page arrival
       const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -88,8 +95,8 @@ export default function PulseHero() {
         .to('[data-aura]', { autoAlpha: 1, duration: 0.6 }, 0.1)
         .fromTo(
           '[data-core]',
-          { attr: { transform: `translate(400 325) scale(${isSmallScreen() ? 1.25 : 1.15}) translate(-400 -325)` } },
-          { attr: { transform: 'translate(400 325) scale(1) translate(-400 -325)' }, duration: 0.75, ease: 'back.out(1.3)' },
+          { attr: { transform: `translate(400 310) scale(${isSmallScreen() ? 1.05 : 1.18}) translate(-400 -310)` } },
+          { attr: { transform: `translate(400 310) scale(${isSmallScreen() ? 1.2 : 1.38}) translate(-400 -310)` }, duration: 0.75, ease: 'back.out(1.4)' },
           0.1
         );
 
@@ -213,7 +220,7 @@ export default function PulseHero() {
             <path data-signal-path={panel} d={path} pathLength="1" fill="none" stroke={i === 3 ? '#55e3c8' : '#d6a0ff'} strokeWidth="1.8" strokeLinecap="round" filter={paint('glow')} className="pulse-signal" style={{ '--i': i } as CSSProperties} />
           </g>)}
 
-          <g data-core>
+          <g data-core transform="translate(400 310) scale(1.38) translate(-400 -310)">
           <g className="pulse-bag-float">
             <g data-aura>
               <circle cx="400" cy="325" r="220" fill={paint('aura')} />
@@ -242,7 +249,7 @@ export default function PulseHero() {
           </g>
 
           <g data-panel="review" className="pulse-panel" style={{ '--i': 0 } as CSSProperties}>
-            <g transform="translate(56 109) rotate(-7 92 60)">
+            <g transform="translate(42 90) rotate(-7 92 60)">
               <rect width="198" height="129" rx="13" fill={paint('panel')} stroke={paint('edge')} />
               <circle cx="27" cy="30" r="13" fill="#70489b" /><circle cx="27" cy="27" r="4" fill="#dfc8fa" /><path d="M20 37q7-12 14 0" fill="#dfc8fa" />
               <text x="49" y="29" className="pulse-label">Customer review</text>
@@ -252,7 +259,7 @@ export default function PulseHero() {
             </g>
           </g>
           <g data-panel="context" className="pulse-panel pulse-panel-secondary" style={{ '--i': 1 } as CSSProperties}>
-            <g transform="translate(35 303) rotate(5 80 43)">
+            <g transform="translate(22 295) rotate(5 80 43)">
               <rect width="158" height="88" rx="12" fill={paint('panel')} stroke={paint('edge')} />
               <text x="16" y="27" className="pulse-label">Every voice matters</text>
               <path d="M17 43h116m-116 11h94" stroke="#a48abb" strokeWidth="4" strokeLinecap="round" opacity=".4" />
@@ -260,7 +267,7 @@ export default function PulseHero() {
             </g>
           </g>
           <g data-panel="trend" className="pulse-panel" style={{ '--i': 2 } as CSSProperties}>
-            <g transform="translate(82 459) rotate(-6 111 63)">
+            <g transform="translate(48 450) rotate(-6 111 63)">
               <rect width="222" height="130" rx="13" fill={paint('panel')} stroke={paint('edge')} />
               <text x="17" y="26" className="pulse-label">Signals over time</text>
               {[50,76,102].map(y=><path key={y} d={`M19 ${y}h184`} stroke="#c99bea" strokeOpacity=".12" />)}
@@ -270,7 +277,7 @@ export default function PulseHero() {
             </g>
           </g>
           <g data-panel="sentiment" className="pulse-panel" style={{ '--i': 3 } as CSSProperties}>
-            <g transform="translate(532 99) rotate(7 100 55)">
+            <g transform="translate(548 80) rotate(7 100 55)">
               <rect width="206" height="111" rx="13" fill={paint('panel')} stroke={paint('edge')} />
               <circle cx="37" cy="45" r="21" fill="#46ddbd" fillOpacity=".15" />
               <path d="m28 45 7 7 12-15" fill="none" stroke="#61edd0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
@@ -282,7 +289,7 @@ export default function PulseHero() {
             </g>
           </g>
           <g data-panel="health" className="pulse-panel" style={{ '--i': 4 } as CSSProperties}>
-            <g transform="translate(567 267) rotate(5 101 80)">
+            <g transform="translate(578 255) rotate(5 101 80)">
               <rect width="203" height="159" rx="14" fill={paint('panel')} stroke={paint('edge')} />
               <path d="M29 102a72 72 0 0 1 144 0" fill="none" stroke="#49365c" strokeWidth="13" strokeLinecap="round" />
               <path d="M29 102a72 72 0 0 1 132-39" fill="none" stroke={paint('gauge')} strokeWidth="13" strokeLinecap="round" />
@@ -292,7 +299,7 @@ export default function PulseHero() {
             </g>
           </g>
           <g data-panel="topics" className="pulse-panel pulse-panel-secondary" style={{ '--i': 5 } as CSSProperties}>
-            <g transform="translate(514 477) rotate(6 112 48)">
+            <g transform="translate(535 460) rotate(6 112 48)">
               <rect width="223" height="99" rx="12" fill={paint('panel')} stroke={paint('edge')} />
               <text x="17" y="28" className="pulse-label">The themes that connect</text>
               <rect x="16" y="43" width="85" height="25" rx="12.5" fill="#543374" /><text x="29" y="60" className="pulse-small">Build quality</text>
@@ -300,15 +307,15 @@ export default function PulseHero() {
               <path d="M20 83h134" stroke="#9a7ab7" strokeWidth="3" strokeLinecap="round" opacity=".3" />
             </g>
           </g>
-          <g transform="translate(501 390)">
+          <g transform="translate(485 365)">
             <g data-panel="sentiment" className="pulse-chat">
               <path d="M0 8q0-8 8-8h30q8 0 8 8v19q0 8-8 8h-8l-7 9v-9H8q-8 0-8-8Z" fill="#31bca4" />
               {[12,23,34].map(x=><circle key={x} cx={x} cy="17" r="2.4" fill="#eafffa" />)}
             </g>
           </g>
           <g data-scene-copy>
-            <text x="400" y="494" textAnchor="middle" className="pulse-wordmark">Review<tspan fill="#bd85ff">Pulse</tspan></text>
-            <text x="400" y="516" textAnchor="middle" className="pulse-small" letterSpacing="2">EVERY REVIEW. A SIGNAL.</text>
+            <text x="400" y="535" textAnchor="middle" className="pulse-wordmark">Review<tspan fill="#bd85ff">Pulse</tspan></text>
+            <text x="400" y="556" textAnchor="middle" className="pulse-small" letterSpacing="2">EVERY REVIEW. A SIGNAL.</text>
           </g>
         </svg>
       </div>
