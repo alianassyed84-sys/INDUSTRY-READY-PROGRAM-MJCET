@@ -2,26 +2,22 @@ import { useMotion } from '@/hooks/useMotion';
 
 interface BorderBeamProps {
   className?: string;
-  size?: number;
   duration?: number;
-  borderWidth?: number;
   colorFrom?: string;
   colorTo?: string;
-  delay?: number;
+  size?: number;
+  borderWidth?: number;
 }
 
 /**
  * React Bits Border Beam:
- * An animated, high-velocity light beam traveling along the card perimeter.
+ * High-velocity luminous beam orbiting continuously along the card perimeter.
  */
 export function BorderBeam({
   className = '',
-  size = 250,
-  duration = 10,
-  borderWidth = 1.5,
+  duration = 6,
   colorFrom = '#BF89FF',
   colorTo = '#7D2DE1',
-  delay = 0,
 }: BorderBeamProps) {
   const { enabled, systemReduced } = useMotion();
 
@@ -29,18 +25,16 @@ export function BorderBeam({
 
   return (
     <div
-      style={
-        {
-          '--size': `${size}px`,
-          '--duration': `${duration}s`,
-          '--anchor': '90deg',
-          '--border-width': `${borderWidth}px`,
-          '--color-from': colorFrom,
-          '--color-to': colorTo,
-          '--delay': `-${delay}s`,
-        } as React.CSSProperties
-      }
-      className={`pointer-events-none absolute inset-0 rounded-[inherit] [border:calc(var(--border-width)*1)_solid_transparent] ![mask-clip:padding-box,border-box] ![mask-composite:intersect] [mask:linear-gradient(transparent,transparent),linear-gradient(white,white)] after:absolute after:aspect-square after:w-[var(--size)] after:animate-border-beam after:[animation-delay:var(--delay)] after:[background:linear-gradient(to_left,var(--color-from),var(--color-to),transparent)] after:[offset-anchor:calc(var(--anchor)*1)_50%] after:[offset-path:rect(0_auto_auto_0_round_calc(var(--size)))] ${className}`}
-    />
+      aria-hidden="true"
+      className={`pointer-events-none absolute -inset-[1.5px] rounded-[inherit] overflow-hidden ${className}`}
+    >
+      <div
+        style={{
+          animationDuration: `${duration}s`,
+          background: `conic-gradient(from 0deg, transparent 0deg, transparent 260deg, ${colorTo} 310deg, ${colorFrom} 360deg)`,
+        }}
+        className="absolute -inset-[200%] animate-spin-beam opacity-90"
+      />
+    </div>
   );
 }

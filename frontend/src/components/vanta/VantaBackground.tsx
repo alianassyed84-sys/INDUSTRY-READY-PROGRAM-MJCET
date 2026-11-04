@@ -9,6 +9,7 @@ interface VantaPoint {
   vy: number;
   vz: number;
   baseRadius: number;
+  color: string;
 }
 
 interface VantaBackgroundProps {
@@ -19,14 +20,14 @@ interface VantaBackgroundProps {
 }
 
 /**
- * High-performance 3D Geometric Mesh Background inspired by Vanta.js NET.
- * Features 3D coordinate projection, interactive cursor repulsion & parallax tilt,
- * and seamless theme-integrated neon filaments.
+ * Vivid, high-performance 3D Geometric Mesh Background inspired by Vanta.js NET.
+ * Features 3D coordinate projection, luminous neon filaments, glowing nodes,
+ * and an interactive cursor energy wave.
  */
 export default function VantaBackground({
   className = '',
-  particleCount = 45,
-  maxDistance = 140,
+  particleCount = 65,
+  maxDistance = 175,
   mouseRepulsion = true,
 }: VantaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -38,7 +39,6 @@ export default function VantaBackground({
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    // Check jsdom or reduced motion
     const ctx = canvas.getContext('2d');
     if (!ctx || systemReduced) return;
 
@@ -53,19 +53,28 @@ export default function VantaBackground({
     let isVisible = true;
     let animFrameId: number;
 
+    const colors = [
+      'rgba(191, 137, 255, ', // Primary neon lavender
+      'rgba(125, 45, 225, ',  // Deep action violet
+      'rgba(224, 99, 239, ',  // Magenta pulse
+      'rgba(70, 221, 189, ',  // Emerald cyan
+      'rgba(135, 187, 255, ', // Electric blue
+    ];
+
     // Initialize 3D points
     const points: VantaPoint[] = [];
-    const count = Math.min(particleCount, Math.floor((width * height) / 18000));
+    const count = Math.min(particleCount, Math.floor((width * height) / 14000));
 
     for (let i = 0; i < count; i++) {
       points.push({
-        x: (Math.random() - 0.5) * width * 1.2,
-        y: (Math.random() - 0.5) * height * 1.2,
-        z: Math.random() * 400 - 200,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        vz: (Math.random() - 0.5) * 0.35,
-        baseRadius: Math.random() * 1.6 + 1.2,
+        x: (Math.random() - 0.5) * width * 1.3,
+        y: (Math.random() - 0.5) * height * 1.3,
+        z: Math.random() * 450 - 225,
+        vx: (Math.random() - 0.5) * 0.55,
+        vy: (Math.random() - 0.5) * 0.55,
+        vz: (Math.random() - 0.5) * 0.4,
+        baseRadius: Math.random() * 2 + 1.8,
+        color: colors[i % colors.length],
       });
     }
 
@@ -100,8 +109,7 @@ export default function VantaBackground({
     );
     observer.observe(container);
 
-    // 3D Perspective settings
-    const fov = 350;
+    const fov = 380;
 
     const render = () => {
       if (!isVisible || document.hidden || !enabled) {
@@ -111,37 +119,52 @@ export default function VantaBackground({
 
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth mouse interpolation (inertia)
-      mouseX += (targetMouseX - mouseX) * 0.045;
-      mouseY += (targetMouseY - mouseY) * 0.045;
+      // Smooth mouse interpolation
+      mouseX += (targetMouseX - mouseX) * 0.06;
+      mouseY += (targetMouseY - mouseY) * 0.06;
 
-      const tiltX = (mouseY / height) * 0.22;
-      const tiltY = (mouseX / width) * 0.22;
+      const mRealX = mouseX + width / 2;
+      const mRealY = mouseY + height / 2;
+
+      // Interactive cursor glow wave in background
+      if (isHovered) {
+        const aura = ctx.createRadialGradient(mRealX, mRealY, 0, mRealX, mRealY, 180);
+        aura.addColorStop(0, 'rgba(191, 137, 255, 0.16)');
+        aura.addColorStop(0.4, 'rgba(125, 45, 225, 0.07)');
+        aura.addColorStop(1, 'rgba(10, 7, 17, 0)');
+        ctx.fillStyle = aura;
+        ctx.beginPath();
+        ctx.arc(mRealX, mRealY, 180, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const tiltX = (mouseY / height) * 0.28;
+      const tiltY = (mouseX / width) * 0.28;
       const cosX = Math.cos(tiltX);
       const sinX = Math.sin(tiltX);
       const cosY = Math.cos(tiltY);
       const sinY = Math.sin(tiltY);
 
       // Project points to 2D
-      const projected: { px: number; py: number; scale: number; alpha: number }[] = [];
+      const projected: { px: number; py: number; scale: number; alpha: number; color: string; radius: number }[] = [];
 
       for (let i = 0; i < points.length; i++) {
         const p = points[i];
 
-        // Natural movement
+        // Motion drift
         p.x += p.vx;
         p.y += p.vy;
         p.z += p.vz;
 
-        // Boundaries wrap
-        const boundX = (width * 1.2) / 2;
-        const boundY = (height * 1.2) / 2;
+        // Toroidal boundary wrap
+        const boundX = (width * 1.3) / 2;
+        const boundY = (height * 1.3) / 2;
         if (p.x < -boundX) p.x = boundX;
         if (p.x > boundX) p.x = -boundX;
         if (p.y < -boundY) p.y = boundY;
         if (p.y > boundY) p.y = -boundY;
-        if (p.z < -200) p.z = 200;
-        if (p.z > 200) p.z = -200;
+        if (p.z < -225) p.z = 225;
+        if (p.z > 225) p.z = -225;
 
         // 3D rotation based on mouse tilt
         const rotY_x = p.x * cosY + p.z * sinY;
@@ -159,20 +182,18 @@ export default function VantaBackground({
 
         // Interactive cursor repulsion
         if (mouseRepulsion && isHovered) {
-          const mRealX = mouseX + width / 2;
-          const mRealY = mouseY + height / 2;
           const dx = px - mRealX;
           const dy = py - mRealY;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130 && dist > 0) {
-            const force = (1 - dist / 130) * 18;
+          if (dist < 160 && dist > 0) {
+            const force = (1 - dist / 160) * 26;
             px += (dx / dist) * force;
             py += (dy / dist) * force;
           }
         }
 
-        const alpha = Math.max(0.12, Math.min(0.85, (scale - 0.5) * 1.2));
-        projected.push({ px, py, scale, alpha });
+        const alpha = Math.max(0.25, Math.min(0.95, (scale - 0.4) * 1.35));
+        projected.push({ px, py, scale, alpha, color: p.color, radius: p.baseRadius * scale });
       }
 
       // Draw Vanta-style connecting filaments
@@ -185,36 +206,32 @@ export default function VantaBackground({
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < maxDistance) {
-            const lineAlpha = (1 - dist / maxDistance) * 0.28 * Math.min(p1.alpha, p2.alpha);
+            const lineAlpha = (1 - dist / maxDistance) * 0.45 * Math.min(p1.alpha, p2.alpha);
             ctx.beginPath();
             ctx.moveTo(p1.px, p1.py);
             ctx.lineTo(p2.px, p2.py);
-            // ReviewPulse violet / electric-blue filament
-            ctx.strokeStyle = `rgba(167, 139, 250, ${lineAlpha})`;
-            ctx.lineWidth = Math.max(0.6, (1 - dist / maxDistance) * 1.4);
+            ctx.strokeStyle = `rgba(180, 140, 255, ${lineAlpha})`;
+            ctx.lineWidth = Math.max(0.7, (1 - dist / maxDistance) * 1.8);
             ctx.stroke();
           }
         }
       }
 
-      // Draw nodes
+      // Draw glowing nodes
       for (let i = 0; i < projected.length; i++) {
-        const { px, py, scale, alpha } = projected[i];
-        const radius = Math.max(1, scale * 2.2);
+        const { px, py, alpha, color, radius } = projected[i];
 
+        // Outer glow
         ctx.beginPath();
-        ctx.arc(px, py, radius, 0, Math.PI * 2);
-        // Gradient node color with cyan and magenta accents
-        ctx.fillStyle = i % 3 === 0 ? `rgba(125, 45, 225, ${alpha})` : `rgba(191, 137, 255, ${alpha})`;
+        ctx.arc(px, py, radius * 2.4, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}${alpha * 0.25})`;
         ctx.fill();
 
-        // Node glow
-        if (radius > 1.8) {
-          ctx.beginPath();
-          ctx.arc(px, py, radius * 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(125, 45, 225, ${alpha * 0.22})`;
-          ctx.fill();
-        }
+        // Inner solid core
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}${alpha})`;
+        ctx.fill();
       }
 
       animFrameId = requestAnimationFrame(render);
@@ -237,7 +254,7 @@ export default function VantaBackground({
       aria-hidden="true"
       className={`absolute inset-0 pointer-events-none overflow-hidden select-none ${className}`}
     >
-      <canvas ref={canvasRef} className="w-full h-full block opacity-60" />
+      <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
 }

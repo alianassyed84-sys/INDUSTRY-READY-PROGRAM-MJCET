@@ -174,6 +174,15 @@
   .animate-border-beam {
     animation: border-beam calc(var(--duration)*1s) infinite linear;
   }
+
+  @keyframes spin-beam {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin-beam {
+    animation: spin-beam 6s linear infinite;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

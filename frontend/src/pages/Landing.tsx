@@ -84,161 +84,161 @@ export default function Landing() {
   const currentMoodData = MOOD_SNIPPETS[activeMood];
 
   return (
-    <div ref={root} className="relative">
-      {/* 1. Hero with Vanta.js 3D Mesh and GSAP ScrollTrigger Integration */}
-      <section className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50">
+    <div ref={root} className="relative min-w-0">
+      {/* 1. Full-Screen Cinematic Hero with Vanta.js 3D Mesh and GSAP ScrollTrigger Integration */}
+      <section className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50 min-h-[calc(100svh-76px)] flex items-center justify-center">
         {/* Vanta 3D Interactive Geometric Mesh Background */}
         <VantaBackground
-          className="z-0 opacity-40"
-          particleCount={48}
-          maxDistance={150}
+          className="z-0 opacity-100"
+          particleCount={65}
+          maxDistance={175}
           mouseRepulsion={true}
         />
 
-        <div className="rp-cinematic-stage mx-auto max-w-content px-3 sm:px-5 lg:px-10">
+        <div className="rp-cinematic-stage w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-10 relative z-10">
           <div className="rp-cinematic-canvas relative z-10 min-w-0">
             <PulseHero />
-          </div>
-
-          {/* Interactive Dual Entry Points wrapped in React Bits SpotlightCard with BorderBeam */}
-          <div className="relative z-20 mx-auto -mt-4 mb-10 max-w-2xl">
-            <SpotlightCard
-              spotlightColor="rgba(191, 137, 255, 0.16)"
-              borderGlowColor="rgba(191, 137, 255, 0.4)"
-              className="p-6 shadow-2xl backdrop-blur-md"
-            >
-              {/* React Bits Border Beam */}
-              <BorderBeam
-                size={280}
-                duration={12}
-                borderWidth={1.5}
-                colorFrom="#BF89FF"
-                colorTo="#7D2DE1"
-              />
-
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <h2 className="font-heading text-lg font-bold text-rp-navy flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-rp-primary" />
-                  <ShinyText speed={5}>Analyze Reviews</ShinyText>
-                </h2>
-                <span className="text-[11px] font-semibold text-rp-primary bg-rp-primary-light px-2.5 py-0.5 rounded-full border border-rp-primary/20">
-                  Interactive preview
-                </span>
-              </div>
-              <p className="text-sm text-rp-muted">
-                Paste any Amazon.in or Flipkart link, or try a sample product below.
-              </p>
-
-              {/* Interactive Quick Sample Chips with Magnetic Button attraction */}
-              <div className="mt-4 flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
-                {DEMO_SAMPLES.map((sample) => (
-                  <MagneticButton key={sample.label} strength={0.2}>
-                    <button
-                      type="button"
-                      onClick={() => setSampleUrl(sample.url)}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
-                        sampleUrl === sample.url
-                          ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
-                          : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
-                      }`}
-                    >
-                      <span aria-hidden>{sample.icon}</span>
-                      <span>{sample.label}</span>
-                    </button>
-                  </MagneticButton>
-                ))}
-              </div>
-
-              <div className="mt-4">
-                <UrlAnalyzer
-                  value={sampleUrl || undefined}
-                  onChange={setSampleUrl}
-                  cta="Analyze link"
-                />
-              </div>
-
-              {/* Live Interactive Mood Pulse Simulator */}
-              <div className="mt-5 rounded-xl border border-rp-border/80 bg-rp-surface-soft/60 p-4 transition-all">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-2.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-rp-muted flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5 text-rp-primary" />
-                    <DecryptedText text="Live Customer Signal" speed={35} maxIterations={8} />
-                  </span>
-                  <div className="flex items-center gap-1" role="tablist" aria-label="Customer mood preview">
-                    {(['positive', 'neutral', 'negative'] as const).map((m) => (
-                      <MagneticButton key={m} strength={0.15}>
-                        <button
-                          type="button"
-                          role="tab"
-                          aria-selected={activeMood === m}
-                          onClick={() => handleMoodChange(m)}
-                          className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200 ${
-                            activeMood === m
-                              ? 'bg-rp-surface text-rp-navy shadow-sm border border-rp-border'
-                              : 'text-rp-muted hover:text-rp-navy'
-                          }`}
-                        >
-                          {MOOD_SNIPPETS[m].label} ({MOOD_SNIPPETS[m].pct})
-                        </button>
-                      </MagneticButton>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Animated Quote & Aspects */}
-                <div ref={moodContainerRef} className="mt-3 space-y-2">
-                  <div className="flex items-start gap-2.5 text-xs">
-                    <MessageSquare className="h-4 w-4 text-rp-primary shrink-0 mt-0.5" />
-                    <p className="italic text-rp-text leading-relaxed">
-                      &ldquo;{currentMoodData.quote}&rdquo;
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    {currentMoodData.aspects.map((aspect) => (
-                      <span
-                        key={aspect}
-                        className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${currentMoodData.tone}`}
-                      >
-                        {aspect}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rp-border/60 pt-4">
-                <span className="text-xs text-rp-muted">
-                  Have a dataset file? Amazon/Flipkart CSV or JSON supported.
-                </span>
-                <MagneticButton strength={0.3}>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => nav(ROUTES.data)}
-                    className="shrink-0 text-xs py-2 px-3"
-                  >
-                    <UploadCloud className="mr-1.5 h-4 w-4" />
-                    Upload a dataset
-                  </Button>
-                </MagneticButton>
-              </div>
-            </SpotlightCard>
           </div>
         </div>
       </section>
 
-      {/* 6. Feature cards */}
+      {/* 2. Interactive Spotlight Analyzer Section wrapped in React Bits SpotlightCard with BorderBeam */}
+      <section className="relative z-20 mx-auto -mt-10 mb-16 max-w-3xl px-4">
+        <SpotlightCard
+          spotlightColor="rgba(191, 137, 255, 0.22)"
+          borderGlowColor="rgba(191, 137, 255, 0.55)"
+          className="p-6 md:p-8 shadow-2xl backdrop-blur-xl border border-rp-border/80 bg-rp-surface/95"
+        >
+          {/* React Bits Border Beam */}
+          <BorderBeam
+            size={320}
+            duration={10}
+            borderWidth={1.8}
+            colorFrom="#BF89FF"
+            colorTo="#7D2DE1"
+          />
+
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h2 className="font-heading text-lg md:text-xl font-bold text-rp-navy flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-rp-primary" />
+              <ShinyText speed={4}>Analyze Reviews</ShinyText>
+            </h2>
+            <span className="text-[11px] font-semibold text-rp-primary bg-rp-primary-light px-2.5 py-0.5 rounded-full border border-rp-primary/20">
+              Interactive preview
+            </span>
+          </div>
+          <p className="text-sm text-rp-muted">
+            Paste any Amazon.in or Flipkart link, or try a sample product below.
+          </p>
+
+          {/* Interactive Quick Sample Chips with Magnetic Button attraction */}
+          <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
+            {DEMO_SAMPLES.map((sample) => (
+              <MagneticButton key={sample.label} strength={0.22}>
+                <button
+                  type="button"
+                  onClick={() => setSampleUrl(sample.url)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                    sampleUrl === sample.url
+                      ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
+                      : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
+                  }`}
+                >
+                  <span aria-hidden>{sample.icon}</span>
+                  <span>{sample.label}</span>
+                </button>
+              </MagneticButton>
+            ))}
+          </div>
+
+          <div className="mt-4">
+            <UrlAnalyzer
+              value={sampleUrl || undefined}
+              onChange={setSampleUrl}
+              cta="Analyze link"
+            />
+          </div>
+
+          {/* Live Interactive Mood Pulse Simulator */}
+          <div className="mt-5 rounded-xl border border-rp-border/80 bg-rp-surface-soft/60 p-4 transition-all">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-2.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-rp-muted flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-rp-primary" />
+                <DecryptedText text="Live Customer Signal" speed={35} maxIterations={8} />
+              </span>
+              <div className="flex items-center gap-1" role="tablist" aria-label="Customer mood preview">
+                {(['positive', 'neutral', 'negative'] as const).map((m) => (
+                  <MagneticButton key={m} strength={0.15}>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={activeMood === m}
+                      onClick={() => handleMoodChange(m)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200 ${
+                        activeMood === m
+                          ? 'bg-rp-surface text-rp-navy shadow-sm border border-rp-border'
+                          : 'text-rp-muted hover:text-rp-navy'
+                      }`}
+                    >
+                      {MOOD_SNIPPETS[m].label} ({MOOD_SNIPPETS[m].pct})
+                    </button>
+                  </MagneticButton>
+                ))}
+              </div>
+            </div>
+
+            {/* Animated Quote & Aspects */}
+            <div ref={moodContainerRef} className="mt-3 space-y-2">
+              <div className="flex items-start gap-2.5 text-xs">
+                <MessageSquare className="h-4 w-4 text-rp-primary shrink-0 mt-0.5" />
+                <p className="italic text-rp-text leading-relaxed">
+                  &ldquo;{currentMoodData.quote}&rdquo;
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {currentMoodData.aspects.map((aspect) => (
+                  <span
+                    key={aspect}
+                    className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${currentMoodData.tone}`}
+                  >
+                    {aspect}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rp-border/60 pt-4">
+            <span className="text-xs text-rp-muted">
+              Have a dataset file? Amazon/Flipkart CSV or JSON supported.
+            </span>
+            <MagneticButton strength={0.28}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => nav(ROUTES.data)}
+                className="shrink-0 text-xs py-2 px-3"
+              >
+                <UploadCloud className="mr-1.5 h-4 w-4" />
+                Upload a dataset
+              </Button>
+            </MagneticButton>
+          </div>
+        </SpotlightCard>
+      </section>
+
+      {/* 3. Feature cards */}
       <FeatureGallery />
 
-      {/* 7. Product-analysis preview */}
+      {/* 4. Product-analysis preview */}
       <AnalysisPreview productTitle={d.product.title} sentiment={s} topics={d.topics ?? []} />
 
-      {/* 8. Workflow */}
+      {/* 5. Workflow */}
       <SignalJourney />
 
-      {/* 9. Trust and data source */}
+      {/* 6. Trust and data source */}
       <DataTrust />
     </div>
   );

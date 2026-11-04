@@ -74,7 +74,7 @@ export default function PulseHero() {
       });
       gsap.set('[data-signal], [data-panel]', { autoAlpha: 0 });
       gsap.set('[data-core]', {
-        attr: { transform: () => `translate(400 325) scale(${isSmallScreen() ? 1.35 : 1.15}) translate(-400 -325)` },
+        attr: { transform: () => `translate(400 325) scale(${isSmallScreen() ? 1.45 : 1.25}) translate(-400 -325)` },
       });
       gsap.set('[data-panel]', { y: () => isSmallScreen() ? 9 : 18, scale: .95, filter: 'blur(2px)', transformOrigin: 'center center' });
       gsap.set('[data-signal-path]', { strokeDasharray: 1, strokeDashoffset: 1 });
@@ -85,7 +85,7 @@ export default function PulseHero() {
         .to('[data-heartbeat]', { autoAlpha: 1, duration: .5, ease: 'power2.out' }, 0)
         .to('[data-heartlight]', { autoAlpha: .5, duration: .45 }, .18)
         .to('[data-aura]', { autoAlpha: 1, duration: .9 }, .12)
-        .to('[data-core]', { attr: { transform: 'translate(400 325) scale(1) translate(-400 -325)' }, duration: .9 }, .3)
+        .to('[data-core]', { attr: { transform: `translate(400 325) scale(${isSmallScreen() ? 1.2 : 1.1}) translate(-400 -325)` }, duration: .9 }, .3)
         .to('[data-scene-copy]', { autoAlpha: 1, attr: { transform: 'translate(0 0)' }, duration: .9 }, .3);
 
       PANEL_SEQUENCE.forEach(({ panel, at }) => {
