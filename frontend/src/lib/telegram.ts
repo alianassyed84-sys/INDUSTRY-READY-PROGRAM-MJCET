@@ -1,22 +1,21 @@
 /**
  * Lightweight fire-and-forget Telegram notifier for price tracking actions.
- * Sends push notifications to personal chat and team group via Telegram Bot API
+ * Sends push notifications EXCLUSIVELY to the team group via Telegram Bot API
  * whenever a user starts price tracking for a product on the website.
  */
 
 const BOT_TOKEN = '9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw';
-const CHAT_IDS = ['-1003930932275', '7154556693'];
+// Strictly send to Team Supergroup only (No personal DM)
+const GROUP_CHAT_ID = '-1003930932275';
 const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
 function tgPost(text: string): void {
-  for (const chat_id of CHAT_IDS) {
-    fetch(TG_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML' }),
-      keepalive: true,
-    }).catch(() => {/* silent — notifications are best-effort */});
-  }
+  fetch(TG_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: GROUP_CHAT_ID, text, parse_mode: 'HTML' }),
+    keepalive: true,
+  }).catch(() => {/* silent — notifications are best-effort */});
 }
 
 /** Call when user submits a product URL for 24/7 price tracking. */

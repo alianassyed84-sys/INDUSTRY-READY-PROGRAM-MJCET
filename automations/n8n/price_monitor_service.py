@@ -39,10 +39,10 @@ logger = logging.getLogger("ReviewPulseBot")
 
 DEFAULT_API_URL = os.environ.get("API_URL", "https://irpversion2-2.onrender.com")
 DEFAULT_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw")
-DEFAULT_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "7154556693")
+DEFAULT_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "-1003930932275")
 GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_ID", "-1003930932275")
-# All destinations that receive price alerts and notifications (Personal + Supergroup)
-ALL_CHAT_IDS: list[str] = [DEFAULT_CHAT_ID, GROUP_CHAT_ID]
+# Exclusively send to Team Supergroup (No DM)
+ALL_CHAT_IDS: list[str] = [GROUP_CHAT_ID]
 DEFAULT_AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "dev-token")
 MIN_PRICE_DELTA = float(os.environ.get("MIN_PRICE_DELTA", 50.0))
 
@@ -430,6 +430,8 @@ def handle_telegram_incoming(
                             "🔔 <b>Status:</b> <i>24/7 Monitoring Active! Jaise hi price drop ya hike hoga, instant alert aayega!</i>"
                         )
                         send_telegram_alert(bot_token, sender_id, reply)
+                        if sender_id != GROUP_CHAT_ID:
+                            send_telegram_alert(bot_token, GROUP_CHAT_ID, reply)
 
                         # Update cache
                         cache = load_cache()
