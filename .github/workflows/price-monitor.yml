@@ -23,7 +23,8 @@ jobs:
         env:
           API_URL: https://irpversion2-2.onrender.com
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw' }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '7154556693' }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '-1003930932275' }}
+          TELEGRAM_GROUP_ID: ${{ secrets.TELEGRAM_GROUP_ID || '-1003930932275' }}
           AUTH_TOKEN: dev-token
         run: |
           python automations/n8n/price_monitor_service.py --once
