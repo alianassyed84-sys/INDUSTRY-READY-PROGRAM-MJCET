@@ -105,7 +105,7 @@ export default function Landing() {
       {/* ========================================================================= */}
       <section
         id="chapter-hero"
-        className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50 h-[calc(100svh-76px)] max-h-[calc(100svh-76px)] flex flex-col items-center justify-center pt-1"
+        className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50 h-[calc(100svh-76px)] max-h-[calc(100svh-76px)] flex flex-col items-center justify-center p-2 sm:p-3"
       >
         {/* Vanta 3D Interactive Geometric Mesh Background */}
         <VantaBackground
@@ -115,18 +115,18 @@ export default function Landing() {
           mouseRepulsion={true}
         />
 
-        {/* Ambient Top World Tagline */}
-        <div className="relative z-10 text-center mb-0.5 select-none pointer-events-none">
-          <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-mono uppercase tracking-widest bg-rp-surface/85 border border-rp-primary/35 text-rp-primary shadow-lg backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-            <span>Chapter I · The Neural Core</span>
-            <span className="text-rp-muted">/</span>
-            <span className="text-slate-300">Live Pulse</span>
+        <div className="rp-cinematic-stage relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center justify-center flex-1 min-h-0">
+          {/* Ambient Top World Tagline */}
+          <div className="text-center mb-1 select-none pointer-events-none shrink-0">
+            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-mono uppercase tracking-widest bg-rp-surface/85 border border-rp-primary/35 text-rp-primary shadow-lg backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>Chapter I · The Neural Core</span>
+              <span className="text-rp-muted">/</span>
+              <span className="text-slate-300">Live Pulse</span>
+            </div>
           </div>
-        </div>
 
-        <div className="rp-cinematic-stage w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-10 relative z-10">
-          <div className="rp-cinematic-canvas relative z-10 min-w-0">
+          <div className="rp-cinematic-canvas relative z-10 min-w-0 flex-1 flex items-center justify-center w-full min-h-0">
             <PulseHero />
           </div>
         </div>

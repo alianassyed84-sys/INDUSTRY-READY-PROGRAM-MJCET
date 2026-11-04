@@ -300,9 +300,11 @@ export default function PulseHero() {
               <path d="M20 83h134" stroke="#9a7ab7" strokeWidth="3" strokeLinecap="round" opacity=".3" />
             </g>
           </g>
-          <g data-panel="sentiment" className="pulse-chat" transform="translate(501 400)">
-            <path d="M0 8q0-8 8-8h30q8 0 8 8v19q0 8-8 8h-8l-7 9v-9H8q-8 0-8-8Z" fill="#31bca4" />
-            {[12,23,34].map(x=><circle key={x} cx={x} cy="17" r="2.4" fill="#eafffa" />)}
+          <g transform="translate(501 390)">
+            <g data-panel="sentiment" className="pulse-chat">
+              <path d="M0 8q0-8 8-8h30q8 0 8 8v19q0 8-8 8h-8l-7 9v-9H8q-8 0-8-8Z" fill="#31bca4" />
+              {[12,23,34].map(x=><circle key={x} cx={x} cy="17" r="2.4" fill="#eafffa" />)}
+            </g>
           </g>
           <g data-scene-copy>
             <text x="400" y="494" textAnchor="middle" className="pulse-wordmark">Review<tspan fill="#bd85ff">Pulse</tspan></text>
