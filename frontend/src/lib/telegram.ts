@@ -1,14 +1,11 @@
 /**
- * Lightweight fire-and-forget Telegram notifier for website actions.
+ * Lightweight fire-and-forget Telegram notifier for price tracking actions.
  * Sends push notifications to personal chat and team group via Telegram Bot API
- * whenever a user submits a URL or uploads a dataset on the website.
- *
- * Uses fetch() with keepalive so it fires even on page navigation.
+ * whenever a user starts price tracking for a product on the website.
  */
 
 const BOT_TOKEN = '9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw';
-// Personal DM + Supergroup (-1003930932275) + legacy group
-const CHAT_IDS = ['7154556693', '-1003930932275'];
+const CHAT_IDS = ['-1003930932275', '7154556693'];
 const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
 function tgPost(text: string): void {
@@ -22,37 +19,24 @@ function tgPost(text: string): void {
   }
 }
 
-/** Call when user submits a product URL from the website. */
+/** Call when user submits a product URL for 24/7 price tracking. */
 export function notifyUrlSubmitted(url: string, marketplace: string, productId: string): void {
   const shortUrl = url.length > 60 ? url.slice(0, 57) + '...' : url;
   tgPost(
-    `🌐 <b>NEW URL SUBMITTED via ReviewPulse Website!</b>\n\n` +
+    `🔔 <b>24/7 PRICE TRACKING ACTIVATED!</b>\n\n` +
     `🔗 <b>Marketplace:</b> ${marketplace}\n` +
     `🆔 <b>Product ID:</b> <code>${productId}</code>\n` +
     `📎 <b>URL:</b> ${shortUrl}\n\n` +
-    `⚡ <i>ReviewPulse is analyzing this product now...</i>\n` +
+    `💰 <b>Price Monitor:</b> <i>24/7 live tracking active! Jaise hi price drop ya hike hoga, turant alert aayega.</i>\n` +
     `🌐 <i>Source: reviewpulse-peach.vercel.app</i>`
   );
 }
 
-/** Call when user uploads a dataset file on the website. */
-export function notifyDatasetUploaded(filename: string, rowCount: number): void {
-  tgPost(
-    `📁 <b>DATASET UPLOADED via ReviewPulse Website!</b>\n\n` +
-    `📊 <b>File:</b> <code>${filename}</code>\n` +
-    `📋 <b>Detected Rows:</b> <b>${rowCount.toLocaleString('en-IN')}</b>\n\n` +
-    `🧠 <i>ReviewPulse NLP is processing sentiment & ratings...</i>\n` +
-    `🌐 <i>Source: reviewpulse-peach.vercel.app</i>`
-  );
+/** Dataset notifications disabled — focus strictly on price tracking alerts */
+export function notifyDatasetUploaded(_filename: string, _rowCount: number): void {
+  // No-op: only price tracking notifications kept active
 }
 
-/** Call when dataset import completes successfully on the website. */
-export function notifyDatasetImported(filename: string, rowCount: number): void {
-  tgPost(
-    `✅ <b>DATASET IMPORT COMPLETE!</b>\n\n` +
-    `📁 <b>File:</b> <code>${filename}</code>\n` +
-    `📊 <b>Rows Processed:</b> <b>${rowCount.toLocaleString('en-IN')}</b>\n` +
-    `📈 <b>Status:</b> Reviews now active in workspace library\n\n` +
-    `⚡ <i>ReviewPulse Neural Engine — reviewpulse-peach.vercel.app</i>`
-  );
+export function notifyDatasetImported(_filename: string, _rowCount: number): void {
+  // No-op: only price tracking notifications kept active
 }
