@@ -26,8 +26,8 @@ interface VantaBackgroundProps {
  */
 export default function VantaBackground({
   className = '',
-  particleCount = 65,
-  maxDistance = 175,
+  particleCount = 85,
+  maxDistance = 190,
   mouseRepulsion = true,
 }: VantaBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -45,35 +45,35 @@ export default function VantaBackground({
     let width = (canvas.width = container.clientWidth);
     let height = (canvas.height = container.clientHeight);
 
-    let mouseX = width / 2;
-    let mouseY = height / 2;
-    let targetMouseX = width / 2;
-    let targetMouseY = height / 2;
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
     let isHovered = false;
     let isVisible = true;
     let animFrameId: number;
 
     const colors = [
-      'rgba(191, 137, 255, ', // Primary neon lavender
-      'rgba(125, 45, 225, ',  // Deep action violet
-      'rgba(224, 99, 239, ',  // Magenta pulse
-      'rgba(70, 221, 189, ',  // Emerald cyan
-      'rgba(135, 187, 255, ', // Electric blue
+      'rgba(192, 132, 252, ', // Neon lavender
+      'rgba(147, 51, 234, ',  // Electric violet
+      'rgba(244, 114, 182, ', // Hot magenta
+      'rgba(45, 212, 191, ',  // Radiant turquoise
+      'rgba(96, 165, 250, ',  // Electric cyan/blue
     ];
 
-    // Initialize 3D points
+    // Initialize 3D points with balanced density
     const points: VantaPoint[] = [];
-    const count = Math.min(particleCount, Math.floor((width * height) / 14000));
+    const count = Math.max(65, Math.min(particleCount, Math.floor((width * height) / 9500)));
 
     for (let i = 0; i < count; i++) {
       points.push({
-        x: (Math.random() - 0.5) * width * 1.3,
-        y: (Math.random() - 0.5) * height * 1.3,
-        z: Math.random() * 450 - 225,
-        vx: (Math.random() - 0.5) * 0.55,
-        vy: (Math.random() - 0.5) * 0.55,
-        vz: (Math.random() - 0.5) * 0.4,
-        baseRadius: Math.random() * 2 + 1.8,
+        x: (Math.random() - 0.5) * width * 1.25,
+        y: (Math.random() - 0.5) * height * 1.25,
+        z: Math.random() * 400 - 200,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        vz: (Math.random() - 0.5) * 0.35,
+        baseRadius: Math.random() * 1.8 + 2.2,
         color: colors[i % colors.length],
       });
     }
@@ -120,26 +120,27 @@ export default function VantaBackground({
       ctx.clearRect(0, 0, width, height);
 
       // Smooth mouse interpolation
-      mouseX += (targetMouseX - mouseX) * 0.06;
-      mouseY += (targetMouseY - mouseY) * 0.06;
+      mouseX += (targetMouseX - mouseX) * 0.07;
+      mouseY += (targetMouseY - mouseY) * 0.07;
 
       const mRealX = mouseX + width / 2;
       const mRealY = mouseY + height / 2;
 
-      // Interactive cursor glow wave in background
+      // Vivid interactive cursor energy wave
       if (isHovered) {
-        const aura = ctx.createRadialGradient(mRealX, mRealY, 0, mRealX, mRealY, 180);
-        aura.addColorStop(0, 'rgba(191, 137, 255, 0.16)');
-        aura.addColorStop(0.4, 'rgba(125, 45, 225, 0.07)');
+        const aura = ctx.createRadialGradient(mRealX, mRealY, 0, mRealX, mRealY, 220);
+        aura.addColorStop(0, 'rgba(192, 132, 252, 0.24)');
+        aura.addColorStop(0.35, 'rgba(147, 51, 234, 0.12)');
+        aura.addColorStop(0.7, 'rgba(45, 212, 191, 0.05)');
         aura.addColorStop(1, 'rgba(10, 7, 17, 0)');
         ctx.fillStyle = aura;
         ctx.beginPath();
-        ctx.arc(mRealX, mRealY, 180, 0, Math.PI * 2);
+        ctx.arc(mRealX, mRealY, 220, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      const tiltX = (mouseY / height) * 0.28;
-      const tiltY = (mouseX / width) * 0.28;
+      const tiltX = (mouseY / height) * 0.24;
+      const tiltY = (mouseX / width) * 0.24;
       const cosX = Math.cos(tiltX);
       const sinX = Math.sin(tiltX);
       const cosY = Math.cos(tiltY);
@@ -157,14 +158,14 @@ export default function VantaBackground({
         p.z += p.vz;
 
         // Toroidal boundary wrap
-        const boundX = (width * 1.3) / 2;
-        const boundY = (height * 1.3) / 2;
+        const boundX = (width * 1.25) / 2;
+        const boundY = (height * 1.25) / 2;
         if (p.x < -boundX) p.x = boundX;
         if (p.x > boundX) p.x = -boundX;
         if (p.y < -boundY) p.y = boundY;
         if (p.y > boundY) p.y = -boundY;
-        if (p.z < -225) p.z = 225;
-        if (p.z > 225) p.z = -225;
+        if (p.z < -200) p.z = 200;
+        if (p.z > 200) p.z = -200;
 
         // 3D rotation based on mouse tilt
         const rotY_x = p.x * cosY + p.z * sinY;
@@ -180,23 +181,47 @@ export default function VantaBackground({
         let px = rotY_x * scale + width / 2;
         let py = rotX_y * scale + height / 2;
 
-        // Interactive cursor repulsion
+        // Dynamic cursor repulsion wave
         if (mouseRepulsion && isHovered) {
           const dx = px - mRealX;
           const dy = py - mRealY;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 160 && dist > 0) {
-            const force = (1 - dist / 160) * 26;
+          if (dist < 180 && dist > 0) {
+            const force = (1 - dist / 180) * 32;
             px += (dx / dist) * force;
             py += (dy / dist) * force;
           }
         }
 
-        const alpha = Math.max(0.25, Math.min(0.95, (scale - 0.4) * 1.35));
+        const alpha = Math.max(0.4, Math.min(1, (scale - 0.45) * 1.5));
         projected.push({ px, py, scale, alpha, color: p.color, radius: p.baseRadius * scale });
       }
 
-      // Draw Vanta-style connecting filaments
+      // Draw subtle holographic 3D triangular wireframe faces
+      for (let i = 0; i < projected.length; i++) {
+        const p1 = projected[i];
+        for (let j = i + 1; j < projected.length; j++) {
+          const p2 = projected[j];
+          const d12 = Math.hypot(p1.px - p2.px, p1.py - p2.py);
+          if (d12 > maxDistance * 0.7) continue;
+          for (let k = j + 1; k < projected.length; k++) {
+            const p3 = projected[k];
+            const d23 = Math.hypot(p2.px - p3.px, p2.py - p3.py);
+            const d31 = Math.hypot(p3.px - p1.px, p3.py - p1.py);
+            if (d23 < maxDistance * 0.7 && d31 < maxDistance * 0.7) {
+              ctx.beginPath();
+              ctx.moveTo(p1.px, p1.py);
+              ctx.lineTo(p2.px, p2.py);
+              ctx.lineTo(p3.px, p3.py);
+              ctx.closePath();
+              ctx.fillStyle = 'rgba(168, 85, 247, 0.045)';
+              ctx.fill();
+            }
+          }
+        }
+      }
+
+      // Draw luminous connecting filaments
       for (let i = 0; i < projected.length; i++) {
         const p1 = projected[i];
         for (let j = i + 1; j < projected.length; j++) {
@@ -206,31 +231,31 @@ export default function VantaBackground({
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < maxDistance) {
-            const lineAlpha = (1 - dist / maxDistance) * 0.45 * Math.min(p1.alpha, p2.alpha);
+            const lineAlpha = (1 - dist / maxDistance) * 0.65 * Math.min(p1.alpha, p2.alpha);
             ctx.beginPath();
             ctx.moveTo(p1.px, p1.py);
             ctx.lineTo(p2.px, p2.py);
-            ctx.strokeStyle = `rgba(180, 140, 255, ${lineAlpha})`;
-            ctx.lineWidth = Math.max(0.7, (1 - dist / maxDistance) * 1.8);
+            ctx.strokeStyle = `rgba(192, 132, 252, ${lineAlpha})`;
+            ctx.lineWidth = Math.max(0.75, (1 - dist / maxDistance) * 2.2);
             ctx.stroke();
           }
         }
       }
 
-      // Draw glowing nodes
+      // Draw glowing nodes with vibrant outer corolla
       for (let i = 0; i < projected.length; i++) {
         const { px, py, alpha, color, radius } = projected[i];
 
-        // Outer glow
+        // Radiant outer glowing halo
         ctx.beginPath();
-        ctx.arc(px, py, radius * 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = `${color}${alpha * 0.25})`;
+        ctx.arc(px, py, radius * 3.4, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}${alpha * 0.35})`;
         ctx.fill();
 
-        // Inner solid core
+        // Solid luminous core
         ctx.beginPath();
-        ctx.arc(px, py, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `${color}${alpha})`;
+        ctx.arc(px, py, Math.max(1.8, radius), 0, Math.PI * 2);
+        ctx.fillStyle = `${color}${Math.min(1, alpha * 1.25)})`;
         ctx.fill();
       }
 

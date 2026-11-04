@@ -55,7 +55,7 @@ export function StoryNav() {
   return (
     <nav
       aria-label="Story chapter navigation"
-      className="fixed right-5 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-end gap-3.5 pointer-events-auto select-none"
+      className="fixed right-5 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-end gap-3.5 pointer-events-auto select-none"
     >
       <div className="flex flex-col items-center gap-3 p-2 rounded-full bg-rp-surface/75 border border-rp-border/80 backdrop-blur-md shadow-2xl">
         {CHAPTERS.map((ch) => {

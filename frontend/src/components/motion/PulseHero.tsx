@@ -63,60 +63,77 @@ export default function PulseHero() {
 
       node.dataset.scrollReady = 'true';
       const isSmallScreen = () => window.matchMedia('(max-width: 639px)').matches;
-      // Keep the product pulse visible before scrolling; the timeline builds the
-      // surrounding analytics story around this persistent central mark.
-      gsap.set('[data-heartbeat]', { strokeDasharray: 1, strokeDashoffset: 0, autoAlpha: .82 });
-      gsap.set('[data-heartlight]', { autoAlpha: .3 });
-      gsap.set('[data-aura]', { autoAlpha: .85 });
+
+      // Initial visual setup for rapid orchestral entrance
+      gsap.set('[data-heartbeat]', { strokeDasharray: 1, strokeDashoffset: 0, autoAlpha: 0.88 });
+      gsap.set('[data-heartlight]', { autoAlpha: 0.35 });
+      gsap.set('[data-aura]', { autoAlpha: 0.9 });
       gsap.set('[data-bag]', { autoAlpha: 1 });
-      gsap.set('[data-scene-copy]', {
-        autoAlpha: 1,
-      });
-      gsap.set('[data-signal], [data-panel]', { autoAlpha: 0 });
-      gsap.set('[data-core]', {
-        attr: { transform: () => `translate(400 325) scale(${isSmallScreen() ? 1.45 : 1.25}) translate(-400 -325)` },
-      });
-      gsap.set('[data-panel]', { y: () => isSmallScreen() ? 9 : 18, scale: .95, filter: 'blur(2px)', transformOrigin: 'center center' });
+      gsap.set('[data-scene-copy]', { autoAlpha: 1, attr: { transform: 'translate(0 0)' } });
+      gsap.set('[data-signal]', { autoAlpha: 0 });
       gsap.set('[data-signal-path]', { strokeDasharray: 1, strokeDashoffset: 1 });
-      gsap.set('[data-scene-copy]', { attr: { transform: () => `translate(0 ${isSmallScreen() ? 84 : 50})` } });
-
-      const timeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      timeline
-        .to('[data-heartbeat]', { autoAlpha: 1, duration: .5, ease: 'power2.out' }, 0)
-        .to('[data-heartlight]', { autoAlpha: .5, duration: .45 }, .18)
-        .to('[data-aura]', { autoAlpha: 1, duration: .9 }, .12)
-        .to('[data-core]', { attr: { transform: `translate(400 325) scale(${isSmallScreen() ? 1.2 : 1.1}) translate(-400 -325)` }, duration: .9 }, .3)
-        .to('[data-scene-copy]', { autoAlpha: 1, attr: { transform: 'translate(0 0)' }, duration: .9 }, .3);
-
-      PANEL_SEQUENCE.forEach(({ panel, at }) => {
-        timeline
-          .to(`[data-signal="${panel}"]`, { autoAlpha: .72, duration: .15 }, at)
-          .to(`[data-signal-path="${panel}"]`, { strokeDashoffset: 0, duration: .62, ease: 'power2.out' }, at)
-          .to(`[data-panel="${panel}"]`, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            filter: 'blur(0px)',
-            duration: .56,
-            ease: 'power3.out',
-          }, at + .24);
+      gsap.set('[data-panel]', {
+        autoAlpha: 0,
+        y: isSmallScreen() ? 8 : 16,
+        scale: 0.92,
+        filter: 'blur(3px)',
+        transformOrigin: 'center center',
       });
 
-      timeline.to('[data-scene-copy]', { autoAlpha: 1, duration: .45 }, 2.32);
+      // Orchestrated intro choreography: plays immediately on page arrival
+      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      intro
+        .to('[data-heartbeat]', { autoAlpha: 1, duration: 0.4 }, 0)
+        .to('[data-heartlight]', { autoAlpha: 0.6, duration: 0.4 }, 0.1)
+        .to('[data-aura]', { autoAlpha: 1, duration: 0.6 }, 0.1)
+        .fromTo(
+          '[data-core]',
+          { attr: { transform: `translate(400 325) scale(${isSmallScreen() ? 1.25 : 1.15}) translate(-400 -325)` } },
+          { attr: { transform: 'translate(400 325) scale(1) translate(-400 -325)' }, duration: 0.75, ease: 'back.out(1.3)' },
+          0.1
+        );
+
+      PANEL_SEQUENCE.forEach(({ panel }, idx) => {
+        const at = 0.22 + idx * 0.09;
+        intro
+          .to(`[data-signal="${panel}"]`, { autoAlpha: 0.85, duration: 0.18 }, at)
+          .to(`[data-signal-path="${panel}"]`, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.out' }, at)
+          .to(
+            `[data-panel="${panel}"]`,
+            {
+              autoAlpha: 1,
+              y: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+              duration: 0.5,
+              ease: 'back.out(1.25)',
+            },
+            at + 0.05
+          );
+      });
+
+      // Smooth scroll parallax exit into Chapter 2 (unpinned, responsive)
       const hero = node.closest<HTMLElement>('.rp-cinematic-hero');
-      trigger.current = ScrollTrigger.create({
-        trigger: hero ?? node,
-        animation: timeline,
-        pin: hero ?? node,
-        pinSpacing: true,
-        start: 'top top+=76',
-        end: () => `+=${Math.round(window.innerHeight * (isSmallScreen() ? 1.15 : 1.6))}`,
-        scrub: .5,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      });
-      if (!enabled) timeline.progress(1);
+      if (hero) {
+        trigger.current = ScrollTrigger.create({
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.5,
+          onUpdate: (self) => {
+            if (node) {
+              const p = self.progress;
+              gsap.set(node, {
+                y: p * 50,
+                opacity: 1 - p * 0.35,
+                scale: 1 - p * 0.06,
+              });
+            }
+          },
+        });
+      }
     }, node);
+
     return () => {
       trigger.current?.kill(true);
       trigger.current = null;

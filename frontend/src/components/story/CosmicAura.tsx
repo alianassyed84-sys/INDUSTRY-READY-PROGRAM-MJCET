@@ -43,16 +43,16 @@ export function CosmicAura() {
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 pointer-events-none overflow-hidden select-none -z-10"
+      className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
     >
       {/* Upper Violet Celestial Cloud */}
-      <div className="absolute -top-[20%] left-[10%] w-[60vw] h-[60vh] rounded-full bg-rp-action/12 blur-[140px] animate-cosmic-drift" />
+      <div className="absolute -top-[15%] left-[5%] w-[65vw] h-[65vh] rounded-full bg-rp-action/20 blur-[130px] animate-cosmic-drift" />
 
       {/* Middle Magenta Pulse Nebula */}
-      <div className="absolute top-[40%] -right-[15%] w-[55vw] h-[55vh] rounded-full bg-rp-magenta/10 blur-[150px] animate-cosmic-drift-reverse" />
+      <div className="absolute top-[35%] -right-[10%] w-[55vw] h-[55vh] rounded-full bg-rp-magenta/16 blur-[140px] animate-cosmic-drift-reverse" />
 
       {/* Lower Cyan Deep Space Glow */}
-      <div className="absolute -bottom-[10%] left-[20%] w-[50vw] h-[50vh] rounded-full bg-cyan-500/8 blur-[160px] animate-cosmic-drift" />
+      <div className="absolute -bottom-[10%] left-[15%] w-[55vw] h-[55vh] rounded-full bg-cyan-500/12 blur-[150px] animate-cosmic-drift" />
     </div>
   );
 }
