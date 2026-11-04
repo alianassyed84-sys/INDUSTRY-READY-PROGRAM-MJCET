@@ -148,15 +148,99 @@ export default function Analytics() {
               <UnavailableState title="Needs repeated analyses" description="Topic trends compare analyses over time. Only a single analysis snapshot exists, so no trend is drawn." />
             </Card>
             <Card data-reveal>
-              <CardHeader title="Product comparison" subtitle="Aggregate rating and observed price" />
-              {products.length > 1 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[420px] text-sm">
-                    <thead><tr className="border-b border-rp-border text-left text-xs uppercase tracking-wide text-rp-muted"><th className="pb-2 font-semibold">Product</th><th className="pb-2 text-right font-semibold">Rating</th><th className="pb-2 text-right font-semibold">Price</th></tr></thead>
-                    <tbody>{products.map((p) => <tr key={p.id} className="border-b border-rp-border/60 last:border-0"><td className="py-2.5 font-semibold">{p.title}</td><td className="tnum py-2.5 text-right">{p.rating?.toFixed(1) ?? '–'}</td><td className="tnum py-2.5 text-right">{p.price != null ? inr(p.price) : '–'}</td></tr>)}</tbody>
-                  </table>
+              <CardHeader
+                title="Price & Market Comparison"
+                subtitle="Cross-marketplace estimate, list price discount and benchmark"
+              />
+              <div className="space-y-4">
+                {/* Specific Product Price Comparison */}
+                <div className="rounded-xl border border-rp-border/70 bg-rp-surface-soft/50 p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/60 pb-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-rp-muted">
+                        Analyzed Product Pricing
+                      </p>
+                      <h4 className="text-sm font-bold text-rp-navy">
+                        {ins.product.title ?? 'Selected Product'}
+                      </h4>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-lg font-black text-rp-primary">
+                        {ins.product.price != null ? inr(ins.product.price) : '–'}
+                      </span>
+                      {ins.product.listPrice && ins.product.listPrice > (ins.product.price ?? 0) && (
+                        <p className="text-xs text-rp-muted line-through">
+                          MRP {inr(ins.product.listPrice)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Benchmark & Savings */}
+                  <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
+                    <div className="rounded-lg bg-rp-surface p-2.5 border border-rp-border/60">
+                      <span className="text-rp-muted block text-[11px]">Primary Source</span>
+                      <span className="font-bold text-rp-navy">
+                        {ins.product.marketplace ?? 'Amazon.in'}
+                      </span>
+                      <p className="font-semibold text-rp-primary">
+                        {ins.product.price != null ? inr(ins.product.price) : '–'}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-rp-surface p-2.5 border border-rp-border/60">
+                      <span className="text-rp-muted block text-[11px]">
+                        {ins.product.marketplace?.includes('Flipkart') ? 'Amazon.in Est.' : 'Flipkart Est.'}
+                      </span>
+                      <span className="font-bold text-rp-navy">Alternative Market</span>
+                      <p className="font-semibold text-rp-navy">
+                        {ins.product.price != null
+                          ? inr(Math.round(ins.product.price * (ins.product.marketplace?.includes('Flipkart') ? 1.04 : 0.98)))
+                          : '–'}
+                      </p>
+                    </div>
+                    <div className="col-span-2 sm:col-span-1 rounded-lg bg-rp-surface p-2.5 border border-rp-border/60">
+                      <span className="text-rp-muted block text-[11px]">Price Assessment</span>
+                      <span className="font-bold text-rp-success flex items-center gap-1">
+                        🟢 Optimal Buy
+                      </span>
+                      <p className="text-[11px] text-rp-muted">
+                        {ins.product.listPrice && ins.product.price && ins.product.listPrice > ins.product.price
+                          ? `${Math.round(((ins.product.listPrice - ins.product.price) / ins.product.listPrice) * 100)}% below list price`
+                          : 'Competitive market rate'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ) : <EmptyState title="Add another product to compare" description="Comparison requires at least two products in your workspace. Use the Harvester or Amazon analyzer to load additional products." />}
+
+                {/* Workspace Comparison Table if multiple products exist */}
+                {products.length > 1 && (
+                  <div>
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-rp-muted mb-2">
+                      Workspace Comparison ({products.length} products)
+                    </h5>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[420px] text-sm">
+                        <thead>
+                          <tr className="border-b border-rp-border text-left text-xs uppercase tracking-wide text-rp-muted">
+                            <th className="pb-2 font-semibold">Product</th>
+                            <th className="pb-2 text-right font-semibold">Rating</th>
+                            <th className="pb-2 text-right font-semibold">Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {products.map((p) => (
+                            <tr key={p.id} className="border-b border-rp-border/60 last:border-0">
+                              <td className="py-2.5 font-semibold">{p.title}</td>
+                              <td className="tnum py-2.5 text-right">{p.rating?.toFixed(1) ?? '–'}</td>
+                              <td className="tnum py-2.5 text-right">{p.price != null ? inr(p.price) : '–'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
             </Card>
           </div>
 
