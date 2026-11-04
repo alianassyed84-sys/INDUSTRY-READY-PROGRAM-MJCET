@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UploadCloud, Sparkles, MessageSquare, TrendingUp } from 'lucide-react';
 import { useMotion } from '@/hooks/useMotion';
 import PulseHero from '@/components/motion/PulseHero';
+import InteractiveCinemaVideo from '@/components/landing/InteractiveCinemaVideo';
 import FeatureGallery from '@/components/motion/FeatureGallery';
 import AnalysisPreview from '@/components/motion/AnalysisPreview';
 import SignalJourney from '@/components/motion/SignalJourney';
@@ -175,6 +176,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* 2. Interactive Cinema Video Engine */}
+      <InteractiveCinemaVideo />
 
       {/* 6. Feature cards */}
       <FeatureGallery />

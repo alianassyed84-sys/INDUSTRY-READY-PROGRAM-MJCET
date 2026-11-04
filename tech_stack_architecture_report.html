@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ReviewPulse - Complete Tech Stack & Architectural Journey</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm 12mm 14mm 12mm;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background-color: #ffffff;
+      line-height: 1.5;
+      font-size: 13px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #334155;
+    }
+    .header-content h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .header-content p {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-primary {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    .badge-subtle {
+      background-color: #e2e8f0;
+      color: #334155;
+    }
+    .badge-success {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+    .badge-warning {
+      background-color: #fef3c7;
+      color: #b45309;
+    }
+
+    /* Section styling */
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 28px 0 14px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 18px;
+      background: #2563eb;
+      border-radius: 2px;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    th {
+      background-color: #f8fafc;
+      color: #334155;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) td {
+      background-color: #fafbfc;
+    }
+    .tech-name {
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .tech-version {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    /* Cards */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    /* Safar Steps Styling */
+    .step-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #2563eb;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      page-break-inside: avoid;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .step-num {
+      background: #2563eb;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .step-component {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #334155;
+    }
+    .step-def {
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .step-details {
+      color: #475569;
+      font-size: 11.5px;
+      line-height: 1.45;
+    }
+
+    /* Diagram wrapper */
+    .diagram-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    .diagram-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    /* Print specifics */
+    @media print {
+      body {
+        font-size: 12px;
+        color: #000000;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .header {
+        border: 1px solid #94a3b8;
+        background: #0f172a !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .badge, .step-num, th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Document Header -->
+  <div class="header">
+    <div class="header-content">
+      <h1>ReviewPulse - System Architecture & Tech Stack</h1>
+      <p>MJCET Industry-Ready Program (IRP) | Comprehensive Technical Blueprint</p>
+    </div>
+    <div>
+      <span class="badge badge-primary">Production V2.0</span>
+    </div>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="card" style="background-color: #f8fafc; border-color: #cbd5e1; margin-bottom: 24px;">
+    <div class="card-title" style="color: #1e3a8a; margin-bottom: 6px;">Executive Architectural Purpose</div>
+    <p style="color: #334155; font-size: 12px; line-height: 1.6;">
+      <strong>ReviewPulse</strong> is a production-grade e-commerce intelligence application. It accepts raw, unformatted Amazon.in and Flipkart URLs, autonomously extracts live product specifications, verified customer star ratings, authentic studio photography, and purchaser reviews, and applies an asynchronous multi-stage Natural Language Processing (NLP) pipeline (VADER Sentiment, Aspect-Based Sentiment Analysis, TF-IDF Topic Extraction, Readability Scoring, and N-gram Language Detection) to generate high-fidelity competitive market analytics.
+    </p>
+  </div>
+
+  <!-- PART 1: TECH STACK MATRIX -->
+  <div class="section-title">Part 1: The Complete Tech Stack Deep Dive</div>
+  <p style="color: #64748b; font-size: 11.5px; margin-bottom: 12px;">
+    Every library and framework in the ReviewPulse codebase, explaining its industry standard definition alongside its exact functional responsibility in our application.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 22%;">Technology & Version</th>
+        <th style="width: 38%;">Industry Standard Definition</th>
+        <th style="width: 40%;">Exact Functional Role in ReviewPulse</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Frontend -->
+      <tr>
+        <td class="tech-name">
+          React
+          <span class="tech-version">v18.3.1 (Frontend Core)</span>
+        </td>
+        <td>A declarative, component-based JavaScript UI library for building scalable Single Page Applications with efficient virtual DOM reconciliation.</td>
+        <td>Renders the entire web application. Manages workspace tab switching (Overview, Reviews, Sentiment, Topics, Price), interactive dialogs, and dynamic layout shells.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          TypeScript
+          <span class="tech-version">v5.9.3 (Language)</span>
+        </td>
+        <td>A typed superset of JavaScript providing compile-time type validation, code intelligence, and predictable refactoring.</td>
+        <td>Enforces strict data model contracts (<code>Product</code>, <code>Review</code>, <code>Insights</code>, <code>PriceSnapshot</code>). Ensures zero undefined property errors when rendering harvested data.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Vite
+          <span class="tech-version">v5.4.21 (Build System)</span>
+        </td>
+        <td>A next-generation frontend tooling bundler utilizing native ES Modules (ESM) and Rollup for sub-second HMR and tree-shaken static production bundles.</td>
+        <td>Compiles TypeScript and JSX into production bundles (<code>dist/</code>) in ~16 seconds. Injects client environment variables (<code>VITE_API_BASE_URL</code>).</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Tailwind CSS
+          <span class="tech-version">v3.4.0 (Design System)</span>
+        </td>
+        <td>A utility-first CSS framework enabling rapid, highly maintainable UI development directly within component markup.</td>
+        <td>Implements the custom ReviewPulse theme tokens (<code>rp-navy</code>, <code>rp-primary</code>, <code>rp-surface</code>, <code>rp-border</code>), glassmorphic topbars, responsive grid layouts, and badge styling.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          TanStack React Query
+          <span class="tech-version">v5.104.5 (Server State)</span>
+        </td>
+        <td>An asynchronous data-fetching and caching manager for web clients with background synchronization and deduplication.</td>
+        <td>Powers <code>useProductContext</code>. Caches product lists, sentiment insights, and reviews with a 60-second stale window to eliminate redundant backend queries.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Recharts
+          <span class="tech-version">v3.10.1 (Data Viz)</span>
+        </td>
+        <td>A composable, declarative charting library built with React components and vector SVG primitives.</td>
+        <td>Renders responsive, high-contrast analytics visuals: Sentiment Polarity Bar Charts, Star Rating Distribution Gauges, and Historical Price Observation lines.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          GSAP
+          <span class="tech-version">v3.12.0 (Animation)</span>
+        </td>
+        <td>GreenSock Animation Platform: the industry standard high-performance JavaScript physics and UI animation library.</td>
+        <td>Drives the cinematic landing hero experience (<code>LandingScene.tsx</code>), smoothly animating review pulse particles and typography upon initial load.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Lucide React
+          <span class="tech-version">v1.61.0 (Icons)</span>
+        </td>
+        <td>An open-source, tree-shakeable icon toolkit providing consistent modern SVG glyphs.</td>
+        <td>Supplies semantic visual cues throughout the interface: Star icons, Verified badges, Trend arrows, Shopping bags, and Harvester status checkmarks.</td>
+      </tr>
+
+      <!-- Backend -->
+      <tr>
+        <td class="tech-name">
+          FastAPI
+          <span class="tech-version">v0.143.3 (Backend Framework)</span>
+        </td>
+        <td>A modern, high-performance web framework for building REST APIs with Python 3.10+ based on standard OpenAPI and type hints.</td>
+        <td>Defines all asynchronous REST endpoints (<code>POST /analyze-url</code>, <code>GET /products</code>, <code>GET /health</code>). Handles route dependency injection and OpenAPI docs.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Uvicorn
+          <span class="tech-version">v0.54.0 (ASGI Server)</span>
+        </td>
+        <td>A lightning-fast ASGI (Asynchronous Server Gateway Interface) web server implementation for Python powered by <code>uvloop</code>.</td>
+        <td>Serves the FastAPI application concurrently, executing asynchronous request workers to handle scraping and analytics jobs without I/O blocking.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          Pydantic v2
+          <span class="tech-version">v2.14.1 (Validation)</span>
+        </td>
+        <td>Data validation and settings management using Python type hints, powered by a high-speed Rust core engine.</td>
+        <td>Parses, validates, and serializes request bodies and response envelopes. Guarantees that prices, ratings, and URLs strictly adhere to API schemas.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          SQLAlchemy
+          <span class="tech-version">v2.1.5 (Async ORM)</span>
+        </td>
+        <td>The definitive Python Object Relational Mapper and SQL toolkit offering native asynchronous execution.</td>
+        <td>Abstracts database interactions across models (<code>Product</code>, <code>Review</code>, <code>User</code>, <code>PriceSnapshot</code>). Manages transactions, connection pooling, and relational joins.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          PostgreSQL / asyncpg
+          <span class="tech-version">v0.32.0 (Production DB)</span>
+        </td>
+        <td>An enterprise open-source relational database coupled with the fastest asynchronous PostgreSQL driver for Python.</td>
+        <td>Provides durable ACID persistence on Render in production. Stores catalog entities, timestamped price observations, and user reviews.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          SQLite / aiosqlite
+          <span class="tech-version">v0.22.1 (Dev/Test DB)</span>
+        </td>
+        <td>A lightweight, serverless SQL database engine with asynchronous Python asyncio integration.</td>
+        <td>Enables zero-setup local development and in-memory test databases (<code>sqlite+aiosqlite:///:memory:</code>) allowing 419+ unit tests to execute in seconds.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          PyJWT & Cryptography
+          <span class="tech-version">v2.15.1 (Auth Security)</span>
+        </td>
+        <td>RFC 7519 compliant JSON Web Token verification with cryptographic public-key and symmetric signature checks.</td>
+        <td>Validates incoming Bearer tokens from Clerk authentication. Verifies token signatures, expiry (<code>exp</code>), and admin roles before authorizing admin endpoints.</td>
+      </tr>
+      <tr>
+        <td class="tech-name">
+          VADER / Custom ABSA
+          <span class="tech-version">Custom (NLP Engine)</span>
+        </td>
+        <td>Rule-based and lexicon sentiment analysis optimized for consumer reviews and social commentary.</td>
+        <td>Evaluates review text polarity (-1.0 to +1.0) and performs Aspect-Based Sentiment Analysis (ABSA) for features (Battery, Display, Camera, Build Quality).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- PART 2: URL SAY OUTPUT KA SAFAR -->
+  <div class="section-title">Part 2: "URL say Output ka Safar" (The 10-Step Journey)</div>
+  <p style="color: #64748b; font-size: 11.5px; margin-bottom: 16px;">
+    An end-to-end breakdown of how a raw Amazon or Flipkart product link is ingested, verified, scraped, analyzed, and visualized on the dashboard.
+  </p>
+
+  <!-- Step 1 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 1</span>
+        <span class="step-title">User Ingestion & Instant Client-Side Pre-Validation</span>
+      </div>
+      <span class="step-component">frontend/src/components/shared/UrlAnalyzer.tsx</span>
+    </div>
+    <div class="step-def">One-Line: Captures user input, cleans whitespace, and checks URL syntax before network transmission.</div>
+    <div class="step-details">
+      The user pastes an e-commerce link (e.g. <code>https://www.flipkart.com/...</code> or <code>https://www.amazon.in/...</code>) into the search bar. The client component checks that the string starts with a valid scheme (or prepends <code>https://</code>), verifies the domain, and starts the animated progress stepper.
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 2</span>
+        <span class="step-title">URL Normalization & Identifier Extraction (PID / ASIN)</span>
+      </div>
+      <span class="step-component">frontend/src/lib/flipkart.ts & amazon.ts</span>
+    </div>
+    <div class="step-def">One-Line: Resolves missing parameters and extracts canonical 10-char ASINs or 6-32 char Flipkart PIDs.</div>
+    <div class="step-details">
+      If a Flipkart URL uses path routing (<code>/p/itm...</code>) without an explicit query parameter, <code>normalizeFlipkartUrl()</code> extracts the identifier and formats it canonically (<code>?pid=...</code>). Similarly, Amazon URLs are parsed to extract the 10-character alphanumeric ASIN (e.g. <code>B0H2FD3L97</code>).
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 3</span>
+        <span class="step-title">Asynchronous API Request Dispatch & Observability</span>
+      </div>
+      <span class="step-component">frontend/src/lib/api.ts (api.analyzeUrl)</span>
+    </div>
+    <div class="step-def">One-Line: Transmits an asynchronous HTTP POST request to the backend with tracking headers and auth.</div>
+    <div class="step-details">
+      The client creates an HTTP POST request targeting <code>/api/v1/harvester/analyze-url</code>. It injects a unique <code>X-Request-ID</code> header (e.g. <code>rp-1730740...</code>) for end-to-end tracing and attaches an <code>Authorization: Bearer</code> token.
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 4</span>
+        <span class="step-title">API Gateway Ingestion, Validation & Market Routing</span>
+      </div>
+      <span class="step-component">backend/app/api/v1/harvester.py (analyze_url)</span>
+    </div>
+    <div class="step-def">One-Line: Ingests the payload, checks Pydantic schemas, and routes to Amazon or Flipkart scrapers.</div>
+    <div class="step-details">
+      FastAPI receives the payload, validates it using <code>AnalyzeUrlRequest</code>, and detects whether the host is Flipkart or Amazon. It checks the database to see if the product has already been analyzed or needs live extraction.
+    </div>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 5</span>
+        <span class="step-title">Domain Security Whitelisting & Anti-Phishing Guard</span>
+      </div>
+      <span class="step-component">backend/app/services/harvester/flipkart_url.py</span>
+    </div>
+    <div class="step-def">One-Line: Rejects insecure HTTP schemes, embedded credentials, and off-domain URLs.</div>
+    <div class="step-details">
+      <code>validate_flipkart_url()</code> enforces strict security constraints: requires HTTPS, verifies that the hostname is in <code>ALLOWED_FLIPKART_HOSTNAMES</code>, rejects user/password authority strings, and ensures the PID is alphanumeric.
+    </div>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 6</span>
+        <span class="step-title">Live Scraping, Anti-Redirect Shield & Photo Extraction</span>
+      </div>
+      <span class="step-component">backend/app/services/harvester/flipkart_live_scraper.py</span>
+    </div>
+    <div class="step-def">One-Line: Fetches live HTML, prevents sponsored ad redirects, and extracts 832x832 CDN photos.</div>
+    <div class="step-details">
+      The live scraper fetches the product page using desktop browser headers. It executes <code>is_live_page_relevant()</code> to verify that Flipkart hasn't redirected an expired Motorola link to an iPhone sponsored ad. It parses the real selling price, original M.R.P., star rating, customer reviews, and upgrades CDN thumbnails to crisp <code>832/832</code> studio photography.
+    </div>
+  </div>
+
+  <!-- Step 7 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 7</span>
+        <span class="step-title">Atomic Database Upsert & Price Snapshot Logging</span>
+      </div>
+      <span class="step-component">backend/app/services/harvester/importer.py & price_history.py</span>
+    </div>
+    <div class="step-def">One-Line: Persists product details, reviews, and a timestamped price snapshot into PostgreSQL.</div>
+    <div class="step-details">
+      The backend creates an atomic database transaction: upserts the <code>Product</code> record with updated prices and image links, creates <code>User</code> and <code>Review</code> records, and logs a new <code>PriceSnapshot</code> row to build the product's historical price trend.
+    </div>
+  </div>
+
+  <!-- Step 8 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 8</span>
+        <span class="step-title">NLP Sentiment, ABSA & Linguistic Computation Pipeline</span>
+      </div>
+      <span class="step-component">backend/app/services/sentiment.py & topics.py</span>
+    </div>
+    <div class="step-def">One-Line: Analyzes review text to compute sentiment polarity, aspect chips, and topic keywords.</div>
+    <div class="step-details">
+      Customer reviews are fed into the NLP engine: VADER polarity scoring categorizes reviews into Positive/Neutral/Negative buckets, Aspect-Based Sentiment Analysis assigns polarity to features (Battery, Display, Camera), and TF-IDF extracts the top n-gram keywords (e.g. "curved display", "battery backup").
+    </div>
+  </div>
+
+  <!-- Step 9 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 9</span>
+        <span class="step-title">Frontend State Merging & Context Synchronization</span>
+      </div>
+      <span class="step-component">frontend/src/hooks/useProduct.tsx & Analyze.tsx</span>
+    </div>
+    <div class="step-def">One-Line: Merges newly harvested product data into global state and navigates to the workspace.</div>
+    <div class="step-details">
+      Upon receiving the 200 OK response, <code>Analyze.tsx</code> calls <code>addProduct(result.product)</code>. The <code>ProductProvider</code> unshifts the new product into the active list, sets <code>productId = targetId</code>, and triggers navigation to <code>/products/:id/overview</code>.
+    </div>
+  </div>
+
+  <!-- Step 10 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div style="display: flex; align-items: center;">
+        <span class="step-num">STEP 10</span>
+        <span class="step-title">Multi-Tab Visual Intelligence Dashboard Rendering</span>
+      </div>
+      <span class="step-component">frontend/src/pages/Overview.tsx & ProductWorkspace.tsx</span>
+    </div>
+    <div class="step-def">One-Line: Renders the complete, polished product intelligence workspace with charts and quotes.</div>
+    <div class="step-details">
+      The Overview screen displays the 100% authentic product image (with <code>referrerPolicy="no-referrer"</code> and studio fallbacks), real selling price, star distribution bars, linguistic customer synthesis ("Customers say..."), aspect badges, and customer quote excerpts.
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- PART 3: ARCHITECTURE VISUALIZATION -->
+  <div class="section-title">Part 3: Complete Architecture & Data Flow Visuals</div>
+  <p style="color: #64748b; font-size: 11.5px; margin-bottom: 16px;">
+    System component architecture and data transformation lineage across ReviewPulse.
+  </p>
+
+  <div class="diagram-box">
+    <div class="diagram-title">System Component Architecture Diagram</div>
+    <svg width="100%" height="280" viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg" style="font-family: inherit;">
+      <!-- Client Box -->
+      <rect x="20" y="20" width="220" height="240" rx="8" fill="#f8fafc" stroke="#3b82f6" stroke-width="2"/>
+      <text x="130" y="45" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">CLIENT TIER (Vercel)</text>
+      <rect x="35" y="60" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="130" y="80" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">React 18 + Vite SPA</text>
+      <rect x="35" y="100" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="130" y="120" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">TanStack Query Caching</text>
+      <rect x="35" y="140" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="130" y="160" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">Recharts Visualizations</text>
+      <rect x="35" y="180" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="130" y="200" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">Tailwind CSS Design System</text>
+      <rect x="35" y="220" width="190" height="26" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+      <text x="130" y="237" font-size="10" font-weight="600" fill="#1d4ed8" text-anchor="middle">No-Referrer CDN Handler</text>
+
+      <!-- Arrow 1 -->
+      <path d="M 240 140 L 275 140" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="257" y="130" font-size="10" font-weight="700" fill="#2563eb" text-anchor="middle">HTTPS</text>
+
+      <!-- API Gateway -->
+      <rect x="280" y="20" width="220" height="240" rx="8" fill="#f8fafc" stroke="#10b981" stroke-width="2"/>
+      <text x="390" y="45" font-size="13" font-weight="700" fill="#065f46" text-anchor="middle">API & HARVESTER (Render)</text>
+      <rect x="295" y="60" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="390" y="80" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">FastAPI ASGI Server</text>
+      <rect x="295" y="100" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="390" y="120" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">PyJWT Auth Verification</text>
+      <rect x="295" y="140" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="390" y="160" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">Live Harvester (Flipkart/Amz)</text>
+      <rect x="295" y="180" width="190" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="390" y="200" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">Anti-Redirect Relevance Filter</text>
+      <rect x="295" y="220" width="190" height="26" rx="4" fill="#ecfdf5" stroke="#a7f3d0"/>
+      <text x="390" y="237" font-size="10" font-weight="600" fill="#047857" text-anchor="middle">832x832 Studio Image Sync</text>
+
+      <!-- Arrow 2 -->
+      <path d="M 500 140 L 535 140" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="517" y="130" font-size="10" font-weight="700" fill="#059669" text-anchor="middle">SQL/NLP</text>
+
+      <!-- Engine & Storage -->
+      <rect x="540" y="20" width="200" height="240" rx="8" fill="#f8fafc" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="640" y="45" font-size="13" font-weight="700" fill="#5b21b6" text-anchor="middle">ANALYTICS & PERSISTENCE</text>
+      <rect x="555" y="60" width="170" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="640" y="80" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">VADER Sentiment & ABSA</text>
+      <rect x="555" y="100" width="170" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="640" y="120" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">TF-IDF Topic Extractor</text>
+      <rect x="555" y="140" width="170" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="640" y="160" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">Readability & Language</text>
+      <rect x="555" y="180" width="170" height="32" rx="4" fill="#ffffff" stroke="#cbd5e1"/>
+      <text x="640" y="200" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">PostgreSQL / SQLAlchemy</text>
+      <rect x="555" y="220" width="170" height="26" rx="4" fill="#f5f3ff" stroke="#ddd6fe"/>
+      <text x="640" y="237" font-size="10" font-weight="600" fill="#6d28d9" text-anchor="middle">PriceSnapshot Time Series</text>
+
+      <!-- Markers -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Key Metrics Box -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px;">
+    <div class="card" style="text-align: center; padding: 12px;">
+      <div style="font-size: 20px; font-weight: 800; color: #2563eb;">419</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Backend Tests Passing</div>
+    </div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <div style="font-size: 20px; font-weight: 800; color: #10b981;">77</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Frontend Tests Passing</div>
+    </div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <div style="font-size: 20px; font-weight: 800; color: #8b5cf6;">832px</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Studio Photo Quality</div>
+    </div>
+    <div class="card" style="text-align: center; padding: 12px;">
+      <div style="font-size: 20px; font-weight: 800; color: #0f172a;">100%</div>
+      <div style="font-size: 11px; color: #64748b; font-weight: 600;">Live Real Data Match</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8;">
+    <span>ReviewPulse | MJCET Industry-Ready Program (IRP)</span>
+    <span>Generated: November 2026 | Dual Remote Synchronized</span>
+  </div>
+
+</div>
+
+</body>
+</html>

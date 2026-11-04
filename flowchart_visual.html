@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ReviewPulse - Architectural Flowchart</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+      padding: 40px;
+      width: 1920px;
+      min-height: 1080px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    .canvas {
+      width: 1840px;
+      background: linear-gradient(180deg, #0f172a 0%, #0b0f19 100%);
+      border: 1px solid #1e293b;
+      border-radius: 20px;
+      padding: 36px 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Ambient glow */
+    .glow-1 {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+    }
+    .glow-2 {
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .title-area h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #60a5fa 0%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .title-area p {
+      font-size: 15px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    .badges {
+      display: flex;
+      gap: 12px;
+    }
+    .badge {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-blue { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-purple { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.4); }
+
+    /* Pipeline Grid (Horizontal Flow: 5 Columns) */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    /* Column Cards */
+    .column-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .column-card.highlight {
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+    .column-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 12px;
+    }
+    .col-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .icon-1 { background: #2563eb; color: #ffffff; }
+    .icon-2 { background: #0284c7; color: #ffffff; }
+    .icon-3 { background: #059669; color: #ffffff; }
+    .icon-4 { background: #7c3aed; color: #ffffff; }
+    .icon-5 { background: #db2777; color: #ffffff; }
+
+    .col-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #f8fafc;
+    }
+    .col-subtitle {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* Node Blocks */
+    .node-block {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: all 0.2s;
+    }
+    .node-block:hover {
+      border-color: #60a5fa;
+      background: #243248;
+    }
+    .node-step-pill {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .pill-step { background: #0284c7; color: white; }
+    .pill-guard { background: #dc2626; color: white; }
+    .pill-success { background: #16a34a; color: white; }
+    .pill-tech { background: #475569; color: #e2e8f0; font-family: monospace; }
+
+    .node-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .node-desc {
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* Flow Connectors SVG Overlay */
+    .flow-connectors {
+      width: 100%;
+      height: 48px;
+      margin-bottom: 20px;
+    }
+
+    /* Bottom Summary Bar */
+    .bottom-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 18px 24px;
+    }
+    .stat-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .stat-blue { background: rgba(37,99,235,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .stat-green { background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .stat-purple { background: rgba(139,92,246,0.2); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+    .stat-amber { background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+
+    .stat-info .stat-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+    .stat-info .stat-lbl {
+      font-size: 11.5px;
+      color: #64748b;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="canvas">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title-area">
+      <h1>ReviewPulse - "URL say Output ka Safar" (End-to-End Architectural Flow)</h1>
+      <p>MJCET Industry-Ready Program (IRP) | Full-Stack Asynchronous E-Commerce Intelligence Pipeline</p>
+    </div>
+    <div class="badges">
+      <span class="badge badge-blue">FastAPI + React 18</span>
+      <span class="badge badge-green">Live Scraper Engine</span>
+      <span class="badge badge-purple">VADER & ABSA NLP</span>
+    </div>
+  </div>
+
+  <!-- Flow connecting header -->
+  <svg class="flow-connectors" viewBox="0 0 1760 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Connecting dashed line -->
+    <path d="M 170 24 L 1590 24" stroke="#334155" stroke-width="2" stroke-dasharray="6 6"/>
+    <!-- Stage 1 -> 2 Arrow -->
+    <path d="M 320 24 L 380 24" stroke="#3b82f6" stroke-width="3" marker-end="url(#blue-arrow)"/>
+    <text x="350" y="16" fill="#60a5fa" font-size="11" font-weight="700" text-anchor="middle">Normalize</text>
+    <!-- Stage 2 -> 3 Arrow -->
+    <path d="M 680 24 L 740 24" stroke="#0284c7" stroke-width="3" marker-end="url(#sky-arrow)"/>
+    <text x="710" y="16" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">POST JSON</text>
+    <!-- Stage 3 -> 4 Arrow -->
+    <path d="M 1040 24 L 1100 24" stroke="#10b981" stroke-width="3" marker-end="url(#green-arrow)"/>
+    <text x="1070" y="16" fill="#34d399" font-size="11" font-weight="700" text-anchor="middle">Async Live</text>
+    <!-- Stage 4 -> 5 Arrow -->
+    <path d="M 1400 24 L 1460 24" stroke="#8b5cf6" stroke-width="3" marker-end="url(#purple-arrow)"/>
+    <text x="1430" y="16" fill="#c084fc" font-size="11" font-weight="700" text-anchor="middle">Synthesize</text>
+
+    <defs>
+      <marker id="blue-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6"/>
+      </marker>
+      <marker id="sky-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7"/>
+      </marker>
+      <marker id="green-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981"/>
+      </marker>
+      <marker id="purple-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#8b5cf6"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- 5 Columns Pipeline Grid -->
+  <div class="pipeline-grid">
+
+    <!-- Column 1: Ingestion & Input -->
+    <div class="column-card highlight">
+      <div class="column-header">
+        <div class="col-icon icon-1">1</div>
+        <div>
+          <div class="col-title">Client Ingestion</div>
+          <div class="col-subtitle">Browser / React 18</div>
+        </div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-step">STEP 1</span>
+        <div class="node-name">UrlAnalyzer Search Box</div>
+        <div class="node-desc">User pastes Flipkart or Amazon link. Client strips spaces, checks scheme, triggers loading state.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-tech">STEP 2</span>
+        <div class="node-name">URL Normalization</div>
+        <div class="node-desc"><code>normalizeFlipkartUrl</code> resolves <code>/p/itm...</code> paths to canonical <code>?pid=...</code> format. Regex extracts ASIN/PID.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-tech">STEP 3</span>
+        <div class="node-name">API Dispatch & Auth</div>
+        <div class="node-desc"><code>api.analyzeUrl()</code> sends POST payload with <code>X-Request-ID</code> and JWT Bearer token via TanStack Query.</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Gateway & Security -->
+    <div class="column-card">
+      <div class="column-header">
+        <div class="col-icon icon-2">2</div>
+        <div>
+          <div class="col-title">API Gateway</div>
+          <div class="col-subtitle">FastAPI + Uvicorn</div>
+        </div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-step">STEP 4</span>
+        <div class="node-name">REST Ingestion & Router</div>
+        <div class="node-desc">FastAPI receives <code>/analyze-url</code>. Pydantic v2 validates request schema and selects market handler.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-guard">STEP 5: SHIELD</span>
+        <div class="node-name">Domain & Scheme Whitelist</div>
+        <div class="node-desc"><code>validate_flipkart_url</code> blocks insecure HTTP, off-domain hosts, and credential phishing attempts.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-tech">OBSERVABILITY</span>
+        <div class="node-name">Distributed Trace ID</div>
+        <div class="node-desc">Every request binds an <code>X-Request-ID</code> header for end-to-end logging across database and scraper logs.</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Harvester & Anti-Redirect -->
+    <div class="column-card highlight">
+      <div class="column-header">
+        <div class="col-icon icon-3">3</div>
+        <div>
+          <div class="col-title">Live Harvester</div>
+          <div class="col-subtitle">Anti-Redirect Engine</div>
+        </div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-step">STEP 6</span>
+        <div class="node-name">Live Scraper Engine</div>
+        <div class="node-desc">Fetches live HTML with realistic browser headers. Extracts title, selling price, rating & verified reviews.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-guard">STEP 6: DEFENSE</span>
+        <div class="node-name">Sponsored Redirect Guard</div>
+        <div class="node-desc"><code>is_live_page_relevant()</code> detects if Flipkart redirected an expired link (e.g. Moto) to an iPhone ad, rejecting mismatches.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-success">STEP 6: HD ASSETS</span>
+        <div class="node-name">832x832 Studio Photo Sync</div>
+        <div class="node-desc">Upgrades Flipkart CDN thumbnails (300/300) to crisp 832x832 studio photography directly from Flipkart's CDN.</div>
+      </div>
+    </div>
+
+    <!-- Column 4: Persistence & NLP Engine -->
+    <div class="column-card">
+      <div class="column-header">
+        <div class="col-icon icon-4">4</div>
+        <div>
+          <div class="col-title">NLP & Database</div>
+          <div class="col-subtitle">AI Sentiment & Storage</div>
+        </div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-step">STEP 7</span>
+        <div class="node-name">Atomic DB Upsert</div>
+        <div class="node-desc">SQLAlchemy 2.0 saves <code>Product</code>, <code>Review</code>, and logs a timestamped <code>PriceSnapshot</code> row for price trends.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-tech">STEP 8</span>
+        <div class="node-name">VADER & ABSA Scoring</div>
+        <div class="node-desc">Calculates polarity (-1.0 to +1.0) and Aspect-Based Sentiment Analysis per feature (Battery, Display, Camera).</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-tech">STEP 8</span>
+        <div class="node-name">TF-IDF Topic Clustering</div>
+        <div class="node-desc">Extracts top n-gram keywords ("battery backup", "curved display") and computes Flesch readability grades.</div>
+      </div>
+    </div>
+
+    <!-- Column 5: Output Dashboard UI -->
+    <div class="column-card highlight">
+      <div class="column-header">
+        <div class="col-icon icon-5">5</div>
+        <div>
+          <div class="col-title">Live Intelligence</div>
+          <div class="col-subtitle">Interactive Workspace</div>
+        </div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-step">STEP 9</span>
+        <div class="node-name">Context State Merge</div>
+        <div class="node-desc"><code>useProductContext</code> merges newly analyzed product into global cache and routes to <code>/products/:id/overview</code>.</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-success">STEP 10</span>
+        <div class="node-name">Real Studio Photo Render</div>
+        <div class="node-desc">Renders 100% genuine photo with <code>referrerPolicy="no-referrer"</code> and studio fallbacks (0 broken images).</div>
+      </div>
+
+      <div class="node-block">
+        <span class="node-step-pill pill-success">STEP 10</span>
+        <div class="node-name">Gauges & Synthesis</div>
+        <div class="node-desc">Recharts visualizes 5-star distribution, "Customers say..." linguistic synthesis, topic chips, and customer quotes.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Metric Bar -->
+  <div class="bottom-bar">
+    <div class="stat-box">
+      <div class="stat-circle stat-blue">419</div>
+      <div class="stat-info">
+        <div class="stat-val">Backend Tests</div>
+        <div class="stat-lbl">100% Passing (Pytest + AnyIO)</div>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-circle stat-green">77</div>
+      <div class="stat-info">
+        <div class="stat-val">Frontend Tests</div>
+        <div class="stat-lbl">10 Suites (Vitest + JSDOM)</div>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-circle stat-purple">832px</div>
+      <div class="stat-info">
+        <div class="stat-val">Studio Quality</div>
+        <div class="stat-lbl">Flipkart & Amazon Live CDN</div>
+      </div>
+    </div>
+
+    <div class="stat-box">
+      <div class="stat-circle stat-amber">Dual</div>
+      <div class="stat-info">
+        <div class="stat-val">Git Remotes Sync</div>
+        <div class="stat-lbl">origin (irpversion2) & mjcet</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
