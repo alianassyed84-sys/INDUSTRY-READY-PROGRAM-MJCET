@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useLenis } from '@/hooks/useLenis';
 
 const STORAGE_KEY = 'rp.motion.paused';
 const QUERY = '(prefers-reduced-motion: reduce)';
@@ -12,6 +13,9 @@ export function MotionProvider({ children }: { children: ReactNode }) {
     try { return localStorage.getItem(STORAGE_KEY) === 'true'; } catch { return false; }
   });
   const enabled = !systemReduced && !paused;
+
+  // Integrate smooth inertial momentum scrolling via Lenis synchronized with GSAP ticker
+  useLenis(enabled);
 
   useEffect(() => {
     const media = window.matchMedia(QUERY);

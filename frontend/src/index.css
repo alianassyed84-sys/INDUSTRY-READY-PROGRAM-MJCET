@@ -140,6 +140,40 @@
   @keyframes rp-drawer-enter { from { transform: translateX(-100%); } }
   @keyframes rp-dialog-enter { from { opacity: 0; transform: translateY(10px) scale(.98); } }
   @keyframes rp-backdrop-enter { from { opacity: 0; } }
+
+  /* Lenis smooth scrolling integration */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  /* React Bits animations */
+  @keyframes shiny-sweep {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @keyframes border-beam {
+    100% {
+      offset-distance: 100%;
+    }
+  }
+
+  .animate-shiny-sweep {
+    animation: shiny-sweep 4s linear infinite;
+  }
+
+  .animate-border-beam {
+    animation: border-beam calc(var(--duration)*1s) infinite linear;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

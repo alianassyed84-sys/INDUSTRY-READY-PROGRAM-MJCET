@@ -9,9 +9,17 @@ import SignalJourney from '@/components/motion/SignalJourney';
 import DataTrust from '@/components/motion/DataTrust';
 import { UrlAnalyzer } from '@/components/shared/UrlAnalyzer';
 import { Button } from '@/components/ui/Button';
-import { scrollReveal } from '@/lib/motion';
+import { scrollReveal, gsap } from '@/lib/motion';
 import { demoInsights } from '@/data/demo';
 import { ROUTES } from '@/lib/routes';
+import VantaBackground from '@/components/vanta/VantaBackground';
+import {
+  SpotlightCard,
+  BorderBeam,
+  DecryptedText,
+  MagneticButton,
+  ShinyText,
+} from '@/components/reactbits';
 
 const DEMO_SAMPLES = [
   { label: 'Wireless Earbuds', url: 'https://www.amazon.in/dp/B0DEMO0001', icon: '🎧' },
@@ -45,7 +53,8 @@ const MOOD_SNIPPETS = {
 
 export default function Landing() {
   const root = useRef<HTMLDivElement>(null);
-  const { enabled } = useMotion();
+  const moodContainerRef = useRef<HTMLDivElement>(null);
+  const { enabled, systemReduced } = useMotion();
   const nav = useNavigate();
 
   const [sampleUrl, setSampleUrl] = useState('');
@@ -58,120 +67,164 @@ export default function Landing() {
     return stop;
   }, [enabled]);
 
+  // GSAP kinetic transition when mood switches
+  const handleMoodChange = (mood: 'positive' | 'neutral' | 'negative') => {
+    setActiveMood(mood);
+    if (enabled && !systemReduced && moodContainerRef.current) {
+      gsap.fromTo(
+        moodContainerRef.current,
+        { opacity: 0.35, y: 4 },
+        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
+      );
+    }
+  };
+
   const d = demoInsights('demo-1');
   const s = d.sentiment!;
   const currentMoodData = MOOD_SNIPPETS[activeMood];
 
   return (
-    <div ref={root}>
-      {/* 1. Hero */}
+    <div ref={root} className="relative">
+      {/* 1. Hero with Vanta.js 3D Mesh and GSAP ScrollTrigger Integration */}
       <section className="rp-cinematic-hero rp-ambient relative overflow-hidden border-b border-rp-border/50">
+        {/* Vanta 3D Interactive Geometric Mesh Background */}
+        <VantaBackground
+          className="z-0 opacity-40"
+          particleCount={48}
+          maxDistance={150}
+          mouseRepulsion={true}
+        />
+
         <div className="rp-cinematic-stage mx-auto max-w-content px-3 sm:px-5 lg:px-10">
           <div className="rp-cinematic-canvas relative z-10 min-w-0">
             <PulseHero />
           </div>
 
-          {/* Interactive Dual Entry Points: Product Link Box & Dataset Upload */}
-          <div className="relative z-20 mx-auto -mt-4 mb-10 max-w-2xl rounded-2xl border border-rp-border bg-rp-surface/95 p-6 shadow-xl backdrop-blur-md transition-all">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <h2 className="font-heading text-lg font-bold text-rp-navy flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-rp-primary" />
-                Analyze Reviews
-              </h2>
-              <span className="text-[11px] font-semibold text-rp-primary bg-rp-primary-light px-2.5 py-0.5 rounded-full border border-rp-primary/20">
-                Interactive preview
-              </span>
-            </div>
-            <p className="text-sm text-rp-muted">Paste any Amazon.in or Flipkart link, or try a sample product below.</p>
-
-            {/* Interactive Quick Sample Chips */}
-            <div className="mt-4 flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
-              {DEMO_SAMPLES.map((sample) => (
-                <button
-                  key={sample.label}
-                  type="button"
-                  onClick={() => setSampleUrl(sample.url)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
-                    sampleUrl === sample.url
-                      ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
-                      : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
-                  }`}
-                >
-                  <span aria-hidden>{sample.icon}</span>
-                  <span>{sample.label}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4">
-              <UrlAnalyzer
-                value={sampleUrl || undefined}
-                onChange={setSampleUrl}
-                cta="Analyze link"
+          {/* Interactive Dual Entry Points wrapped in React Bits SpotlightCard with BorderBeam */}
+          <div className="relative z-20 mx-auto -mt-4 mb-10 max-w-2xl">
+            <SpotlightCard
+              spotlightColor="rgba(191, 137, 255, 0.16)"
+              borderGlowColor="rgba(191, 137, 255, 0.4)"
+              className="p-6 shadow-2xl backdrop-blur-md"
+            >
+              {/* React Bits Border Beam */}
+              <BorderBeam
+                size={280}
+                duration={12}
+                borderWidth={1.5}
+                colorFrom="#BF89FF"
+                colorTo="#7D2DE1"
               />
-            </div>
 
-            {/* Live Interactive Mood Pulse Simulator */}
-            <div className="mt-5 rounded-xl border border-rp-border/80 bg-rp-surface-soft/60 p-4 transition-all">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-2.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-rp-muted flex items-center gap-1.5">
-                  <TrendingUp className="h-3.5 w-3.5 text-rp-primary" /> Live Customer Signal
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <h2 className="font-heading text-lg font-bold text-rp-navy flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-rp-primary" />
+                  <ShinyText speed={5}>Analyze Reviews</ShinyText>
+                </h2>
+                <span className="text-[11px] font-semibold text-rp-primary bg-rp-primary-light px-2.5 py-0.5 rounded-full border border-rp-primary/20">
+                  Interactive preview
                 </span>
-                <div className="flex items-center gap-1" role="tablist" aria-label="Customer mood preview">
-                  {(['positive', 'neutral', 'negative'] as const).map((m) => (
+              </div>
+              <p className="text-sm text-rp-muted">
+                Paste any Amazon.in or Flipkart link, or try a sample product below.
+              </p>
+
+              {/* Interactive Quick Sample Chips with Magnetic Button attraction */}
+              <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
+                {DEMO_SAMPLES.map((sample) => (
+                  <MagneticButton key={sample.label} strength={0.2}>
                     <button
-                      key={m}
                       type="button"
-                      role="tab"
-                      aria-selected={activeMood === m}
-                      onClick={() => setActiveMood(m)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200 ${
-                        activeMood === m
-                          ? 'bg-rp-surface text-rp-navy shadow-sm border border-rp-border'
-                          : 'text-rp-muted hover:text-rp-navy'
+                      onClick={() => setSampleUrl(sample.url)}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                        sampleUrl === sample.url
+                          ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
+                          : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
                       }`}
                     >
-                      {MOOD_SNIPPETS[m].label} ({MOOD_SNIPPETS[m].pct})
+                      <span aria-hidden>{sample.icon}</span>
+                      <span>{sample.label}</span>
                     </button>
-                  ))}
+                  </MagneticButton>
+                ))}
+              </div>
+
+              <div className="mt-4">
+                <UrlAnalyzer
+                  value={sampleUrl || undefined}
+                  onChange={setSampleUrl}
+                  cta="Analyze link"
+                />
+              </div>
+
+              {/* Live Interactive Mood Pulse Simulator */}
+              <div className="mt-5 rounded-xl border border-rp-border/80 bg-rp-surface-soft/60 p-4 transition-all">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rp-border/50 pb-2.5">
+                  <span className="text-xs font-bold uppercase tracking-wider text-rp-muted flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-rp-primary" />
+                    <DecryptedText text="Live Customer Signal" speed={35} maxIterations={8} />
+                  </span>
+                  <div className="flex items-center gap-1" role="tablist" aria-label="Customer mood preview">
+                    {(['positive', 'neutral', 'negative'] as const).map((m) => (
+                      <MagneticButton key={m} strength={0.15}>
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={activeMood === m}
+                          onClick={() => handleMoodChange(m)}
+                          className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200 ${
+                            activeMood === m
+                              ? 'bg-rp-surface text-rp-navy shadow-sm border border-rp-border'
+                              : 'text-rp-muted hover:text-rp-navy'
+                          }`}
+                        >
+                          {MOOD_SNIPPETS[m].label} ({MOOD_SNIPPETS[m].pct})
+                        </button>
+                      </MagneticButton>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Animated Quote & Aspects */}
+                <div ref={moodContainerRef} className="mt-3 space-y-2">
+                  <div className="flex items-start gap-2.5 text-xs">
+                    <MessageSquare className="h-4 w-4 text-rp-primary shrink-0 mt-0.5" />
+                    <p className="italic text-rp-text leading-relaxed">
+                      &ldquo;{currentMoodData.quote}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    {currentMoodData.aspects.map((aspect) => (
+                      <span
+                        key={aspect}
+                        className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${currentMoodData.tone}`}
+                      >
+                        {aspect}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Animated Quote & Aspects */}
-              <div className="mt-3 space-y-2">
-                <div className="flex items-start gap-2.5 text-xs">
-                  <MessageSquare className="h-4 w-4 text-rp-primary shrink-0 mt-0.5" />
-                  <p className="italic text-rp-text leading-relaxed">
-                    &ldquo;{currentMoodData.quote}&rdquo;
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  {currentMoodData.aspects.map((aspect) => (
-                    <span
-                      key={aspect}
-                      className={`px-2 py-0.5 rounded text-[11px] font-semibold border ${currentMoodData.tone}`}
-                    >
-                      {aspect}
-                    </span>
-                  ))}
-                </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rp-border/60 pt-4">
+                <span className="text-xs text-rp-muted">
+                  Have a dataset file? Amazon/Flipkart CSV or JSON supported.
+                </span>
+                <MagneticButton strength={0.3}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => nav(ROUTES.data)}
+                    className="shrink-0 text-xs py-2 px-3"
+                  >
+                    <UploadCloud className="mr-1.5 h-4 w-4" />
+                    Upload a dataset
+                  </Button>
+                </MagneticButton>
               </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rp-border/60 pt-4">
-              <span className="text-xs text-rp-muted">Have a dataset file? Amazon/Flipkart CSV or JSON supported.</span>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => nav(ROUTES.data)}
-                className="shrink-0 text-xs py-2 px-3"
-              >
-                <UploadCloud className="mr-1.5 h-4 w-4" />
-                Upload a dataset
-              </Button>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
