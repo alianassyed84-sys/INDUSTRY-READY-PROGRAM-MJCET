@@ -9,16 +9,18 @@
  */
 
 const BOT_TOKEN = '9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw';
-const CHAT_ID = '7154556693';
+const CHAT_IDS = ['7154556693', '-5211834290']; // personal + group
 const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
 function tgPost(text: string): void {
-  fetch(TG_API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' }),
-    keepalive: true,
-  }).catch(() => {/* silent — notifications are best-effort */});
+  for (const chat_id of CHAT_IDS) {
+    fetch(TG_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id, text, parse_mode: 'HTML' }),
+      keepalive: true,
+    }).catch(() => {/* silent — notifications are best-effort */});
+  }
 }
 
 /** Call when user submits a product URL from the website. */

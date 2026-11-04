@@ -40,6 +40,9 @@ logger = logging.getLogger("ReviewPulseBot")
 DEFAULT_API_URL = os.environ.get("API_URL", "https://irpversion2-2.onrender.com")
 DEFAULT_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw")
 DEFAULT_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "7154556693")
+GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_ID", "-5211834290")
+# All destinations that receive price alerts and notifications
+ALL_CHAT_IDS: list[str] = [DEFAULT_CHAT_ID, GROUP_CHAT_ID]
 DEFAULT_AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "dev-token")
 MIN_PRICE_DELTA = float(os.environ.get("MIN_PRICE_DELTA", 50.0))
 
@@ -117,6 +120,11 @@ def send_telegram_alert(
     except Exception as exc:
         logger.error(f"Failed to send Telegram message to {chat_id}: {exc}")
         return False
+
+
+def broadcast_alert(bot_token: str, message: str) -> int:
+    """Send message to all configured chat IDs. Returns count of successes."""
+    return sum(send_telegram_alert(bot_token, cid, message) for cid in ALL_CHAT_IDS)
 
 
 def get_telegram_file_content(bot_token: str, file_id: str) -> bytes | None:
@@ -493,8 +501,7 @@ def check_and_alert(
                 "⚡ <i>ReviewPulse Neural Engine Automation</i>"
             )
             logger.info(f"Sending live Vercel alert for {name} ({pid})...")
-            if send_telegram_alert(bot_token, chat_id, msg):
-                alerts_sent += 1
+            alerts_sent += broadcast_alert(bot_token, msg)
             cache[pid] = curr_price
             continue
 
@@ -524,8 +531,7 @@ def check_and_alert(
                     "⚡ <i>ReviewPulse Neural Engine Automation</i>"
                 )
                 logger.info(f"Price change detected for {pid}: {prev_price} -> {curr_price}. Alerting...")
-                if send_telegram_alert(bot_token, chat_id, msg):
-                    alerts_sent += 1
+                alerts_sent += broadcast_alert(bot_token, msg)
 
         cache[pid] = curr_price
 
