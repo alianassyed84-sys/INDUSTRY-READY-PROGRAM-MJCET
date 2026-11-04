@@ -28,7 +28,7 @@
             {
               "id": "cfg-api-url",
               "name": "apiUrl",
-              "value": "http://localhost:8000",
+              "value": "https://irpversion2-2.onrender.com",
               "type": "string"
             },
             {
