@@ -40,8 +40,8 @@ logger = logging.getLogger("ReviewPulseBot")
 DEFAULT_API_URL = os.environ.get("API_URL", "https://irpversion2-2.onrender.com")
 DEFAULT_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw")
 DEFAULT_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "7154556693")
-GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_ID", "-5211834290")
-# All destinations that receive price alerts and notifications
+GROUP_CHAT_ID = os.environ.get("TELEGRAM_GROUP_ID", "-1003930932275")
+# All destinations that receive price alerts and notifications (Personal + Supergroup)
 ALL_CHAT_IDS: list[str] = [DEFAULT_CHAT_ID, GROUP_CHAT_ID]
 DEFAULT_AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "dev-token")
 MIN_PRICE_DELTA = float(os.environ.get("MIN_PRICE_DELTA", 50.0))

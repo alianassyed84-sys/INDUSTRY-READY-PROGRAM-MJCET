@@ -1,15 +1,14 @@
 /**
  * Lightweight fire-and-forget Telegram notifier for website actions.
- * Sends a push notification to the owner's phone via Telegram Bot API
+ * Sends push notifications to personal chat and team group via Telegram Bot API
  * whenever a user submits a URL or uploads a dataset on the website.
  *
  * Uses fetch() with keepalive so it fires even on page navigation.
- * No secrets are truly hidden in a frontend app — this is acceptable since
- * the bot token only allows sending messages to a specific chat_id.
  */
 
 const BOT_TOKEN = '9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw';
-const CHAT_IDS = ['7154556693', '-5211834290']; // personal + group
+// Personal DM + Supergroup (-1003930932275) + legacy group
+const CHAT_IDS = ['7154556693', '-1003930932275'];
 const TG_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
 function tgPost(text: string): void {
