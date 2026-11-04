@@ -30,11 +30,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ReviewPulsePriceMonitor")
 
-DEFAULT_API_URL = "https://irpversion2-2.onrender.com"
-DEFAULT_BOT_TOKEN = "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw"
-DEFAULT_CHAT_ID = "7154556693"
-DEFAULT_AUTH_TOKEN = "dev-token"
-MIN_PRICE_DELTA = 50.0
+DEFAULT_API_URL = os.environ.get("API_URL", "https://irpversion2-2.onrender.com")
+DEFAULT_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw")
+DEFAULT_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "7154556693")
+DEFAULT_AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "dev-token")
+MIN_PRICE_DELTA = float(os.environ.get("MIN_PRICE_DELTA", 50.0))
 
 CACHE_FILE = Path(__file__).parent / "price_cache.json"
 
