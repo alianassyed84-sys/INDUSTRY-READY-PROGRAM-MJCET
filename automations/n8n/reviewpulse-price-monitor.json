@@ -40,13 +40,13 @@
             {
               "id": "cfg-bot-token",
               "name": "telegramBotToken",
-              "value": "PASTE_YOUR_TELEGRAM_BOT_TOKEN_HERE",
+              "value": "9149329197:AAEMiSz8nhY0Oc-BCPVgo5xJfN2kMHPTFSw",
               "type": "string"
             },
             {
               "id": "cfg-chat-id",
               "name": "telegramChatId",
-              "value": "PASTE_YOUR_TELEGRAM_CHAT_ID_HERE",
+              "value": "7154556693",
               "type": "string"
             },
             {
