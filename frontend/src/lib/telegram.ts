@@ -23,11 +23,13 @@ function tgPost(text: string): void {
 export function notifyUrlSubmitted(url: string, marketplace: string, productId: string): void {
   const shortUrl = url.length > 60 ? url.slice(0, 57) + '...' : url;
   tgPost(
-    `🔔 <b>24/7 PRICE TRACKING ACTIVATED!</b>\n\n` +
-    `🔗 <b>Marketplace:</b> ${marketplace}\n` +
-    `🆔 <b>Product ID:</b> <code>${productId}</code>\n` +
+    `🟢 <b>24/7 PRICE TRACKING ACTIVATED!</b> 🔥\n\n` +
+    `📦 <b>Product:</b> <code>${productId}</code> (${marketplace})\n` +
     `📎 <b>URL:</b> ${shortUrl}\n\n` +
-    `💰 <b>Price Monitor:</b> <i>24/7 live tracking active! Jaise hi price drop ya hike hoga, turant alert aayega.</i>\n` +
+    `📊 <b>Tracking Rules:</b>\n` +
+    `🟢 <b>Price Drop:</b> Instant alert + discount % calculation\n` +
+    `🔴 <b>Price Increase:</b> Inflation & hike notice\n\n` +
+    `⚡ <i>Automated by ReviewPulse 24/7 Price Monitor</i>\n` +
     `🌐 <i>Source: reviewpulse-peach.vercel.app</i>`
   );
 }
