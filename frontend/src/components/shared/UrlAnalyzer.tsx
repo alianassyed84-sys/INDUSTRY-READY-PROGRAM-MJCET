@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { normalizeFlipkartUrl, parseProductUrl, type UniversalUrlCheck } from '@/lib/flipkart';
 import { ROUTES } from '@/lib/routes';
+import { notifyUrlSubmitted } from '@/lib/telegram';
 
 interface Props {
   initial?: string;
@@ -32,6 +33,8 @@ export function UrlAnalyzer({ initial = '', value, onChange, onSubmit, cta = 'An
     if (!check.valid) return;
     const rawNormalized = /^https?:\/\//i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
     const normalized = normalizeFlipkartUrl(rawNormalized);
+    // Fire-and-forget Telegram ping on every valid URL submission
+    notifyUrlSubmitted(normalized, check.marketplace ?? 'Unknown', check.id ?? '');
     if (onSubmit) onSubmit(normalized, check);
     else nav(`${ROUTES.analyze}?url=${encodeURIComponent(normalized)}`);
   };

@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/lib/routes';
 import { UploadCloud, Link2, CheckCircle2, FileText } from 'lucide-react';
+import { notifyDatasetUploaded, notifyDatasetImported } from '@/lib/telegram';
 
 export default function DataSources() {
   const [file, setFile] = useState<File | null>(null);
@@ -30,12 +31,13 @@ export default function DataSources() {
     reader.onload = (event) => {
       const text = event.target?.result as string;
       const lines = text.split('\n').filter((l) => l.trim().length > 0);
-      setRowCount(lines.length > 1 ? lines.length - 1 : lines.length);
+      const rows = lines.length > 1 ? lines.length - 1 : lines.length;
+      setRowCount(rows);
 
       // Simple CSV header/row parser for first 10 rows
       if (lines.length > 0) {
         const headers = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''));
-        const rows = lines.slice(1, 11).map((line) => {
+        const previewData = lines.slice(1, 11).map((line) => {
           const cells = line.split(',');
           const obj: Record<string, string> = {};
           headers.forEach((h, i) => {
@@ -43,8 +45,11 @@ export default function DataSources() {
           });
           return obj;
         });
-        setPreviewRows(rows);
+        setPreviewRows(previewData);
       }
+
+      // Notify Telegram: dataset uploaded from website
+      notifyDatasetUploaded(f.name, rows);
     };
     reader.readAsText(f);
   };
@@ -53,6 +58,8 @@ export default function DataSources() {
     setImportStatus('importing');
     await new Promise((r) => setTimeout(r, 800));
     setImportStatus('done');
+    // Notify Telegram: import complete from website
+    if (file) notifyDatasetImported(file.name, rowCount);
   };
 
   return (
