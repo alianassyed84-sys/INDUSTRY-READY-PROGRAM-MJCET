@@ -183,6 +183,37 @@
   .animate-spin-beam {
     animation: spin-beam 6s linear infinite;
   }
+
+  @keyframes photon-travel {
+    0% { left: 0%; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: calc(100% - 8rem); opacity: 0; }
+  }
+
+  @keyframes cosmic-drift {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(3vw, -2vh, 0) scale(1.08); }
+    100% { transform: translate3d(-2vw, 3vh, 0) scale(0.96); }
+  }
+
+  @keyframes cosmic-drift-reverse {
+    0% { transform: translate3d(0, 0, 0) scale(1.05); }
+    50% { transform: translate3d(-3vw, 2vh, 0) scale(0.95); }
+    100% { transform: translate3d(2vw, -2vh, 0) scale(1.04); }
+  }
+
+  .animate-photon-travel {
+    animation: photon-travel 4s ease-in-out infinite;
+  }
+
+  .animate-cosmic-drift {
+    animation: cosmic-drift 26s ease-in-out infinite alternate;
+  }
+
+  .animate-cosmic-drift-reverse {
+    animation: cosmic-drift-reverse 30s ease-in-out infinite alternate;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
