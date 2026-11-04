@@ -42,7 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     """Build an application instance that does not require a live database."""
     resolved = settings or get_settings()
     if settings is None and not resolved.database_url:
-        # ponytail: fallback to local SQLite when running live server without explicit DATABASE_URL
+        # ponytail: fallback to local SQLite for rapid zero-config dev; upgrade to mandatory PostgreSQL check when ENVIRONMENT == "production"
         resolved.database_url = "sqlite+aiosqlite:///reviewpulse.db"
 
     configure_logging(resolved)

@@ -24,13 +24,11 @@ import { ROUTES } from '@/lib/routes';
 import VantaBackground from '@/components/vanta/VantaBackground';
 import { StoryNav } from '@/components/story/StoryNav';
 import { CosmicAura, LaserHorizon } from '@/components/story/CosmicAura';
-import {
-  SpotlightCard,
-  BorderBeam,
-  DecryptedText,
-  MagneticButton,
-  ShinyText,
-} from '@/components/reactbits';
+import { SpotlightCard } from '@/components/reactbits/SpotlightCard';
+import { BorderBeam } from '@/components/reactbits/BorderBeam';
+import { DecryptedText } from '@/components/reactbits/DecryptedText';
+import { MagneticButton } from '@/components/reactbits/MagneticButton';
+import { ShinyText } from '@/components/reactbits/ShinyText';
 
 const DEMO_SAMPLES = [
   { label: 'Wireless Earbuds', url: 'https://www.amazon.in/dp/B0DEMO0001', icon: '🎧' },

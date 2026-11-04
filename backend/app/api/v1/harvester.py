@@ -110,7 +110,7 @@ DbDep = Annotated[AsyncSession | None, Depends(get_db)]
 CurrentUserDep = Annotated[AuthenticatedUser, Depends(get_current_user)]
 AdminUserDep = Annotated[AuthenticatedUser, Depends(require_admin)]
 
-# ponytail: cap pagination to avoid accidental full-table dumps
+# ponytail: capped at 100 items per query to prevent memory exhaustion; upgrade to keyset cursor pagination when collection jobs exceed 1,000 items
 _MAX_LIMIT = 100
 
 
