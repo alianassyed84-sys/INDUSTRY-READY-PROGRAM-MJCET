@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ReviewPulse - Cinematic Brand 1500x500</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #050308;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+    .banner {
+      width: 1500px;
+      height: 500px;
+      position: relative;
+      background: #0A0711;
+      overflow: hidden;
+      border: 1px solid rgba(191, 137, 255, 0.25);
+      color: #E1DAED;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Cinematic Center Nebula */
+    .nebula {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 900px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(125, 45, 225, 0.4) 0%, rgba(224, 99, 239, 0.15) 45%, transparent 75%);
+      filter: blur(45px);
+      pointer-events: none;
+    }
+
+    /* Cyber Ring Grids */
+    .grid-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 680px;
+      height: 680px;
+      border-radius: 50%;
+      border: 1px dashed rgba(191, 137, 255, 0.18);
+      pointer-events: none;
+    }
+    .grid-circle-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 920px;
+      height: 920px;
+      border-radius: 50%;
+      border: 1px solid rgba(63, 49, 80, 0.25);
+      pointer-events: none;
+    }
+
+    /* Content Stack */
+    .content-box {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 980px;
+      padding: 0 40px;
+    }
+
+    /* Central Glowing Icon */
+    .icon-wrapper {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #181223, #20172E);
+      border: 1px solid rgba(191, 137, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        inset 0 1px 0 rgba(216, 180, 255, 0.4),
+        0 10px 30px -5px rgba(125, 45, 225, 0.6);
+      margin-bottom: 4px;
+    }
+    .icon-wrapper svg {
+      width: 36px;
+      height: 36px;
+      stroke: #BF89FF;
+    }
+
+    /* Main Wordmark */
+    .brand-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 58px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #F5F0FF;
+    }
+    .brand-title span {
+      background: linear-gradient(120deg, #BF89FF, #E063EF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Tagline */
+    .tagline {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #AA9EBD;
+      max-width: 720px;
+    }
+    .tagline em {
+      font-style: normal;
+      color: #F5F0FF;
+      font-weight: 700;
+    }
+
+    /* Technology Stack Pills */
+    .tech-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(24, 18, 35, 0.85);
+      border: 1px solid rgba(63, 49, 80, 0.7);
+      font-size: 12px;
+      font-weight: 600;
+      color: #E1DAED;
+      backdrop-filter: blur(8px);
+    }
+    .tech-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .dot-purple { background: #BF89FF; box-shadow: 0 0 6px #BF89FF; }
+    .dot-cyan { background: #46DDBD; box-shadow: 0 0 6px #46DDBD; }
+    .dot-coral { background: #FF8DAA; box-shadow: 0 0 6px #FF8DAA; }
+    .dot-amber { background: #F0C56A; box-shadow: 0 0 6px #F0C56A; }
+
+    /* Bottom URL ribbon */
+    .bottom-ribbon {
+      position: absolute;
+      bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #AA9EBD;
+      z-index: 10;
+    }
+    .ribbon-link {
+      color: #BF89FF;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <div class="nebula"></div>
+    <div class="grid-circle"></div>
+    <div class="grid-circle-2"></div>
+
+    <div class="content-box">
+      <!-- Glow Shopping Bag & Pulse Icon -->
+      <div class="icon-wrapper">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9zM9 14l2 2 4-4" />
+        </svg>
+      </div>
+
+      <h1 class="brand-title">Review<span>Pulse</span></h1>
+
+      <p class="tagline">
+        <em>Every Review. A Signal.</em> Autonomous sentiment extraction, aspect-based intelligence & <em>24/7 price drop alerts</em> across top e-commerce platforms.
+      </p>
+
+      <div class="tech-pills">
+        <div class="tech-pill">
+          <span class="tech-dot dot-cyan"></span>
+          <span>Aspect-Based NLP</span>
+        </div>
+        <div class="tech-pill">
+          <span class="tech-dot dot-purple"></span>
+          <span>24/7 Price Drop Engine</span>
+        </div>
+        <div class="tech-pill">
+          <span class="tech-dot dot-coral"></span>
+          <span>Telegram Push Alerts</span>
+        </div>
+        <div class="tech-pill">
+          <span class="tech-dot dot-amber"></span>
+          <span>Live Harvester & Datasets</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-ribbon">
+      <span>🌐 Live Production App:</span>
+      <span class="ribbon-link">reviewpulse-peach.vercel.app</span>
+      <span>·</span>
+      <span>Telegram:</span>
+      <span class="ribbon-link">@reviewpulse_price_bot</span>
+    </div>
+  </div>
+
+</body>
+</html>

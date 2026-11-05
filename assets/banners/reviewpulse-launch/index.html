@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviewPulse - Banner & Poster Design Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #06040A;
+      color: #E1DAED;
+      font-family: 'Inter', sans-serif;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(125, 45, 225, 0.2);
+      border: 1px solid rgba(191, 137, 255, 0.4);
+      color: #BF89FF;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #F5F0FF;
+      margin-bottom: 10px;
+    }
+    h1 span {
+      background: linear-gradient(120deg, #BF89FF, #E063EF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      font-size: 16px;
+      color: #AA9EBD;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Grid of Banners */
+    .banner-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+    }
+    .banner-card {
+      background: #0A0711;
+      border: 1px solid rgba(63, 49, 80, 0.8);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.8);
+    }
+    .banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 30px;
+      background: #100C1C;
+      border-bottom: 1px solid rgba(63, 49, 80, 0.6);
+    }
+    .banner-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #F5F0FF;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #46DDBD;
+      background: rgba(70, 221, 189, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: #7D2DE1;
+      color: #fff;
+      border: none;
+    }
+    .btn-primary:hover { background: #8B37EB; }
+    .btn-secondary {
+      background: rgba(24, 18, 35, 0.9);
+      color: #E1DAED;
+      border: 1px solid rgba(191, 137, 255, 0.3);
+    }
+    .btn-secondary:hover { border-color: #BF89FF; color: #fff; }
+
+    /* Scaled Preview Frame */
+    .preview-wrapper {
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050308;
+      overflow-x: auto;
+    }
+    .preview-frame {
+      width: 100%;
+      max-width: 1500px;
+      aspect-ratio: 3 / 1;
+      border-radius: 12px;
+      border: 1px solid rgba(191, 137, 255, 0.2);
+      overflow: hidden;
+      background: #000;
+    }
+    .preview-frame iframe {
+      width: 1500px;
+      height: 500px;
+      border: none;
+      transform-origin: top left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge">🎨 Multi-Format Creative Banner Suite</div>
+      <h1>Review<span>Pulse</span> Poster Designs</h1>
+      <p class="subtitle">
+        Tailored for Twitter/X Header, LinkedIn Personal Cover & Portfolio Presentations (1500 × 500 px, 3:1 Aspect Ratio).
+      </p>
+    </header>
+
+    <div class="banner-grid">
+      <!-- Option A -->
+      <div class="banner-card">
+        <div class="banner-header">
+          <div>
+            <div class="banner-title">
+              Option A: Neon Cyber-Luxury (The Neural Core)
+              <span class="tag">1500 × 500 PX</span>
+            </div>
+            <p style="font-size: 13px; color: #AA9EBD; margin-top: 4px;">
+              Profile-avatar safe on bottom-left, live price drop card (-21.4%), and NLP sentiment polarity meter.
+            </p>
+          </div>
+          <div class="actions">
+            <a href="neon-cyber-1500x500.html" target="_blank" class="btn btn-secondary">Open Fullscreen ↗</a>
+          </div>
+        </div>
+        <div class="preview-wrapper">
+          <div class="preview-frame">
+            <iframe id="iframe-a" src="neon-cyber-1500x500.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option B -->
+      <div class="banner-card">
+        <div class="banner-header">
+          <div>
+            <div class="banner-title">
+              Option B: Dual-Engine Split Architecture
+              <span class="tag">1500 × 500 PX</span>
+            </div>
+            <p style="font-size: 13px; color: #AA9EBD; margin-top: 4px;">
+              Two-column high-tech breakdown: Left engine (Review Sentiment & Topics) vs Right engine (24/7 Price Drop Telegram Alerts).
+            </p>
+          </div>
+          <div class="actions">
+            <a href="dual-engine-1500x500.html" target="_blank" class="btn btn-secondary">Open Fullscreen ↗</a>
+          </div>
+        </div>
+        <div class="preview-wrapper">
+          <div class="preview-frame">
+            <iframe id="iframe-b" src="dual-engine-1500x500.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option C -->
+      <div class="banner-card">
+        <div class="banner-header">
+          <div>
+            <div class="banner-title">
+              Option C: Cinematic Brand Showcase
+              <span class="tag">1500 × 500 PX</span>
+            </div>
+            <p style="font-size: 13px; color: #AA9EBD; margin-top: 4px;">
+              Minimalist monumental typography, central glowing pulse tote, tech stack pills, and production URL ribbon.
+            </p>
+          </div>
+          <div class="actions">
+            <a href="cinematic-brand-1500x500.html" target="_blank" class="btn btn-secondary">Open Fullscreen ↗</a>
+          </div>
+        </div>
+        <div class="preview-wrapper">
+          <div class="preview-frame">
+            <iframe id="iframe-c" src="cinematic-brand-1500x500.html"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Responsive auto-scaler for the 1500x500 iframes
+    function resizeIframes() {
+      const frames = ['iframe-a', 'iframe-b', 'iframe-c'];
+      frames.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const container = el.parentElement;
+        const w = container.clientWidth;
+        const scale = w / 1500;
+        el.style.transform = `scale(${scale})`;
+      });
+    }
+    window.addEventListener('resize', resizeIframes);
+    window.addEventListener('DOMContentLoaded', resizeIframes);
+    setTimeout(resizeIframes, 300);
+  </script>
+
+</body>
+</html>

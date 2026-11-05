@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ReviewPulse - Neon Cyber 1500x500</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #050308;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+    .banner {
+      width: 1500px;
+      height: 500px;
+      position: relative;
+      background: #0A0711;
+      overflow: hidden;
+      border: 1px solid rgba(191, 137, 255, 0.2);
+      color: #E1DAED;
+    }
+
+    /* Ambient Glow Orbs */
+    .orb-1 {
+      position: absolute;
+      top: -150px;
+      left: 300px;
+      width: 650px;
+      height: 650px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(125, 45, 225, 0.38) 0%, rgba(125, 45, 225, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+    }
+    .orb-2 {
+      position: absolute;
+      bottom: -180px;
+      right: 100px;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(191, 137, 255, 0.22) 0%, rgba(224, 99, 239, 0) 70%);
+      filter: blur(50px);
+      pointer-events: none;
+    }
+    .orb-3 {
+      position: absolute;
+      top: 50px;
+      right: 350px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(70, 221, 189, 0.16) 0%, rgba(70, 221, 189, 0) 70%);
+      filter: blur(45px);
+      pointer-events: none;
+    }
+
+    /* Cyber Matrix Grid */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(63, 49, 80, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(63, 49, 80, 0.25) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 30%, transparent 80%);
+      pointer-events: none;
+    }
+
+    /* Main Flex Layout */
+    .content {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 55px 90px;
+    }
+
+    /* Left Hero Column (Profile-friendly: avatar on Twitter sits bottom-left) */
+    .left-col {
+      max-width: 750px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Top Brand Badge */
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(125, 45, 225, 0.18);
+      border: 1px solid rgba(191, 137, 255, 0.4);
+      width: fit-content;
+      backdrop-filter: blur(8px);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #46DDBD;
+      box-shadow: 0 0 10px #46DDBD;
+    }
+    .badge-text {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #BF89FF;
+    }
+
+    /* Headline */
+    .headline {
+      font-family: 'Manrope', sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: #F5F0FF;
+    }
+    .gradient-text {
+      background: linear-gradient(120deg, #F5F0FF 20%, #BF89FF 65%, #E063EF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Subtitle */
+    .subtext {
+      font-size: 18px;
+      line-height: 1.45;
+      color: #AA9EBD;
+      max-width: 640px;
+    }
+    .subtext b {
+      color: #F5F0FF;
+    }
+
+    /* Feature Pills */
+    .pills {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(24, 18, 35, 0.85);
+      border: 1px solid rgba(63, 49, 80, 0.8);
+      font-size: 13px;
+      font-weight: 600;
+      color: #E1DAED;
+    }
+    .pill svg {
+      width: 16px;
+      height: 16px;
+      color: #BF89FF;
+    }
+
+    /* Right Glassmorphism Cards Column */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 480px;
+    }
+
+    /* Glass Card */
+    .glass-card {
+      background: rgba(24, 18, 35, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(191, 137, 255, 0.25);
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: 
+        inset 0 1px 0 rgba(216, 180, 255, 0.15),
+        0 14px 34px -14px rgba(0, 0, 0, 0.7);
+      position: relative;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(191, 137, 255, 0.6), transparent);
+    }
+
+    /* Price Alert Banner Item */
+    .price-alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(125, 45, 225, 0.5), rgba(70, 221, 189, 0.15));
+      border: 1px solid rgba(191, 137, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-box svg {
+      width: 24px;
+      height: 24px;
+      stroke: #46DDBD;
+    }
+    .prod-details h4 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #F5F0FF;
+    }
+    .prod-details span {
+      font-size: 12px;
+      color: #AA9EBD;
+    }
+    .price-box {
+      text-align: right;
+    }
+    .price-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 800;
+      color: #46DDBD;
+    }
+    .price-diff {
+      font-size: 11px;
+      font-weight: 700;
+      color: #46DDBD;
+      background: rgba(70, 221, 189, 0.15);
+      padding: 2px 7px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    /* Sentiment Meter */
+    .sentiment-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .sentiment-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #F5F0FF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sentiment-score {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: #BF89FF;
+    }
+    .sentiment-bar {
+      height: 8px;
+      border-radius: 9999px;
+      background: rgba(63, 49, 80, 0.6);
+      overflow: hidden;
+      display: flex;
+    }
+    .bar-pos { width: 78%; background: #46DDBD; }
+    .bar-neu { width: 14%; background: #F0C56A; }
+    .bar-neg { width: 8%; background: #FF8DAA; }
+
+    /* Footer Meta on Banner */
+    .live-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 6px;
+      font-size: 12px;
+      color: #AA9EBD;
+    }
+    .meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      color: #BF89FF;
+      background: rgba(191, 137, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(191, 137, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
+    <div class="orb-3"></div>
+    <div class="grid-lines"></div>
+
+    <div class="content">
+      <!-- Left Hero Details -->
+      <div class="left-col">
+        <div class="brand-badge">
+          <span class="pulse-dot"></span>
+          <span class="badge-text">Neural E-Commerce Engine</span>
+        </div>
+
+        <h1 class="headline">
+          Review<span class="gradient-text">Pulse</span>
+        </h1>
+
+        <p class="subtext">
+          <b>Every Review. A Signal.</b> Autonomous sentiment extraction & <b>24/7 real-time price monitoring</b> across Amazon & Flipkart with Telegram mobile push alerts.
+        </p>
+
+        <div class="pills">
+          <div class="pill">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            <span>Aspect-Based NLP</span>
+          </div>
+          <div class="pill">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span>24/7 Price Drop Alerts</span>
+          </div>
+          <div class="pill">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Telegram Bot Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Visual Feature Showcase -->
+      <div class="right-col">
+        <!-- Live Price Alert Card -->
+        <div class="glass-card">
+          <div class="price-alert-item">
+            <div class="product-info">
+              <div class="icon-box">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <div class="prod-details">
+                <h4>Apple iPhone 15</h4>
+                <span>Flipkart · itm6ac6485515ae4</span>
+              </div>
+            </div>
+            <div class="price-box">
+              <div class="price-val">₹54,999</div>
+              <div class="price-diff">🟢 -21.4% ALL-TIME LOW</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NLP Sentiment Card -->
+        <div class="glass-card">
+          <div class="sentiment-row">
+            <span class="sentiment-label">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#BF89FF"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              Verified Sentiment Polarity
+            </span>
+            <span class="sentiment-score">94.8% POSITIVE</span>
+          </div>
+          <div class="sentiment-bar">
+            <div class="bar-pos"></div>
+            <div class="bar-neu"></div>
+            <div class="bar-neg"></div>
+          </div>
+          <div class="live-meta">
+            <span>9,240 Verified Reviews Analyzed</span>
+            <span class="meta-tag">reviewpulse-peach.vercel.app</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
