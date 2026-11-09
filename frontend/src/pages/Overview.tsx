@@ -3,7 +3,9 @@ import { Star, Sparkles, TrendingUp, TrendingDown, ArrowRight, Quote, Image as I
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ReviewCard } from '@/components/shared/ReviewCard';
-import { useProductContext, useInsights, useReviews } from '@/hooks/useProduct';
+import { ProducerGradeSimulator } from '@/components/shared/ProducerGradeSimulator';
+import { SmartBuyAdvisorCard } from '@/components/shared/SmartBuyAdvisorCard';
+import { useProductContext, useInsights, useReviews, useN8nIntelligence } from '@/hooks/useProduct';
 import { productRoute } from '@/lib/routes';
 import { resolveStudioImage } from '@/lib/flipkart';
 
@@ -13,9 +15,12 @@ export default function Overview() {
   const activeId = productId ?? product?.id ?? '';
   const { data: insightsData } = useInsights();
   const { data: reviewsData } = useReviews();
+  const { data: n8nData } = useN8nIntelligence();
 
   const ins = insightsData?.data;
   const reviews = reviewsData?.data ?? [];
+  const producerIntel = n8nData?.intelligence?.producer_insights;
+  const consumerIntel = n8nData?.intelligence?.consumer_advisor;
 
   const rating = product?.rating ?? ins?.product?.rating ?? 4.4;
   const totalRatings = product?.ratingCount ?? (reviews.length > 0 ? reviews.length * 14 : 110);
@@ -218,6 +223,32 @@ export default function Overview() {
           </div>
         </Card>
       )}
+
+      {/* Consumer Shopping Advisor & Producer Root-Cause Quality Simulator */}
+      <section className="space-y-6" aria-label="Intelligence & Simulation">
+        <SmartBuyAdvisorCard
+          verdict={consumerIntel?.verdict ?? (rating < 3.8 ? 'AVOID_DEFECT' : rating >= 4.3 ? 'BUY_NOW' : 'WAIT_FOR_DROP')}
+          dealScore={consumerIntel?.deal_score ?? (rating < 3.8 ? 48 : Math.min(Math.round(rating * 20), 96))}
+          verdictReason={consumerIntel?.verdict_reason}
+          honestPros={consumerIntel?.honest_pros}
+          honestCons={consumerIntel?.honest_cons}
+          criticalWarning={
+            consumerIntel?.critical_warning !== undefined
+              ? consumerIntel.critical_warning
+              : rating < 3.8
+                ? 'Critical Warning: Scraped reviews flag recurring hardware defects affecting long-term endurance.'
+                : null
+          }
+          bestSuitedFor={consumerIntel?.best_suited_for}
+          notRecommendedFor={consumerIntel?.not_recommended_for}
+        />
+        <ProducerGradeSimulator
+          productName={product?.title || 'this product'}
+          baseRating={rating}
+          defects={producerIntel?.root_causes}
+          bottleneckSummary={producerIntel?.bottleneck_summary}
+        />
+      </section>
 
       {/* Bottom Section: Customer Quotes */}
       <section className="space-y-4" aria-labelledby="quotes-heading">

@@ -60,6 +60,45 @@ export interface ApiEnvelope<T> {
   requestId?: string;
 }
 
+export interface BackendN8nIntelligenceResponse {
+  status: string;
+  product_id: string;
+  intelligence?: {
+    producer_insights?: {
+      root_causes?: Array<{
+        id: string;
+        label: string;
+        category: string;
+        complaint_percentage: number;
+        negative_mentions_count?: number;
+        severity: 'critical' | 'high' | 'moderate';
+        evidence_snippets: string[];
+        potential_rating_gain: number;
+        projected_rating_if_fixed: number;
+        projected_grade_if_fixed: string;
+      }>;
+      bottleneck_summary?: string;
+      what_if_full_resolution?: {
+        current_rating: number;
+        current_grade: string;
+        projected_rating: number;
+        projected_grade: string;
+        total_rating_potential: number;
+      };
+    };
+    consumer_advisor?: {
+      verdict?: 'BUY_NOW' | 'WAIT_FOR_DROP' | 'AVOID_DEFECT';
+      deal_score?: number;
+      verdict_reason?: string;
+      honest_pros?: string[];
+      honest_cons?: string[];
+      critical_warning?: string | null;
+      best_suited_for?: string | null;
+      not_recommended_for?: string | null;
+    };
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Authoritative Backend Contracts (FastAPI Pydantic Schemas)
 // ---------------------------------------------------------------------------

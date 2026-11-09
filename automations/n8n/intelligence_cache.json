@@ -1,0 +1,289 @@
+{
+  "TEST_BOAT_141": {
+    "product_id": "TEST_BOAT_141",
+    "product_url": "https://www.amazon.in/dp/B09XS7JWHH",
+    "platform": "amazon",
+    "reviews_analyzed_count": 25,
+    "analyzed_at": "",
+    "producer_insights": {
+      "primary_bottleneck_type": "product_defect",
+      "bottleneck_summary": "Battery degradation accounts for 65% of negative feedback.",
+      "defects": [
+        {
+          "id": "battery_power",
+          "label": "Battery & Charging Failure",
+          "category": "hardware",
+          "complaint_percentage": 65.0,
+          "negative_mentions_count": 14,
+          "severity": "critical",
+          "evidence_snippets": [
+            "Battery drains in 30 mins"
+          ],
+          "potential_rating_gain": 0.8,
+          "projected_rating_if_fixed": 4.2,
+          "projected_grade_if_fixed": "A"
+        }
+      ],
+      "what_if_full_resolution": {
+        "all_defects_fixed_rating": 4.5,
+        "all_defects_fixed_grade": "A+"
+      }
+    },
+    "consumer_advisor": {
+      "verdict": "AVOID_DEFECT",
+      "deal_score": 52,
+      "verdict_reason": "High battery defect rate reported by multiple verified buyers.",
+      "honest_pros": [
+        "Punchy bass",
+        "Affordable"
+      ],
+      "honest_cons": [
+        "Battery dies quickly"
+      ],
+      "critical_warning": "Warning: 65% of negative reviews cite battery failure.",
+      "best_suited_for": null,
+      "not_recommended_for": null
+    }
+  },
+  "prod-001": {
+    "product_id": "prod-001",
+    "product_url": null,
+    "platform": "amazon",
+    "reviews_analyzed_count": 3,
+    "analyzed_at": "2026-11-08T10:00:15.213827+00:00",
+    "producer_insights": {
+      "primary_bottleneck_type": "product_defect",
+      "bottleneck_summary": "A high incidence of battery and charging failures appears within the first weeks of use.",
+      "defects": [
+        {
+          "id": "battery_power",
+          "label": "Battery & Charging Failure",
+          "category": "hardware",
+          "complaint_percentage": 100,
+          "negative_mentions_count": 2,
+          "severity": "critical",
+          "evidence_snippets": [
+            "Left earbud stopped charging after 3 weeks.",
+            "Battery drains in 20 minutes."
+          ],
+          "potential_rating_gain": 1.2,
+          "projected_rating_if_fixed": 3.5,
+          "projected_grade_if_fixed": "B"
+        }
+      ],
+      "what_if_full_resolution": {
+        "all_defects_fixed_rating": 5,
+        "all_defects_fixed_grade": "A+"
+      }
+    },
+    "consumer_advisor": {
+      "verdict": "AVOID_DEFECT",
+      "deal_score": 30,
+      "verdict_reason": "Over two\u2011thirds of the reviews report severe battery and charging problems, making the product unreliable for everyday use.",
+      "honest_pros": [
+        "Decent sound quality for the price."
+      ],
+      "honest_cons": [
+        "Battery drains in about 20 minutes.",
+        "Left earbud stops charging after a few weeks.",
+        "Very short overall battery life."
+      ],
+      "critical_warning": "Battery drains extremely fast and charging issues appear within weeks.",
+      "best_suited_for": "Budget users who care mainly about sound quality and can tolerate frequent recharging.",
+      "not_recommended_for": "Anyone needing reliable, long\u2011lasting battery performance."
+    }
+  },
+  "boat-airdopes-141": {
+    "product_id": "boat-airdopes-141",
+    "product_url": null,
+    "platform": "amazon",
+    "reviews_analyzed_count": 0,
+    "analyzed_at": "2026-11-09T12:34:21.544418+00:00",
+    "producer_insights": {
+      "primary_bottleneck_type": "product_defect",
+      "bottleneck_summary": "High incidence of battery and charging failures drives low overall rating.",
+      "defects": [
+        {
+          "id": "battery_power",
+          "label": "Battery & Charging Failure",
+          "category": "hardware",
+          "complaint_percentage": 50,
+          "negative_mentions_count": 2,
+          "severity": "critical",
+          "evidence_snippets": [
+            "Left earbud battery drains within 25 minutes while the right one stays at 85%.",
+            "Left earbud stopped charging completely after 3 weeks. Battery backup is terrible."
+          ],
+          "potential_rating_gain": 1,
+          "projected_rating_if_fixed": 3.5,
+          "projected_grade_if_fixed": "B"
+        },
+        {
+          "id": "audio_sound",
+          "label": "Audio & Mic Issues",
+          "category": "hardware",
+          "complaint_percentage": 25,
+          "negative_mentions_count": 1,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "Microphone picks up loud wind distortion during outdoor calls."
+          ],
+          "potential_rating_gain": 0.3,
+          "projected_rating_if_fixed": 2.8,
+          "projected_grade_if_fixed": "D"
+        },
+        {
+          "id": "logistics_delivery",
+          "label": "Delivery & Packaging Problems",
+          "category": "logistics",
+          "complaint_percentage": 25,
+          "negative_mentions_count": 1,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "Amazon delivery was delayed by 4 days and outer packaging box was crushed."
+          ],
+          "potential_rating_gain": 0.3,
+          "projected_rating_if_fixed": 2.8,
+          "projected_grade_if_fixed": "D"
+        }
+      ],
+      "what_if_full_resolution": {
+        "all_defects_fixed_rating": 4.2,
+        "all_defects_fixed_grade": "A"
+      }
+    },
+    "consumer_advisor": {
+      "verdict": "AVOID_DEFECT",
+      "deal_score": 30,
+      "verdict_reason": "Battery life and charging reliability are severely problematic, affecting half of the reviewers, and no price advantage is evident.",
+      "honest_pros": [
+        "Deep bass and loud audio for the price",
+        "Comfortable in\u2011ear fit and good bass response for gym workouts"
+      ],
+      "honest_cons": [
+        "Battery drains within minutes on one earbud",
+        "Charging case contact is loose, leading to charging failures",
+        "Delayed delivery and crushed packaging",
+        "Microphone picks up wind noise during calls"
+      ],
+      "critical_warning": "Battery drains within 25 minutes on the left earbud and the case\u2019s charging contact is loose, causing frequent charging failures.",
+      "best_suited_for": "Budget\u2011conscious users who need occasional listening and can tolerate unreliable battery performance.",
+      "not_recommended_for": "Anyone requiring dependable battery life, frequent phone calls, or timely delivery."
+    }
+  },
+  "AMZN-KAG-005": {
+    "product_id": "AMZN-KAG-005",
+    "product_url": null,
+    "platform": "amazon",
+    "reviews_analyzed_count": 40,
+    "analyzed_at": "2026-11-09T12:44:14.126923+00:00",
+    "producer_insights": {
+      "primary_bottleneck_type": "product_defect",
+      "bottleneck_summary": "Significant build and ergonomics problems dominate the negative feedback, with 35% of low\u2011star reviews citing broken or poorly assembled items.",
+      "defects": [
+        {
+          "id": "build_ergonomics",
+          "label": "Build & Ergonomics Issues",
+          "category": "hardware",
+          "complaint_percentage": 35,
+          "negative_mentions_count": 7,
+          "severity": "critical",
+          "evidence_snippets": [
+            "pages were stuck together... the printer did not get it right when they cut the edges",
+            "base and frame were not completely attached",
+            "retractable cord broke after a short time",
+            "Squiggler fell apart at second use",
+            "carrying case ... oil-like substance ... punches are very dull"
+          ],
+          "potential_rating_gain": 0.9,
+          "projected_rating_if_fixed": 3.9,
+          "projected_grade_if_fixed": "B"
+        },
+        {
+          "id": "customer_service",
+          "label": "Customer Service Issues",
+          "category": "service",
+          "complaint_percentage": 10,
+          "negative_mentions_count": 2,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "I inquired about a patch but did not receive a response",
+            "I called the customer service and asked for refund or replacement and they were kind enough to replace the vacuum"
+          ],
+          "potential_rating_gain": 0.2,
+          "projected_rating_if_fixed": 3.2,
+          "projected_grade_if_fixed": "C"
+        },
+        {
+          "id": "audio_sound",
+          "label": "Audio & Sound Quality Issues",
+          "category": "hardware",
+          "complaint_percentage": 10,
+          "negative_mentions_count": 2,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "THIS CD SUCKX... it really sucked",
+            "sound and picture were off much if not all of the film"
+          ],
+          "potential_rating_gain": 0.2,
+          "projected_rating_if_fixed": 3.2,
+          "projected_grade_if_fixed": "C"
+        },
+        {
+          "id": "logistics_delivery",
+          "label": "Delivery & Logistics Problems",
+          "category": "logistics",
+          "complaint_percentage": 5,
+          "negative_mentions_count": 1,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "I am still yet to receive these items that I purchased 4 months ago"
+          ],
+          "potential_rating_gain": 0.3,
+          "projected_rating_if_fixed": 3.3,
+          "projected_grade_if_fixed": "C"
+        },
+        {
+          "id": "connectivity_bluetooth",
+          "label": "Connectivity Problems",
+          "category": "hardware",
+          "complaint_percentage": 5,
+          "negative_mentions_count": 1,
+          "severity": "moderate",
+          "evidence_snippets": [
+            "range of use was practically useless... had to put the remote right against the receiver"
+          ],
+          "potential_rating_gain": 0.2,
+          "projected_rating_if_fixed": 3.2,
+          "projected_grade_if_fixed": "C"
+        }
+      ],
+      "what_if_full_resolution": {
+        "all_defects_fixed_rating": 4.8,
+        "all_defects_fixed_grade": "A+"
+      }
+    },
+    "consumer_advisor": {
+      "verdict": "AVOID_DEFECT",
+      "deal_score": 45,
+      "verdict_reason": "Over a third of low\u2011star reviews cite serious build\u2011quality failures, indicating the product is prone to breaking or poor assembly; buyers should avoid it unless they are willing to accept frequent defects.",
+      "honest_pros": [
+        "Engaging storytelling praised in several book reviews",
+        "Some customers report fast and reliable Amazon shipping",
+        "High\u2011quality audio noted for certain music CDs",
+        "Positive remarks about value for price on several items",
+        "Easy installation highlighted for the CO alarm product"
+      ],
+      "honest_cons": [
+        "Frequent physical defects such as broken frames, stuck pages, and dull tools",
+        "Delayed or missing deliveries reported",
+        "Unresponsive or limited customer service in some cases",
+        "Connectivity range issues for remote\u2011control devices",
+        "Audio quality problems on certain CDs"
+      ],
+      "critical_warning": "Build and ergonomics defects appear in 35% of negative reviews, suggesting a high risk of receiving a broken or poorly assembled product.",
+      "best_suited_for": "Readers or listeners who care more about content than physical durability and can tolerate occasional printing or audio flaws.",
+      "not_recommended_for": "Customers needing reliable hardware, sturdy construction, or prompt, dependable delivery."
+    }
+  }
+}

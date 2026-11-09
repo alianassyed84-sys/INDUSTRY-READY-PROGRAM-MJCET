@@ -13,6 +13,7 @@ import type {
   BackendReadyResponse,
   BackendSentimentResponse,
   BackendTopicsResponse,
+  BackendN8nIntelligenceResponse,
 } from './types';
 import { adaptInsights, adaptProduct, adaptReview } from './adapters';
 import { demoInsights, demoProducts, demoReviews } from '@/data/demo';
@@ -286,4 +287,11 @@ export const api = {
       body: JSON.stringify({ documents, top_n: topN, focus_index: focusIndex }),
       signal,
     }),
+
+  // n8n Scraper Intelligence & Root-Cause Analysis
+  n8nIntelligence: (productId: string, signal?: AbortSignal) =>
+    request<BackendN8nIntelligenceResponse>(
+      `/api/v1/harvester/products/${encodeURIComponent(productId)}/n8n-intelligence`,
+      { signal },
+    ),
 };

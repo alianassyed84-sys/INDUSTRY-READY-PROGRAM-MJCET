@@ -50,6 +50,9 @@ from app.schemas.harvester import (
     FlipkartScrapeResponse,
     JobStartRequest,
     JobStatusResponse,
+    N8nScraperCallbackRequest,
+    N8nScraperCallbackResponse,
+    N8nTriggerRequest,
     PaginatedProducts,
     PaginatedReviews,
     PriceHistoryResponse,
@@ -1360,4 +1363,228 @@ async def scrape_flipkart(
         insights=insights,
         status_note=result.status_note,
     )
+
+
+# ---------------------------------------------------------------------------
+# n8n Automation & Defect Simulator Endpoints
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/n8n/webhook-callback",
+    response_model=N8nScraperCallbackResponse,
+    summary="Receive scraped reviews and root-cause intelligence from n8n pipeline",
+    tags=["harvester"],
+)
+async def n8n_webhook_callback(
+    payload: N8nScraperCallbackRequest,
+    settings: SettingsDep,
+) -> N8nScraperCallbackResponse:
+    """Store intelligence received from n8n scraping & Groq/Ollama LLM pipeline."""
+    from app.services.harvester.n8n_service import record_n8n_intelligence
+
+    record_n8n_intelligence(payload)
+    return N8nScraperCallbackResponse(
+        status="ok",
+        product_id=payload.product_id,
+        message="Scraper intelligence recorded successfully",
+        producer_insights=payload.ai_intelligence.producer_insights,
+        consumer_advisor=payload.ai_intelligence.consumer_advisor,
+    )
+
+
+@router.get(
+    "/products/{product_id}/n8n-intelligence",
+    summary="Retrieve root-cause defect analysis and BuyHatke consumer advice",
+    tags=["harvester"],
+)
+async def get_product_n8n_intelligence(
+    product_id: str,
+    settings: SettingsDep,
+    db: DbDep,
+) -> dict[str, Any]:
+    """Retrieve n8n root cause analysis, What-If simulation, and BuyHatke recommendations."""
+    _require_db(settings)
+    assert db is not None
+    from app.services.harvester.n8n_service import get_or_compute_intelligence
+
+    return await get_or_compute_intelligence(product_id, db)
+
+
+@router.post(
+    "/n8n/trigger",
+    summary="Dispatch review analysis to live n8n workflow",
+    tags=["harvester"],
+)
+async def trigger_n8n_workflow_endpoint(
+    req: N8nTriggerRequest,
+    settings: SettingsDep,
+    db: DbDep,
+) -> dict[str, Any]:
+    """Trigger the live n8n workflow at anasalisyed.app.n8n.cloud."""
+    _require_db(settings)
+    assert db is not None
+    from app.services.harvester.n8n_service import trigger_n8n_intelligence
+    from app.models.review import Review
+    from app.models.product import Product
+    from sqlalchemy import select
+
+    reviews_list = req.reviews
+    title = req.product_title
+    target_id = (req.product_id or "").strip()
+    raw_target = (req.product_url or req.product_id or "").strip()
+
+    # Extract ASIN / PID if full URL was provided
+    if "flipkart.com" in raw_target.lower():
+        m_pid = re.search(r"pid=([a-zA-Z0-9_]+)", raw_target, flags=re.I)
+        if not m_pid:
+            m_pid = re.search(r"/p/([a-zA-Z0-9_]{6,32})", raw_target)
+        if m_pid:
+            target_id = m_pid.group(1).upper()
+    elif "amazon" in raw_target.lower():
+        m_asin = re.search(r"/(?:dp|gp/product|d)/([A-Z0-9]{10})", raw_target, flags=re.I)
+        if m_asin:
+            target_id = m_asin.group(1).upper()
+
+    if not target_id:
+        target_id = raw_target or "PROD-GENERIC"
+
+    # If reviews or title not passed in request body, retrieve 100% real reviews from database
+    if not reviews_list or not title:
+        stmt_prod = select(Product).where(
+            (Product.product_id == target_id) | (Product.product_link.like(f"%{target_id}%"))
+        )
+        prod = (await db.execute(stmt_prod)).scalars().first()
+        if prod:
+            target_id = prod.product_id
+            if not title:
+                title = prod.product_name
+
+        # Check existing reviews in database
+        stmt_rev = select(Review).where(Review.product_id == target_id).limit(40)
+        rev_rows = (await db.execute(stmt_rev)).scalars().all()
+
+        # If not in DB or 0 reviews, attempt on-demand live harvest if a URL is available
+        if (not prod or not rev_rows) and ("http://" in raw_target or "https://" in raw_target):
+            try:
+                if "flipkart.com" in raw_target.lower():
+                    from app.services.harvester.flipkart_live_scraper import scrape_flipkart_live
+                    fk_live = await scrape_flipkart_live(raw_target, target_id)
+                    if fk_live:
+                        if not prod:
+                            await upsert_product(
+                                db,
+                                NormalizedProduct(
+                                    product_id=target_id,
+                                    product_name=fk_live.title,
+                                    category=fk_live.category or "E-commerce (Flipkart)",
+                                    discounted_price=Decimal(str(fk_live.current_price)) if fk_live.current_price is not None else None,
+                                    actual_price=Decimal(str(fk_live.original_price)) if fk_live.original_price is not None else None,
+                                    discount_percentage=fk_live.discount_percentage,
+                                    rating=fk_live.rating,
+                                    rating_count=fk_live.rating_count,
+                                    about_product=fk_live.about_product,
+                                    img_link=fk_live.img_url,
+                                    product_link=fk_live.product_url or raw_target,
+                                )
+                            )
+                        if fk_live.reviews:
+                            for r_item in fk_live.reviews:
+                                if r_item.user_id:
+                                    await upsert_user(
+                                        db,
+                                        NormalizedUser(
+                                            user_id=r_item.user_id,
+                                            user_name=r_item.user_name or "Flipkart Customer",
+                                        ),
+                                    )
+                                await upsert_review(
+                                    db,
+                                    NormalizedReview(
+                                        review_id=f"fk_rev_{target_id}_{r_item.review_id}",
+                                        product_id=target_id,
+                                        user_id=r_item.user_id,
+                                        rating=r_item.rating,
+                                        review_title=r_item.review_title,
+                                        review_content=r_item.review_content,
+                                    ),
+                                )
+                        await db.commit()
+                        title = fk_live.title
+                elif "amazon" in raw_target.lower():
+                    from app.services.harvester.amazon_live_scraper import scrape_amazon_in_live
+                    amz_live = await scrape_amazon_in_live(raw_target, target_id)
+                    if amz_live:
+                        if not prod:
+                            await upsert_product(
+                                db,
+                                NormalizedProduct(
+                                    product_id=target_id,
+                                    product_name=amz_live.title,
+                                    category=amz_live.category or "E-commerce (Amazon)",
+                                    discounted_price=Decimal(str(amz_live.current_price)) if amz_live.current_price is not None else None,
+                                    actual_price=Decimal(str(amz_live.original_price)) if amz_live.original_price is not None else None,
+                                    discount_percentage=amz_live.discount_percentage,
+                                    rating=amz_live.rating,
+                                    rating_count=amz_live.rating_count,
+                                    about_product=amz_live.about_product,
+                                    img_link=amz_live.img_url,
+                                    product_link=amz_live.product_url or raw_target,
+                                )
+                            )
+                        if amz_live.reviews:
+                            for r_item in amz_live.reviews:
+                                if r_item.user_id:
+                                    await upsert_user(
+                                        db,
+                                        NormalizedUser(
+                                            user_id=r_item.user_id,
+                                            user_name=r_item.user_name or "Amazon Customer",
+                                        ),
+                                    )
+                                await upsert_review(
+                                    db,
+                                    NormalizedReview(
+                                        review_id=f"amz_rev_{target_id}_{r_item.review_id}",
+                                        product_id=target_id,
+                                        user_id=r_item.user_id,
+                                        rating=r_item.rating,
+                                        review_title=r_item.review_title,
+                                        review_content=r_item.review_content,
+                                    ),
+                                )
+                        await db.commit()
+                        title = amz_live.title
+            except Exception as live_err:
+                logger.info("On-demand live harvest note for %s: %s", raw_target, live_err)
+
+            # Re-query reviews after live harvest
+            stmt_rev = select(Review).where(Review.product_id == target_id).limit(40)
+            rev_rows = (await db.execute(stmt_rev)).scalars().all()
+
+        if not reviews_list and rev_rows:
+            reviews_list = [
+                {
+                    "rating": float(r.rating or 3.0),
+                    "text": (
+                        f"{r.review_title + ': ' if r.review_title else ''}"
+                        f"{r.review_content or ''}"
+                    ).strip()
+                }
+                for r in rev_rows
+                if (r.review_content or r.review_title)
+            ]
+
+    if not reviews_list:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No real reviews found for '{target_id}'. Please scrape reviews first or provide real review items.",
+        )
+
+    return await trigger_n8n_intelligence(
+        product_id=target_id,
+        product_title=title or "Product",
+        reviews=reviews_list or [],
+    )
+
 

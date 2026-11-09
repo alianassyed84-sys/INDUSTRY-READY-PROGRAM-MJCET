@@ -89,5 +89,16 @@ export function useReviews() {
   });
 }
 
+export function useN8nIntelligence() {
+  const { productId } = useProductContext();
+  return useQuery({
+    queryKey: ['n8n-intelligence', productId],
+    queryFn: ({ signal }) => api.n8nIntelligence(productId!, signal),
+    enabled: !!productId,
+    staleTime: 60_000,
+    retry: false,
+  });
+}
+
 export type InsightsResult = ApiEnvelope<Insights>;
 export type ReviewsResult = ApiEnvelope<Review[]>;

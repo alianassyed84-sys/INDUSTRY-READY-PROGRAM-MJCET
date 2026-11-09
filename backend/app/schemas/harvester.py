@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
 
@@ -469,5 +469,104 @@ class ProductComparisonResponse(BaseModel):
     amazon: PlatformComparisonData
     flipkart: PlatformComparisonData
     verdict: ComparisonVerdict
+
+
+# ---------------------------------------------------------------------------
+# n8n AI Scraper, Producer Defect Simulator & Smart Buy Advisor
+# ---------------------------------------------------------------------------
+
+
+class RootCauseDefect(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str
+    label: str
+    category: str = "hardware"
+    complaint_percentage: float = 0.0
+    negative_mentions_count: int = 0
+    severity: str = "moderate"
+    evidence_snippets: list[str] = Field(default_factory=list)
+    potential_rating_gain: float = 0.0
+    projected_rating_if_fixed: float = 0.0
+    projected_grade_if_fixed: str = "B"
+
+
+class WhatIfFullResolution(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    all_defects_fixed_rating: float = 4.5
+    all_defects_fixed_grade: str = "A+"
+
+
+class ProducerInsights(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    primary_bottleneck_type: str = "product_defect"
+    bottleneck_summary: str = ""
+    defects: list[RootCauseDefect] = Field(default_factory=list)
+    what_if_full_resolution: WhatIfFullResolution = Field(default_factory=WhatIfFullResolution)
+
+
+class ConsumerAdvisor(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    verdict: Literal["BUY_NOW", "WAIT_FOR_DROP", "AVOID_DEFECT"] = "BUY_NOW"
+    deal_score: int = Field(70, ge=0, le=100)
+    verdict_reason: str = ""
+    honest_pros: list[str] = Field(default_factory=list)
+    honest_cons: list[str] = Field(default_factory=list)
+    critical_warning: str | None = None
+    best_suited_for: str | None = None
+    not_recommended_for: str | None = None
+
+
+class AiIntelligencePayload(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    product_summary: dict[str, Any] = Field(default_factory=dict)
+    producer_insights: ProducerInsights = Field(default_factory=ProducerInsights)
+    consumer_advisor: ConsumerAdvisor = Field(default_factory=ConsumerAdvisor)
+
+
+class N8nScraperCallbackRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    product_id: str
+    product_url: str | None = None
+    platform: str = "amazon"
+    reviews_analyzed_count: int = 0
+    analyzed_at: datetime | None = None
+    ai_intelligence: AiIntelligencePayload
+
+
+class N8nScraperCallbackResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    status: str = "ok"
+    product_id: str
+    message: str = "Scraper intelligence recorded successfully"
+    producer_insights: ProducerInsights
+    consumer_advisor: ConsumerAdvisor
+
+
+class N8nTriggerRequest(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    product_id: str | None = None
+    product_url: str | None = None
+    product_title: str | None = None
+    reviews: list[dict[str, Any]] | None = None
+
+
+RootCauseDefect.model_rebuild()
+WhatIfFullResolution.model_rebuild()
+ProducerInsights.model_rebuild()
+ConsumerAdvisor.model_rebuild()
+AiIntelligencePayload.model_rebuild()
+N8nScraperCallbackRequest.model_rebuild()
+N8nScraperCallbackResponse.model_rebuild()
+N8nTriggerRequest.model_rebuild()
+
+
 
 

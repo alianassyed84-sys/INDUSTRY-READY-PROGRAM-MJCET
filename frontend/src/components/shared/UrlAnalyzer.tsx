@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ClipboardPaste, Link2 } from 'lucide-react';
+import { ArrowRight, ClipboardPaste, Link2, ShoppingBag, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Badge } from '@/components/ui/Badge';
 import { normalizeFlipkartUrl, parseProductUrl, type UniversalUrlCheck } from '@/lib/flipkart';
 import { ROUTES } from '@/lib/routes';
 import { notifyUrlSubmitted } from '@/lib/telegram';
+import { cn } from '@/lib/utils';
 
 interface Props {
   initial?: string;
@@ -78,14 +78,31 @@ export function UrlAnalyzer({ initial = '', value, onChange, onSubmit, cta = 'An
         </Button>
       </div>
       {check.valid && (
-        <p className="mt-2.5 flex flex-wrap items-center gap-2 text-[13px] text-rp-muted" aria-live="polite">
-          <Badge tone="success">Product link recognized</Badge>
-          <span>
-            Product <b className="tnum text-rp-navy">{check.id}</b> · {check.marketplace}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-rp-muted" aria-live="polite">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs border shadow-xs',
+              check.marketplace === 'Flipkart'
+                ? 'bg-blue-500/15 text-blue-500 border-blue-500/30'
+                : 'bg-amber-500/15 text-amber-500 border-amber-500/30'
+            )}
+          >
+            <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{check.marketplace === 'Flipkart' ? 'Flipkart Verified' : 'Amazon.in Verified'}</span>
           </span>
-          {check.title && <span className="font-medium text-rp-primary">({check.title})</span>}
-          <span>(format verified)</span>
-        </p>
+          <span className="font-mono text-xs font-semibold text-rp-navy">
+            {check.marketplace === 'Flipkart' ? 'PID' : 'ASIN'}: <b className="text-rp-primary">{check.id}</b>
+          </span>
+          {check.title && (
+            <span className="max-w-[280px] truncate font-medium text-rp-muted">
+              ({check.title})
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 text-emerald-600 font-medium">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Format verified
+          </span>
+        </div>
       )}
     </form>
   );

@@ -9,6 +9,9 @@ import {
   Cpu,
   ShieldCheck,
   Compass,
+  Headphones,
+  Smartphone,
+  Volume2,
 } from 'lucide-react';
 import { useMotion } from '@/hooks/useMotion';
 import PulseHero from '@/components/motion/PulseHero';
@@ -31,9 +34,9 @@ import { MagneticButton } from '@/components/reactbits/MagneticButton';
 import { ShinyText } from '@/components/reactbits/ShinyText';
 
 const DEMO_SAMPLES = [
-  { label: 'Wireless Earbuds', url: 'https://www.amazon.in/dp/B0DEMO0001', icon: '🎧' },
-  { label: 'Smart Water Bottle', url: 'https://www.amazon.in/dp/B0DEMO0002', icon: '💧' },
-  { label: 'Mechanical Keyboard', url: 'https://www.amazon.in/dp/B0DEMO0003', icon: '⌨️' },
+  { label: 'Amazon: Apple AirPods Pro 2', url: 'https://www.amazon.in/dp/B0BDHW484K', icon: Headphones },
+  { label: 'Flipkart: Motorola Edge 50', url: 'https://www.flipkart.com/motorola-edge-50-fusion-5g/p/itm098276f?pid=MOBGTAGPNRQA7CS3', icon: Smartphone },
+  { label: 'Amazon: Sony WH-1000XM5', url: 'https://www.amazon.in/dp/B09XS7JWHH', icon: Volume2 },
 ];
 
 const MOOD_SNIPPETS = {
@@ -183,22 +186,25 @@ export default function Landing() {
           {/* Interactive Quick Sample Chips with Magnetic Button attraction */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-rp-navy">Quick test:</span>
-            {DEMO_SAMPLES.map((sample) => (
-              <MagneticButton key={sample.label} strength={0.22}>
-                <button
-                  type="button"
-                  onClick={() => setSampleUrl(sample.url)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border ${
-                    sampleUrl === sample.url
-                      ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
-                      : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
-                  }`}
-                >
-                  <span aria-hidden>{sample.icon}</span>
-                  <span>{sample.label}</span>
-                </button>
-              </MagneticButton>
-            ))}
+            {DEMO_SAMPLES.map((sample) => {
+              const Icon = sample.icon;
+              return (
+                <MagneticButton key={sample.label} strength={0.22}>
+                  <button
+                    type="button"
+                    onClick={() => setSampleUrl(sample.url)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                      sampleUrl === sample.url
+                        ? 'bg-rp-primary text-white border-rp-primary shadow-soft scale-105'
+                        : 'bg-rp-surface-soft text-rp-text border-rp-border hover:bg-rp-primary-light hover:border-rp-primary/40'
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>{sample.label}</span>
+                  </button>
+                </MagneticButton>
+              );
+            })}
           </div>
 
           <div className="mt-5">
