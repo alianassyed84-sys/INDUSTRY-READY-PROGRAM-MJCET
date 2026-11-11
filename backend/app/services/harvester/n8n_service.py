@@ -25,6 +25,34 @@ CACHE_DIR = Path(__file__).resolve().parents[4] / "automations" / "n8n"
 CACHE_FILE = CACHE_DIR / "intelligence_cache.json"
 N8N_LIVE_WEBHOOK_URL = "https://anasalisyed.app.n8n.cloud/webhook/reviewpulse"
 
+# Common defect classification table shared between DB analyzer and fallback simulator
+_DEFECT_KEYWORD_RULES: dict[str, tuple[str, list[str], str, float]] = {
+    "battery_power": (
+        "Battery & Charging Degradation",
+        ["battery", "drain", "charge", "charging", "backup", "dead"],
+        "hardware",
+        0.6,
+    ),
+    "logistics_delivery": (
+        "Courier & 2-Day Delivery Delays",
+        ["deliver", "delivery", "late", "delay", "shipping", "courier", "package"],
+        "logistics",
+        0.4,
+    ),
+    "build_ergonomics": (
+        "Build Quality & Fitting Discomfort",
+        ["fit", "loose", "plastic", "broke", "crack", "pain", "ear", "comfort"],
+        "hardware",
+        0.3,
+    ),
+    "audio_sound": (
+        "Microphone & High-Volume Distortion",
+        ["mic", "noise", "distort", "sound", "volume", "bass", "echo"],
+        "audio",
+        0.5,
+    ),
+}
+
 
 def _read_cache() -> dict[str, Any]:
     if not CACHE_FILE.exists():
@@ -89,35 +117,8 @@ async def get_or_compute_intelligence(
     neg_reviews = [r for r in reviews if (r.rating or 3) <= 3]
     total_neg = max(len(neg_reviews), 1)
 
-    defect_keywords = {
-        "battery_power": (
-            "Battery & Charging Degradation",
-            ["battery", "drain", "charge", "charging", "backup", "dead"],
-            "hardware",
-            0.6,
-        ),
-        "logistics_delivery": (
-            "Courier & 2-Day Delivery Delays",
-            ["deliver", "delivery", "late", "delay", "shipping", "courier", "package"],
-            "logistics",
-            0.4,
-        ),
-        "build_ergonomics": (
-            "Build Quality & Fitting Discomfort",
-            ["fit", "loose", "plastic", "broke", "crack", "pain", "ear", "comfort"],
-            "hardware",
-            0.3,
-        ),
-        "audio_sound": (
-            "Microphone & High-Volume Distortion",
-            ["mic", "noise", "distort", "sound", "volume", "bass", "echo"],
-            "audio",
-            0.5,
-        ),
-    }
-
     defects: list[RootCauseDefect] = []
-    for d_id, (label, kws, cat, potential_gain) in defect_keywords.items():
+    for d_id, (label, kws, cat, potential_gain) in _DEFECT_KEYWORD_RULES.items():
         matched_neg = [
             r for r in neg_reviews
             if any(kw in (f"{r.review_title or ''} {r.review_content or ''}".lower()) for kw in kws)
@@ -236,35 +237,8 @@ def _compute_intelligence_from_reviews(
     neg_items = [r for r in reviews if float(r.get("rating", 3.0)) <= 3.0]
     total_neg = max(len(neg_items), 1)
 
-    defect_keywords = {
-        "battery_power": (
-            "Battery & Charging Degradation",
-            ["battery", "drain", "charge", "charging", "backup", "dead"],
-            "hardware",
-            0.6,
-        ),
-        "logistics_delivery": (
-            "Courier & 2-Day Delivery Delays",
-            ["deliver", "delivery", "late", "delay", "shipping", "courier", "package"],
-            "logistics",
-            0.4,
-        ),
-        "build_ergonomics": (
-            "Build Quality & Fitting Discomfort",
-            ["fit", "loose", "plastic", "broke", "crack", "pain", "ear", "comfort"],
-            "hardware",
-            0.3,
-        ),
-        "audio_sound": (
-            "Microphone & High-Volume Distortion",
-            ["mic", "noise", "distort", "sound", "volume", "bass", "echo"],
-            "audio",
-            0.5,
-        ),
-    }
-
     defects: list[dict[str, Any]] = []
-    for d_id, (label, kws, cat, potential_gain) in defect_keywords.items():
+    for d_id, (label, kws, cat, potential_gain) in _DEFECT_KEYWORD_RULES.items():
         matched_neg = [
             r for r in neg_items
             if any(kw in str(r.get("text", "")).lower() for kw in kws)
