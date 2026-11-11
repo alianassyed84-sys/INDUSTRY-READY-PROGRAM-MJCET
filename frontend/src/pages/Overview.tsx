@@ -19,8 +19,9 @@ export default function Overview() {
 
   const ins = insightsData?.data;
   const reviews = reviewsData?.data ?? [];
-  const producerIntel = n8nData?.intelligence?.producer_insights;
-  const consumerIntel = n8nData?.intelligence?.consumer_advisor;
+  const rawN8n = n8nData as any;
+  const producerIntel = n8nData?.intelligence?.producer_insights || rawN8n?.producer_insights;
+  const consumerIntel = n8nData?.intelligence?.consumer_advisor || rawN8n?.consumer_advisor;
 
   const rating = product?.rating ?? ins?.product?.rating ?? 4.4;
   const totalRatings = product?.ratingCount ?? (reviews.length > 0 ? reviews.length * 14 : 110);
@@ -245,7 +246,7 @@ export default function Overview() {
         <ProducerGradeSimulator
           productName={product?.title || 'this product'}
           baseRating={rating}
-          defects={producerIntel?.root_causes}
+          defects={(producerIntel as any)?.defects || producerIntel?.root_causes}
           bottleneckSummary={producerIntel?.bottleneck_summary}
         />
       </section>

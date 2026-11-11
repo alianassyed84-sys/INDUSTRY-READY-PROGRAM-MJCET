@@ -1408,7 +1408,26 @@ async def get_product_n8n_intelligence(
     assert db is not None
     from app.services.harvester.n8n_service import get_or_compute_intelligence
 
-    return await get_or_compute_intelligence(product_id, db)
+    data = await get_or_compute_intelligence(product_id, db)
+    # Ensure backward compatibility with both `defects` and `root_causes`
+    p_insights = dict(data.get("producer_insights") or {})
+    if "defects" in p_insights and "root_causes" not in p_insights:
+        p_insights["root_causes"] = p_insights["defects"]
+    elif "root_causes" in p_insights and "defects" not in p_insights:
+        p_insights["defects"] = p_insights["root_causes"]
+
+    c_advisor = dict(data.get("consumer_advisor") or {})
+
+    return {
+        "status": "ok",
+        "product_id": product_id,
+        "producer_insights": p_insights,
+        "consumer_advisor": c_advisor,
+        "intelligence": {
+            "producer_insights": p_insights,
+            "consumer_advisor": c_advisor,
+        },
+    }
 
 
 @router.post(
@@ -1563,15 +1582,21 @@ async def trigger_n8n_workflow_endpoint(
             rev_rows = (await db.execute(stmt_rev)).scalars().all()
 
         if not reviews_list and rev_rows:
+            # Prioritize representative fast sample: negative defects + neutrals + positive highlights (max 15)
+            negatives = [r for r in rev_rows if float(r.rating or 3.0) <= 2.0][:7]
+            neutrals = [r for r in rev_rows if 2.0 < float(r.rating or 3.0) < 4.0][:3]
+            positives = [r for r in rev_rows if float(r.rating or 3.0) >= 4.0][:5]
+            selected = (negatives + neutrals + positives) if (negatives or positives) else list(rev_rows[:15])
+
             reviews_list = [
                 {
                     "rating": float(r.rating or 3.0),
                     "text": (
                         f"{r.review_title + ': ' if r.review_title else ''}"
                         f"{r.review_content or ''}"
-                    ).strip()
+                    ).strip()[:280]
                 }
-                for r in rev_rows
+                for r in selected
                 if (r.review_content or r.review_title)
             ]
 
